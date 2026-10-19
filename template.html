@@ -128,8 +128,9 @@ const PPA_EMAIL = 'ppa@justice.gov.il';
 const SUBJECT = 'דרישה למחיקת מידע אישי ממאגרי המידע של המפלגה';
 const DAY_MS = 24 * 60 * 60 * 1000;
 
-// Two per-party records, kept only in this browser: 'opened' = mail client opened but not
-// yet confirmed; 'sent' = the user confirmed sending. Personal details are never stored.
+// Kept only in this browser: 'opened' = mail client opened but not yet confirmed;
+// 'sent' = the user confirmed sending; 'details' = name, phone and address, so a reload
+// does not wipe the form. The ID number is deliberately never stored.
 function load(key) {
   try { return JSON.parse(localStorage.getItem(key)) || {}; } catch (e) { return {}; }
 }
@@ -138,8 +139,12 @@ function save(key, value) {
 }
 const sent = load('party-deletion-sent');
 const opened = load('party-deletion-opened');
+const SAVED_FIELDS = ['f-name', 'f-phone', 'f-address'];
+const details = load('party-deletion-details');
+SAVED_FIELDS.forEach(id => { document.getElementById(id).value = details[id] || ''; });
 const field = id => document.getElementById(id).value.trim();
 const today = () => new Date().toISOString().slice(0, 10);
+const formatDate = iso => new Date(iso).toLocaleDateString('he-IL', { day: 'numeric', month: 'numeric', year: 'numeric' });
 
 // One unit = one row and one email: an electoral list and the registered parties behind it.
 function buildUnits() {
@@ -240,7 +245,7 @@ function unitRow(unit, isNext) {
   const actions = el('div', { className: 'actions' });
 
   if (isSent(unit)) {
-    head.append(el('span', { className: 'status-sent', textContent: `נשלח ${sentDate(unit)}` }));
+    head.append(el('span', { className: 'status-sent', textContent: `נשלח ב-${formatDate(sentDate(unit))}` }));
   } else if (!unit.emails.length) {
     head.append(el('span', { className: 'status-nomail', textContent: 'אין דוא"ל' }));
     const copy = el('button', { type: 'button', className: 'linkish', textContent: 'העתקת המכתב לדואר רשום' });
@@ -272,7 +277,9 @@ function unitRow(unit, isNext) {
   }
 
   const recipients = el('ul', { className: 'recipients' }, unit.parties.map(p => el('li', {
-    textContent: p.emails.length ? `${p.name}: ${p.emails.join(', ')}` : `${p.name}: דואר רשום בלבד, ${p.address || 'אין כתובת במרשם'}`,
+    textContent: p.emails.length
+      ? `${p.name}: ${p.emails.join(', ')}` + (p.contact_note ? ` (${p.contact_note})` : '')
+      : `${p.name}: דואר רשום בלבד, ${p.address || 'אין כתובת במרשם'}`,
   })));
   actions.append(el('details', {}, [el('summary', { className: 'linkish', textContent: 'למי זה נשלח' }), recipients]));
 
@@ -291,7 +298,7 @@ function complaintMailto(units) {
     '',
     `שמי ${field('f-name') || '[שם מלא]'}${field('f-id') ? `, ת"ז ${field('f-id')}` : ''}.`,
     'פניתי בכתב למפלגות הבאות בדרישה למחוק את המידע האישי שלי ממאגרי המידע שלהן, לפי סעיף 17ו לחוק הגנת הפרטיות, התשמ"א-1981, ולא קיבלתי אישור על המחיקה בתוך 30 יום:',
-    ...units.map(u => `- ${u.parties.map(p => `${p.name} (${p.number})`).join(', ')}: פנייה מ-${sentDate(u)}`),
+    ...units.map(u => `- ${u.parties.map(p => `${p.name} (${p.number})`).join(', ')}: פנייה מ-${formatDate(sentDate(u))}`),
     '',
     'הפניות המקוריות מצורפות.',
     'אבקש שהרשות תבדוק את הטיפול בבקשתי ותורה על מחיקת המידע.',
@@ -344,7 +351,13 @@ document.getElementById('calendar').addEventListener('click', () => {
 document.getElementById('share').href =
   `https://wa.me/?text=${enc(`מחקתי את הפרטים שלי ממאגרי המפלגות. לוקח שתי דקות: ${SITE_URL}`)}`;
 ['f-name', 'f-id', 'f-phone', 'f-address'].forEach(id =>
-  document.getElementById(id).addEventListener('input', render));
+  document.getElementById(id).addEventListener('input', () => {
+    if (SAVED_FIELDS.includes(id)) {
+      details[id] = field(id);
+      save('party-deletion-details', details);
+    }
+    render();
+  }));
 render();
 </script>
 </body>

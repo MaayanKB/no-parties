@@ -49,7 +49,7 @@ def build_parties(parties, polling, contacts):
             "number": p["number"],
             "address": p["address"],
             "emails": emails,
-            "contact_note": "כולל כתובת מאתר המפלגה" if privacy_email else None,
+            "contact_note": contact.get("note", "כולל כתובת מאתר המפלגה") if privacy_email else None,
             "likely": p["number"] in likely,
             "list": likely.get(p["number"], {}).get("list"),
         })
