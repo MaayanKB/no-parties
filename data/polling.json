@@ -1,5 +1,11 @@
 {
   "_comment": "Registered parties that are part of a list polling at least 4 seats in at least one 2026 poll. Everything else in parties.json is section 2. Checked 2026-10-19.",
+  "_order_source": "Srugim poll average (13.10.2026) and Maariv poll (14-15.10.2026), largest list first.",
+  "list_order": [
+    "הליכוד", "ישר! (איזנקוט)", "ביחד (בנט + יש עתיד)", "הדמוקרטים", "ישראל ביתנו",
+    "עוצמה יהודית", "הרשימה המשותפת", "יהדות התורה", "ש\"ס", "הציונות הדתית-זהות",
+    "רע\"ם", "עמך ישראל (וינטר)", "המילואימניקים-הכלכלית"
+  ],
   "likely": [
     {"number": "59-900002-3", "list": "הליכוד"},
     {"number": "59-900200-3", "list": "ביחד (בנט + יש עתיד)"},

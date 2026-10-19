@@ -58,9 +58,13 @@ def build_parties(parties, polling, contacts):
 
 def main():
     parties = load("parties.json")
-    polling = load("polling.json")["likely"]
+    polling_file = load("polling.json")
+    polling = polling_file["likely"]
+    list_order = polling_file["list_order"]
+    if sorted(list_order) != sorted({x["list"] for x in polling}):
+        sys.exit("list_order in polling.json must name every list exactly once")
     contacts = load("contacts.json", default=[])
-    data = {"parties": build_parties(parties, polling, contacts)}
+    data = {"parties": build_parties(parties, polling, contacts), "list_order": list_order}
     # Escape "</" so party text can never close the embedding <script> tag.
     payload = json.dumps(data, ensure_ascii=False).replace("</", "<\\/")
     html = (ROOT / "template.html").read_text(encoding="utf-8")

@@ -4,136 +4,158 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>מחיקה ממאגרי המפלגות</title>
+<meta name="description" content="דרישה מהמפלגות למחוק את הפרטים שלכם ממאגרי המידע. מייל מוכן לכל רשימה, בלי שרת.">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="he_IL">
+<meta property="og:url" content="https://nadavbh12.github.io/party-spam/">
+<meta property="og:title" content="מחיקה ממאגרי המפלגות">
+<meta property="og:description" content="דרישה מהמפלגות למחוק את הפרטים שלכם ממאגרי המידע. מייל מוכן לכל רשימה, בלי שרת.">
 <style>
   :root {
     --bg: #f7f6f2; --card: #ffffff; --ink: #1d1d1b; --muted: #6b6a64;
-    --line: #e2e0d8; --accent: #1f5f8b; --ok: #2e7d4f; --warn: #a15c00;
+    --line: #e2e0d8; --accent: #1f5f8b; --ok: #2e7d4f; --warn: #a15c00; --highlight: #fff6dc;
   }
   @media (prefers-color-scheme: dark) {
     :root { --bg: #161615; --card: #1f1f1d; --ink: #ecebe6; --muted: #a09f98;
-            --line: #33322e; --accent: #6fb0de; --ok: #6cc08f; --warn: #e0a24a; }
+            --line: #33322e; --accent: #6fb0de; --ok: #6cc08f; --warn: #e0a24a; --highlight: #2c2817; }
   }
   * { box-sizing: border-box; }
   body { margin: 0; background: var(--bg); color: var(--ink);
-         font: 16px/1.55 system-ui, -apple-system, "Segoe UI", Arial, sans-serif; }
-  main { max-width: 820px; margin: 0 auto; padding: 24px 16px 120px; }
+         font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Arial, sans-serif; }
+  main { max-width: 720px; margin: 0 auto; padding: 24px 16px 64px; }
   h1 { font-size: 1.6rem; margin: 0 0 8px; }
-  h2 { font-size: 1.15rem; margin: 0 0 12px; }
-  p { margin: 0 0 10px; }
-  .muted { color: var(--muted); font-size: .92rem; }
-  section { background: var(--card); border: 1px solid var(--line); border-radius: 10px;
-            padding: 18px; margin-top: 18px; }
-  label { display: block; font-weight: 600; margin-top: 10px; }
-  input[type=text] { width: 100%; padding: 9px 10px; font: inherit; color: inherit;
-                     background: var(--bg); border: 1px solid var(--line); border-radius: 7px; }
-  pre.letter { white-space: pre-wrap; font: inherit; background: var(--bg);
-               border: 1px solid var(--line); border-radius: 7px; padding: 12px; margin: 0; }
-  .section-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
-  .section-head button { font-size: .85rem; }
-  ul.parties { list-style: none; margin: 8px 0 0; padding: 0; }
-  ul.parties li { display: grid; grid-template-columns: 1fr auto; gap: 4px 10px;
-                  align-items: start; padding: 10px 0; border-top: 1px solid var(--line); }
-  .pname { font-weight: 600; }
-  .pmeta { grid-column: 1; color: var(--muted); font-size: .85rem; word-break: break-word; }
-  .status { font-size: .85rem; white-space: nowrap; }
-  .status.sent { color: var(--ok); }
-  .status.nomail { color: var(--warn); }
-  button, a.btn { font: inherit; cursor: pointer; border-radius: 7px; padding: 6px 12px;
+  h2 { font-size: 1.15rem; margin: 0 0 8px; }
+  p { margin: 0 0 8px; }
+  .muted { color: var(--muted); font-size: .9rem; }
+  section { background: var(--card); border: 1px solid var(--line); border-radius: 8px;
+            padding: 16px; margin-top: 16px; }
+  label { display: block; font-weight: 600; margin-top: 16px; }
+  .hint { display: block; font-weight: 400; color: var(--muted); font-size: .85rem; margin-top: 4px; }
+  input[type=text] { width: 100%; min-height: 48px; padding: 8px 12px; margin-top: 8px; font: inherit; color: inherit;
+                     background: var(--bg); border: 1px solid var(--line); border-radius: 8px; }
+  button, a.btn { font: inherit; cursor: pointer; border-radius: 8px; min-height: 48px; padding: 8px 16px;
                   border: 1px solid var(--line); background: var(--bg); color: var(--ink);
-                  text-decoration: none; display: inline-block; }
-  details > summary { cursor: pointer; font-weight: 600; font-size: 1.15rem; }
-  .filter { margin-top: 12px; }
-  .error { color: var(--warn); font-size: .9rem; margin: 10px 0 0; }
+                  text-decoration: none; display: inline-flex; align-items: center; justify-content: center; }
+  button.primary, a.btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .linkish { background: none; border: none; padding: 0 4px; min-height: 32px; color: var(--accent);
+             text-decoration: underline; font-size: .9rem; }
+  .error { color: var(--warn); font-size: .9rem; margin: 8px 0 0; }
+  .banner { border-color: var(--warn); }
+  .progress { font-weight: 600; margin: 8px 0; }
+  ul.lists { list-style: none; margin: 8px 0 0; padding: 0; }
+  ul.lists > li { padding: 16px 8px; border-top: 1px solid var(--line); }
+  ul.lists > li.next { background: var(--highlight); border-radius: 8px; }
+  .row { display: flex; justify-content: space-between; align-items: center; gap: 16px; }
+  .lname { font-weight: 600; }
+  .actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 8px; }
+  .status-sent { color: var(--ok); font-weight: 600; }
+  .status-nomail { color: var(--warn); }
+  .recipients { color: var(--muted); font-size: .85rem; margin: 8px 0 0; padding: 0; list-style: none; word-break: break-word; }
+  details > summary { cursor: pointer; }
+  pre.letter { white-space: pre-wrap; font: inherit; background: var(--bg);
+               border: 1px solid var(--line); border-radius: 8px; padding: 16px; margin: 8px 0 0; }
+  .done-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
 </style>
 </head>
 <body>
 <main>
+  <section class="banner" id="overdue" hidden>
+    <h2>עברו 30 יום</h2>
+    <p id="overdue-text"></p>
+    <p class="muted">צרפו לתלונה את המייל המקורי ששלחתם (מתיקיית הדואר היוצא).</p>
+    <div class="done-actions">
+      <a class="btn primary" id="complaint-mail">פתיחת מייל תלונה לרשות להגנת הפרטיות</a>
+    </div>
+  </section>
+
   <h1>מחיקת הפרטים שלי ממאגרי המפלגות</h1>
-  <p>כל אדם רשאי לדרוש בכתב ממפלגה למחוק את המידע עליו ממאגר המשמש לדיוור ישיר
-     (סעיף 17ו לחוק הגנת הפרטיות). הדף מכין מכתב לכל מפלגה ופותח אותו בתוכנת הדואר שלכם.
-     <a href="https://www.kolzchut.org.il/he/הסרת_פרטים_של_בעלי_זכות_בחירה_ממאגרי_המידע_של_המפלגות" target="_blank" rel="noopener">הסבר בכל זכות</a>.</p>
-  <p class="muted">שום מידע לא נשלח לשרת. הפרטים שתמלאו נשארים בדפדפן ונכנסים רק למיילים שאתם שולחים בעצמכם.
-     כדאי לשמור את המיילים שנשלחו ואת התשובות.</p>
+  <p>כל אדם רשאי לדרוש ממפלגה למחוק את המידע עליו (סעיף 17ו לחוק הגנת הפרטיות).
+     ממלאים פרטים, לוחצים "שליחה" ליד כל רשימה, והמייל נפתח מוכן בתוכנת הדואר שלכם.</p>
 
   <section>
-    <h2>1. הפרטים שלכם</h2>
+    <h2>הפרטים שלכם</h2>
     <label for="f-name">שם מלא</label>
     <input type="text" id="f-name" autocomplete="name">
-    <label for="f-id">מספר תעודת זהות <span class="muted">(מומלץ, עוזר למפלגה לזהות אתכם במאגר)</span></label>
+
+    <label for="f-id">מספר תעודת זהות
+      <span class="hint">המפלגות קיבלו את פנקס הבוחרים, שבו אתם רשומים לפי מספר ת"ז. כשהוא מופיע במכתב, קשה למפלגה לטעון שלא מצאה אתכם במאגר ולהתחמק מאחריות.
+        המספר לא נשמר ולא נשלח לשום מקום חוץ מהמייל שאתם שולחים. <a href="https://github.com/nadavbh12/party-spam" target="_blank" rel="noopener">קוד המקור</a>.</span>
+    </label>
     <input type="text" id="f-id" inputmode="numeric">
-    <label for="f-phone">מספר טלפון <span class="muted">(המספר שאליו מגיעות ההודעות)</span></label>
+
+    <label for="f-phone">מספר טלפון <span class="hint">המספר שאליו מגיעות ההודעות.</span></label>
     <input type="text" id="f-phone" inputmode="tel" autocomplete="tel">
-    <label for="f-address">כתובת מגורים <span class="muted">(לא חובה)</span></label>
+
+    <label for="f-address">כתובת מגורים <span class="hint">לא חובה.</span></label>
     <input type="text" id="f-address" autocomplete="street-address">
     <p class="error" id="form-error" role="alert"></p>
   </section>
 
   <section>
-    <h2>2. המכתב</h2>
-    <p class="muted">כך ייראה המכתב. שם המפלגה משתנה בכל מייל.</p>
-    <pre class="letter" id="preview"></pre>
+    <h2>הרשימות</h2>
+    <p class="muted">מסודרות לפי גודל בסקרים, מהגדולה לקטנה. כל מייל מופנה לכל המפלגות הרשומות שמרכיבות את הרשימה.</p>
+    <p class="progress" id="progress"></p>
+    <ul class="lists" id="lists"></ul>
+  </section>
+
+  <section id="done" hidden>
+    <h2>מה עכשיו</h2>
+    <p>המייל שמור בתיקיית הדואר היוצא שלכם. זו ההוכחה שלכם, אל תמחקו אותו.</p>
+    <p>למפלגה יש 30 יום למחוק אתכם ולהודיע לכם. אם לא ענתה, אפשר להתלונן לרשות להגנת הפרטיות או לתבוע בבית משפט השלום.
+      <a href="https://www.kolzchut.org.il/he/הסרת_פרטים_של_בעלי_זכות_בחירה_ממאגרי_המידע_של_המפלגות" target="_blank" rel="noopener">כל הפרטים בכל זכות</a>.</p>
+    <div class="done-actions">
+      <button type="button" id="calendar">הוספה ליומן: בדיקה בעוד 30 יום</button>
+      <a class="btn" id="share" target="_blank" rel="noopener">שיתוף בוואטסאפ</a>
+    </div>
   </section>
 
   <section>
-    <h2>3. רשימות שעוברות את אחוז החסימה בסקר כלשהו</h2>
-    <p class="muted">רשימות שקיבלו 4 מנדטים לפחות בסקר אחד לפחות ב-2026 (נבדק ב-19.10.2026).
-       רשימה יכולה לכלול כמה מפלגות רשומות. המייל נשלח לכולן יחד, והמכתב מופנה לכל אחת מהן.</p>
-    <ul class="parties" id="list-likely"></ul>
-  </section>
-
-  <section id="rest-section">
     <details>
-      <summary>4. שאר המפלגות הרשומות (<span id="rest-count"></span>)</summary>
-      <div class="filter">
-        <input type="text" id="filter" placeholder="סינון לפי שם">
-      </div>
-      <ul class="parties" id="list-rest"></ul>
+      <summary>הצגת המכתב</summary>
+      <pre class="letter" id="preview"></pre>
     </details>
   </section>
 
-  <p class="muted" style="margin-top:18px">מקור הנתונים: <a href="https://www.gov.il/he/departments/dynamiccollectors/parties-db" target="_blank" rel="noopener">מאגר המפלגות של רשם המפלגות</a>,
-     נשלף ב-19.10.2026. כתובות פרטיות מאתרי המפלגות מסומנות בנפרד.
-     הדף אינו ייעוץ משפטי, וכתובות המפלגות עשויות להשתנות.
-     <a href="https://github.com/nadavbh12/party-spam" target="_blank" rel="noopener">קוד המקור</a>.</p>
+  <p class="muted" style="margin-top:16px">כתובות המפלגות מ<a href="https://www.gov.il/he/departments/dynamiccollectors/parties-db" target="_blank" rel="noopener">מאגר רשם המפלגות</a> (נשלף ב-19.10.2026)
+     ומאתרי המפלגות. הדף אינו ייעוץ משפטי.</p>
 </main>
 
-<script id="data" type="application/json">{"parties": [{"name": "אגודת החרדים - דגל התורה", "number": "59-900010-6", "address": "מען רשום של המפלגה: רח' כהנמן 86 בני-ברק 5155230; מען למשלוח דואר: ת.ד 375 בני-ברק 5110301", "emails": ["degel@degel.org.il"], "contact_note": null, "likely": true, "list": "יהדות התורה"}, {"name": "אלתג'מוע אלווטני אלדמוקרטי", "number": "59-900026-2", "address": "נצרת 482 ב 12 רחוב 2013 - ת.ד. 50273 נצרת 16161", "emails": ["tajamoa48@gmail.com"], "contact_note": null, "likely": true, "list": "הרשימה המשותפת"}, {"name": "ביחד בראשות בנט מחזירים את התקווה (שם קודם: בנט 2026)", "number": "59-900200-3", "address": "רחוב התדהר 5 (קומה 8), רעננה", "emails": ["info@bennett2026.co.il", "DPO@bennett2026.co.il"], "contact_note": "כולל כתובת מאתר המפלגה", "likely": true, "list": "ביחד (בנט + יש עתיד)"}, {"name": "האיחוד הלאומי-תקומה", "number": "59-900037-9", "address": "רחוב בית הדפוס 12, אגף B, קומה 5, ירושלים 9548315.", "emails": ["haleumi10@gmail.com", "office@zionutdatit.org.il"], "contact_note": "כולל כתובת מאתר המפלגה", "likely": true, "list": "הציונות הדתית-זהות"}, {"name": "הכלכלית החדשה", "number": "59-900161-7", "address": "רחוב הדס 7, רמת גן 5264707, אצל פרופסור ירון זליכה", "emails": ["yaronzl@013.net", "admin@hakalkalit.org"], "contact_note": "כולל כתובת מאתר המפלגה", "likely": true, "list": "המילואימניקים-הכלכלית"}, {"name": "הליכוד - תנועה לאומית ליברלית", "number": "59-900002-3", "address": "המלך ג'ורג' 38 תל אביב", "emails": ["mali@likud.org.il", "it@likud.org.il"], "contact_note": "כולל כתובת מאתר המפלגה", "likely": true, "list": "הליכוד"}, {"name": "המילואימניקים", "number": "59-900203-7", "address": "רחוב האלה 214, נס הרים אצל: אלעזר בן ימין", "emails": ["Elazar.m.benjamin@gmail.com", "info@themiluimnikim.co.il"], "contact_note": "כולל כתובת מאתר המפלגה", "likely": true, "list": "המילואימניקים-הכלכלית"}, {"name": "המפלגה הקומוניסטית הישראלית", "number": "59-900011-4", "address": "רח' בן גוריון 39, עכו", "emails": ["info@hadash.org.il"], "contact_note": "כולל כתובת מאתר המפלגה", "likely": true, "list": "הרשימה המשותפת"}, {"name": "הסתדרות אגודת ישראל בארץ ישראל", "number": "59-900009-8", "address": "ר' עקביא 57 בני ברק ת\"ד 3138 מיקוד 51130", "emails": [], "contact_note": null, "likely": true, "list": "יהדות התורה"}, {"name": "התנועה הערבית להתחדשות", "number": "59-900025-4", "address": "ת\"ד 4539 טייבה המשולש 40400", "emails": ["amcmails@gmail.com"], "contact_note": null, "likely": true, "list": "הרשימה המשותפת"}, {"name": "זהות - תנועה ישראלית יהודית", "number": "59-900106-2", "address": "המלאכה 23, ראש העין.", "emails": ["zehut.mate@gmail.com", "mate@zehut.org.il"], "contact_note": "כולל כתובת מאתר המפלגה", "likely": true, "list": "הציונות הדתית-זהות"}, {"name": "חומת תורת ישראל (שם קודם: מנהיגות יהודית לישראל)", "number": "59-900056-9", "address": "רחוב מרדכי היהודי 17, ירושלים 9362717", "emails": ["sdcasper@netvision.net.il"], "contact_note": null, "likely": true, "list": "יהדות התורה"}, {"name": "חזית יהודית לאומית", "number": "59-900064-3", "address": "שטנר 3 ירושלים, ת.ד. 34594 ירושלים, מיקוד 9134402", "emails": ["ibengvir333@gmail.com", "public.otzma@gmail.com"], "contact_note": "כולל כתובת מאתר המפלגה", "likely": true, "list": "עוצמה יהודית"}, {"name": "יסודות ישראל", "number": "59-900218-5", "address": "רחוב השיזף 252, נס הרים  אצל: ח\"כ חילי טרופר", "emails": ["shaybiri1@gmail.com"], "contact_note": null, "likely": true, "list": "ישר! (איזנקוט)"}, {"name": "יש עתיד - בראשות יאיר לפיד", "number": "59-900091-6", "address": "רח' יגאל אלון 157 (כניסה ב') תל אביב 67443", "emails": ["contact@yeshatid.org.il"], "contact_note": "כולל כתובת מאתר המפלגה", "likely": true, "list": "ביחד (בנט + יש עתיד)"}, {"name": "ישר לישראל עם איזנקוט", "number": "59-900206-0", "address": "רחוב בר כוכבא 23 קומה 6, בני ברק אצל: עורך דין אורי הברמן", "emails": ["uri.h@cbalaw.co.il", "info@eisenkot.com"], "contact_note": "כולל כתובת מאתר המפלגה", "likely": true, "list": "ישר! (איזנקוט)"}, {"name": "ישראל ביתנו", "number": "59-900042-9", "address": "רחוב השדרה המרכזית 15, מודיעין מכבים רעות, מיקוד 7173002, ת\"ד 37.", "emails": ["israel@beytenu.org.il"], "contact_note": null, "likely": true, "list": "ישראל ביתנו"}, {"name": "מפלגת הדמוקרטים מיסודה של תנועה העבודה (שם קודם: העבודה הישראלית)", "number": "59-900001-5", "address": "יגאל אלון 53, תל אביב, מיקוד 6706206", "emails": ["richard@havoda.org.il", "hi@democrats.org.il"], "contact_note": "כולל כתובת מאתר המפלגה", "likely": true, "list": "הדמוקרטים"}, {"name": "מרצ", "number": "59-900065-0", "address": "דרך השלום 7, תל אביב יפו ת.ד 20177", "emails": ["enav@merez.org.il"], "contact_note": null, "likely": true, "list": "הדמוקרטים"}, {"name": "עמי חי לעד (שם קודם: חופש)", "number": "59-900165-8", "address": "רחוב אליהו חכים 9/2, ירושלים", "emails": ["Amichai2027@gmail.com"], "contact_note": null, "likely": true, "list": "עמך ישראל (וינטר)"}, {"name": "רשימת האיחוד הערבי", "number": "59-900034-6", "address": "ת\"ד 3279 טירה 44915", "emails": [], "contact_note": null, "likely": true, "list": "רע\"ם"}, {"name": "ש\"ס - התאחדות הספרדים העולמית שומרי תורה", "number": "59-900007-2", "address": "רחוב נחום חפצדי 17, מגדל רם, גבעת שאול, ירושלים, ת\"ד 34263 ירושלים, מיקוד 9134102", "emails": ["Yehuda@shas.org.il"], "contact_note": null, "likely": true, "list": "ש\"ס"}]}</script>
+<script id="data" type="application/json">{"parties": [{"name": "אגודת החרדים - דגל התורה", "number": "59-900010-6", "address": "מען רשום של המפלגה: רח' כהנמן 86 בני-ברק 5155230; מען למשלוח דואר: ת.ד 375 בני-ברק 5110301", "emails": ["degel@degel.org.il"], "contact_note": null, "likely": true, "list": "יהדות התורה"}, {"name": "אלתג'מוע אלווטני אלדמוקרטי", "number": "59-900026-2", "address": "נצרת 482 ב 12 רחוב 2013 - ת.ד. 50273 נצרת 16161", "emails": ["tajamoa48@gmail.com"], "contact_note": null, "likely": true, "list": "הרשימה המשותפת"}, {"name": "ביחד בראשות בנט מחזירים את התקווה (שם קודם: בנט 2026)", "number": "59-900200-3", "address": "רחוב התדהר 5 (קומה 8), רעננה", "emails": ["info@bennett2026.co.il", "DPO@bennett2026.co.il"], "contact_note": "כולל כתובת מאתר המפלגה", "likely": true, "list": "ביחד (בנט + יש עתיד)"}, {"name": "האיחוד הלאומי-תקומה", "number": "59-900037-9", "address": "רחוב בית הדפוס 12, אגף B, קומה 5, ירושלים 9548315.", "emails": ["haleumi10@gmail.com", "office@zionutdatit.org.il"], "contact_note": "כולל כתובת מאתר המפלגה", "likely": true, "list": "הציונות הדתית-זהות"}, {"name": "הכלכלית החדשה", "number": "59-900161-7", "address": "רחוב הדס 7, רמת גן 5264707, אצל פרופסור ירון זליכה", "emails": ["yaronzl@013.net", "admin@hakalkalit.org"], "contact_note": "כולל כתובת מאתר המפלגה", "likely": true, "list": "המילואימניקים-הכלכלית"}, {"name": "הליכוד - תנועה לאומית ליברלית", "number": "59-900002-3", "address": "המלך ג'ורג' 38 תל אביב", "emails": ["mali@likud.org.il", "it@likud.org.il"], "contact_note": "כולל כתובת מאתר המפלגה", "likely": true, "list": "הליכוד"}, {"name": "המילואימניקים", "number": "59-900203-7", "address": "רחוב האלה 214, נס הרים אצל: אלעזר בן ימין", "emails": ["Elazar.m.benjamin@gmail.com", "info@themiluimnikim.co.il"], "contact_note": "כולל כתובת מאתר המפלגה", "likely": true, "list": "המילואימניקים-הכלכלית"}, {"name": "המפלגה הקומוניסטית הישראלית", "number": "59-900011-4", "address": "רח' בן גוריון 39, עכו", "emails": ["info@hadash.org.il"], "contact_note": "כולל כתובת מאתר המפלגה", "likely": true, "list": "הרשימה המשותפת"}, {"name": "הסתדרות אגודת ישראל בארץ ישראל", "number": "59-900009-8", "address": "ר' עקביא 57 בני ברק ת\"ד 3138 מיקוד 51130", "emails": [], "contact_note": null, "likely": true, "list": "יהדות התורה"}, {"name": "התנועה הערבית להתחדשות", "number": "59-900025-4", "address": "ת\"ד 4539 טייבה המשולש 40400", "emails": ["amcmails@gmail.com"], "contact_note": null, "likely": true, "list": "הרשימה המשותפת"}, {"name": "זהות - תנועה ישראלית יהודית", "number": "59-900106-2", "address": "המלאכה 23, ראש העין.", "emails": ["zehut.mate@gmail.com", "mate@zehut.org.il"], "contact_note": "כולל כתובת מאתר המפלגה", "likely": true, "list": "הציונות הדתית-זהות"}, {"name": "חומת תורת ישראל (שם קודם: מנהיגות יהודית לישראל)", "number": "59-900056-9", "address": "רחוב מרדכי היהודי 17, ירושלים 9362717", "emails": ["sdcasper@netvision.net.il"], "contact_note": null, "likely": true, "list": "יהדות התורה"}, {"name": "חזית יהודית לאומית", "number": "59-900064-3", "address": "שטנר 3 ירושלים, ת.ד. 34594 ירושלים, מיקוד 9134402", "emails": ["ibengvir333@gmail.com", "public.otzma@gmail.com"], "contact_note": "כולל כתובת מאתר המפלגה", "likely": true, "list": "עוצמה יהודית"}, {"name": "יסודות ישראל", "number": "59-900218-5", "address": "רחוב השיזף 252, נס הרים  אצל: ח\"כ חילי טרופר", "emails": ["shaybiri1@gmail.com"], "contact_note": null, "likely": true, "list": "ישר! (איזנקוט)"}, {"name": "יש עתיד - בראשות יאיר לפיד", "number": "59-900091-6", "address": "רח' יגאל אלון 157 (כניסה ב') תל אביב 67443", "emails": ["contact@yeshatid.org.il"], "contact_note": "כולל כתובת מאתר המפלגה", "likely": true, "list": "ביחד (בנט + יש עתיד)"}, {"name": "ישר לישראל עם איזנקוט", "number": "59-900206-0", "address": "רחוב בר כוכבא 23 קומה 6, בני ברק אצל: עורך דין אורי הברמן", "emails": ["uri.h@cbalaw.co.il", "info@eisenkot.com"], "contact_note": "כולל כתובת מאתר המפלגה", "likely": true, "list": "ישר! (איזנקוט)"}, {"name": "ישראל ביתנו", "number": "59-900042-9", "address": "רחוב השדרה המרכזית 15, מודיעין מכבים רעות, מיקוד 7173002, ת\"ד 37.", "emails": ["israel@beytenu.org.il"], "contact_note": null, "likely": true, "list": "ישראל ביתנו"}, {"name": "מפלגת הדמוקרטים מיסודה של תנועה העבודה (שם קודם: העבודה הישראלית)", "number": "59-900001-5", "address": "יגאל אלון 53, תל אביב, מיקוד 6706206", "emails": ["richard@havoda.org.il", "hi@democrats.org.il"], "contact_note": "כולל כתובת מאתר המפלגה", "likely": true, "list": "הדמוקרטים"}, {"name": "מרצ", "number": "59-900065-0", "address": "דרך השלום 7, תל אביב יפו ת.ד 20177", "emails": ["enav@merez.org.il"], "contact_note": null, "likely": true, "list": "הדמוקרטים"}, {"name": "עמי חי לעד (שם קודם: חופש)", "number": "59-900165-8", "address": "רחוב אליהו חכים 9/2, ירושלים", "emails": ["Amichai2027@gmail.com"], "contact_note": null, "likely": true, "list": "עמך ישראל (וינטר)"}, {"name": "רשימת האיחוד הערבי", "number": "59-900034-6", "address": "ת\"ד 3279 טירה 44915", "emails": [], "contact_note": null, "likely": true, "list": "רע\"ם"}, {"name": "ש\"ס - התאחדות הספרדים העולמית שומרי תורה", "number": "59-900007-2", "address": "רחוב נחום חפצדי 17, מגדל רם, גבעת שאול, ירושלים, ת\"ד 34263 ירושלים, מיקוד 9134102", "emails": ["Yehuda@shas.org.il"], "contact_note": null, "likely": true, "list": "ש\"ס"}], "list_order": ["הליכוד", "ישר! (איזנקוט)", "ביחד (בנט + יש עתיד)", "הדמוקרטים", "ישראל ביתנו", "עוצמה יהודית", "הרשימה המשותפת", "יהדות התורה", "ש\"ס", "הציונות הדתית-זהות", "רע\"ם", "עמך ישראל (וינטר)", "המילואימניקים-הכלכלית"]}</script>
 <script>
 const DATA = JSON.parse(document.getElementById('data').textContent);
-const SENT_KEY = 'party-deletion-sent';
+const SITE_URL = 'https://nadavbh12.github.io/party-spam/';
+const PPA_EMAIL = 'ppa@justice.gov.il';
+const SUBJECT = 'דרישה למחיקת מידע אישי ממאגרי המידע של המפלגה';
+const DAY_MS = 24 * 60 * 60 * 1000;
 
-function loadSent() {
-  try { return JSON.parse(localStorage.getItem(SENT_KEY)) || {}; } catch (e) { return {}; }
+// Two per-party records, kept only in this browser: 'opened' = mail client opened but not
+// yet confirmed; 'sent' = the user confirmed sending. Personal details are never stored.
+function load(key) {
+  try { return JSON.parse(localStorage.getItem(key)) || {}; } catch (e) { return {}; }
 }
-function saveSent(sent) {
-  try { localStorage.setItem(SENT_KEY, JSON.stringify(sent)); } catch (e) { /* storage unavailable: status lasts only this visit */ }
+function save(key, value) {
+  try { localStorage.setItem(key, JSON.stringify(value)); } catch (e) { /* storage unavailable: state lasts only this visit */ }
 }
-
-const sent = loadSent();
+const sent = load('party-deletion-sent');
+const opened = load('party-deletion-opened');
 const field = id => document.getElementById(id).value.trim();
+const today = () => new Date().toISOString().slice(0, 10);
 
-// A unit is what one row and one email cover: a whole list in section 1, a single party in section 2.
-function makeUnit(title, parties) {
-  const emails = [];
-  parties.forEach(p => p.emails.forEach(e => {
-    if (!emails.some(x => x.toLowerCase() === e.toLowerCase())) emails.push(e);
-  }));
-  return { key: parties.map(p => p.number).join('+'), title, parties, emails };
-}
-
-function listUnits() {
-  const byList = new Map();
-  DATA.parties.filter(p => p.likely).forEach(p => {
-    if (!byList.has(p.list)) byList.set(p.list, []);
-    byList.get(p.list).push(p);
+// One unit = one row and one email: an electoral list and the registered parties behind it.
+function buildUnits() {
+  const byList = new Map(DATA.list_order.map(name => [name, []]));
+  DATA.parties.forEach(p => byList.get(p.list).push(p));
+  return [...byList].map(([title, parties]) => {
+    const emails = [];
+    parties.forEach(p => p.emails.forEach(e => {
+      if (!emails.some(x => x.toLowerCase() === e.toLowerCase())) emails.push(e);
+    }));
+    return { title, parties, emails };
   });
-  return [...byList].map(([list, parties]) => makeUnit(list, parties));
 }
-
-const LIKELY_UNITS = listUnits();
-const REST_UNITS = DATA.parties.filter(p => !p.likely).map(p => makeUnit(p.name, [p]));
-const ALL_UNITS = [...LIKELY_UNITS, ...REST_UNITS];
-
+const UNITS = buildUnits();
+const isSent = unit => unit.parties.some(p => sent[p.number]);
+const isOpened = unit => unit.parties.some(p => opened[p.number]);
 const sentDate = unit => unit.parties.map(p => sent[p.number]).find(Boolean);
 
 function letterBody(unit) {
@@ -161,10 +183,9 @@ function letterBody(unit) {
   return lines.join('\n');
 }
 
-function mailtoUrl(unit) {
-  const subject = 'דרישה למחיקת מידע אישי ממאגרי המידע של המפלגה';
-  return `mailto:${unit.emails.join(',')}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(letterBody(unit))}`;
-}
+const enc = encodeURIComponent;
+const mailtoUrl = unit => `mailto:${unit.emails.join(',')}?subject=${enc(SUBJECT)}&body=${enc(letterBody(unit))}`;
+const gmailUrl = unit => `https://mail.google.com/mail/?view=cm&fs=1&to=${enc(unit.emails.join(','))}&su=${enc(SUBJECT)}&body=${enc(letterBody(unit))}`;
 
 function formError() {
   if (!field('f-name')) return 'יש למלא שם מלא לפני השליחה.';
@@ -172,70 +193,157 @@ function formError() {
   return '';
 }
 
-function send(unit) {
+// Returns true when the form is complete; otherwise shows the error next to the form.
+function checkForm() {
   const err = formError();
-  const errorBox = document.getElementById('form-error');
-  errorBox.textContent = err;
-  if (err) {
-    errorBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    return;
-  }
-  window.location.href = mailtoUrl(unit);
-  const today = new Date().toISOString().slice(0, 10);
-  unit.parties.filter(p => p.emails.length).forEach(p => { sent[p.number] = today; });
-  saveSent(sent);
+  const box = document.getElementById('form-error');
+  box.textContent = err;
+  if (err) box.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  return !err;
+}
+
+function markOpened(unit) {
+  unit.parties.forEach(p => { opened[p.number] = today(); });
+  save('party-deletion-opened', opened);
   render();
 }
 
-function partyLine(party) {
-  if (!party.emails.length) return `${party.name}: אין דוא"ל, דואר רשום בלבד: ${party.address || 'אין כתובת במרשם'}`;
-  return `${party.name}: ${party.emails.join(', ')}` + (party.contact_note ? ` (${party.contact_note})` : '');
+function confirmSent(unit, didSend) {
+  unit.parties.forEach(p => {
+    delete opened[p.number];
+    if (didSend) sent[p.number] = today();
+  });
+  save('party-deletion-opened', opened);
+  save('party-deletion-sent', sent);
+  render();
 }
 
-function unitRow(unit) {
-  const li = document.createElement('li');
-  const name = document.createElement('span');
-  name.className = 'pname';
-  name.textContent = unit.title;
+async function copyLetter(unit, button) {
+  const text = (unit.emails.length ? `אל: ${unit.emails.join(', ')}\n` : '') + `נושא: ${SUBJECT}\n\n${letterBody(unit)}`;
+  try {
+    await navigator.clipboard.writeText(text);
+    button.textContent = 'הועתק';
+  } catch (e) {
+    button.textContent = 'ההעתקה נכשלה. פתחו את "הצגת המכתב" והעתיקו ידנית';
+  }
+}
 
-  const status = document.createElement('span');
-  status.className = 'status';
-  if (!unit.emails.length) {
-    status.classList.add('nomail');
-    status.textContent = 'אין דוא"ל';
-  } else if (sentDate(unit)) {
-    status.classList.add('sent');
-    status.textContent = `נשלח ${sentDate(unit)}`;
+function el(tag, props = {}, children = []) {
+  const node = Object.assign(document.createElement(tag), props);
+  node.append(...children);
+  return node;
+}
+
+function unitRow(unit, isNext) {
+  const li = el('li', { className: isNext ? 'next' : '' });
+  const head = el('div', { className: 'row' }, [el('span', { className: 'lname', textContent: unit.title })]);
+  const actions = el('div', { className: 'actions' });
+
+  if (isSent(unit)) {
+    head.append(el('span', { className: 'status-sent', textContent: `נשלח ${sentDate(unit)}` }));
+  } else if (!unit.emails.length) {
+    head.append(el('span', { className: 'status-nomail', textContent: 'אין דוא"ל' }));
+    const copy = el('button', { type: 'button', className: 'linkish', textContent: 'העתקת המכתב לדואר רשום' });
+    copy.addEventListener('click', () => { if (checkForm()) copyLetter(unit, copy); });
+    actions.append(copy);
+  } else if (isOpened(unit)) {
+    const yes = el('button', { type: 'button', className: 'primary', textContent: 'כן, נשלח' });
+    const no = el('button', { type: 'button', textContent: 'עוד לא' });
+    yes.addEventListener('click', () => confirmSent(unit, true));
+    no.addEventListener('click', () => confirmSent(unit, false));
+    actions.append(el('span', { textContent: 'המייל נשלח?' }), yes, no);
   } else {
-    const btn = document.createElement('button');
-    btn.type = 'button';
-    btn.textContent = 'שליחה';
-    btn.addEventListener('click', () => send(unit));
-    status.appendChild(btn);
+    const send = el('a', { className: 'btn primary', textContent: 'שליחה', href: '#' });
+    send.addEventListener('click', ev => {
+      if (!checkForm()) { ev.preventDefault(); return; }
+      send.href = mailtoUrl(unit);
+      setTimeout(() => markOpened(unit), 0);
+    });
+    head.append(send);
+    const gmail = el('a', { className: 'linkish', textContent: 'פתיחה ב-Gmail', href: '#', target: '_blank', rel: 'noopener' });
+    gmail.addEventListener('click', ev => {
+      if (!checkForm()) { ev.preventDefault(); return; }
+      gmail.href = gmailUrl(unit);
+      setTimeout(() => markOpened(unit), 0);
+    });
+    const copy = el('button', { type: 'button', className: 'linkish', textContent: 'העתקה' });
+    copy.addEventListener('click', () => { if (checkForm()) copyLetter(unit, copy); });
+    actions.append(gmail, copy);
   }
 
-  const meta = document.createElement('span');
-  meta.className = 'pmeta';
-  // A single-party row is titled by its name already, so it only needs the contact part.
-  meta.textContent = unit.parties.length === 1 && unit.title === unit.parties[0].name
-    ? partyLine(unit.parties[0]).slice(unit.title.length + 2)
-    : unit.parties.map(partyLine).join(' | ');
+  const recipients = el('ul', { className: 'recipients' }, unit.parties.map(p => el('li', {
+    textContent: p.emails.length ? `${p.name}: ${p.emails.join(', ')}` : `${p.name}: דואר רשום בלבד, ${p.address || 'אין כתובת במרשם'}`,
+  })));
+  actions.append(el('details', {}, [el('summary', { className: 'linkish', textContent: 'למי זה נשלח' }), recipients]));
 
-  li.append(name, status, meta);
+  li.append(head, actions);
   return li;
 }
 
-function render() {
-  const filter = field('filter');
-  document.getElementById('list-likely').replaceChildren(...LIKELY_UNITS.map(unitRow));
-  document.getElementById('list-rest').replaceChildren(
-    ...REST_UNITS.filter(u => u.title.includes(filter)).map(unitRow));
-  document.getElementById('rest-count').textContent = REST_UNITS.length;
-  document.getElementById('rest-section').hidden = !REST_UNITS.length;
-  document.getElementById('preview').textContent = letterBody(ALL_UNITS[0]);
+function overdueUnits() {
+  const now = Date.now();
+  return UNITS.filter(u => isSent(u) && now - new Date(sentDate(u)).getTime() >= 30 * DAY_MS);
 }
 
-['f-name', 'f-id', 'f-phone', 'f-address', 'filter'].forEach(id =>
+function complaintMailto(units) {
+  const body = [
+    'לכבוד הרשות להגנת הפרטיות,',
+    '',
+    `שמי ${field('f-name') || '[שם מלא]'}${field('f-id') ? `, ת"ז ${field('f-id')}` : ''}.`,
+    'פניתי בכתב למפלגות הבאות בדרישה למחוק את המידע האישי שלי ממאגרי המידע שלהן, לפי סעיף 17ו לחוק הגנת הפרטיות, התשמ"א-1981, ולא קיבלתי אישור על המחיקה בתוך 30 יום:',
+    ...units.map(u => `- ${u.parties.map(p => `${p.name} (${p.number})`).join(', ')}: פנייה מ-${sentDate(u)}`),
+    '',
+    'הפניות המקוריות מצורפות.',
+    'אבקש שהרשות תבדוק את הטיפול בבקשתי ותורה על מחיקת המידע.',
+    '',
+    'בכבוד רב,',
+    field('f-name') || '[שם מלא]',
+  ].join('\n');
+  return `mailto:${PPA_EMAIL}?subject=${enc('תלונה: מפלגות לא מחקו את פרטיי ממאגרי המידע')}&body=${enc(body)}`;
+}
+
+function calendarFile() {
+  const first = UNITS.filter(isSent).map(sentDate).sort()[0];
+  const due = new Date(new Date(first).getTime() + 30 * DAY_MS).toISOString().slice(0, 10).replaceAll('-', '');
+  const ics = [
+    'BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//party-spam//HE', 'BEGIN:VEVENT',
+    `UID:party-spam-${first}@nadavbh12.github.io`, `DTSTAMP:${due}T090000Z`,
+    `DTSTART;VALUE=DATE:${due}`, 'SUMMARY:המפלגות מחקו אותי?',
+    `DESCRIPTION:עברו 30 יום מהפנייה. אם לא קיבלתם אישור מחיקה, אפשר להתלונן: ${SITE_URL}`,
+    'END:VEVENT', 'END:VCALENDAR',
+  ].join('\r\n');
+  return URL.createObjectURL(new Blob([ics], { type: 'text/calendar' }));
+}
+
+function render() {
+  const firstOpen = UNITS.find(u => u.emails.length && !isSent(u));
+  document.getElementById('lists').replaceChildren(...UNITS.map(u => unitRow(u, u === firstOpen)));
+  const withMail = UNITS.filter(u => u.emails.length);
+  document.getElementById('progress').textContent =
+    `${withMail.filter(isSent).length} מתוך ${withMail.length} נשלחו`;
+  document.getElementById('preview').textContent = letterBody(UNITS[0]);
+  document.getElementById('done').hidden = !UNITS.some(isSent);
+
+  const overdue = overdueUnits();
+  document.getElementById('overdue').hidden = !overdue.length;
+  if (overdue.length) {
+    document.getElementById('overdue-text').textContent =
+      `${overdue.map(u => u.title).join(', ')}: עברו 30 יום מהפנייה. קיבלתם אישור מחיקה? אם לא, אפשר להתלונן.`;
+  }
+}
+
+document.getElementById('complaint-mail').addEventListener('click', ev => {
+  if (!checkForm()) { ev.preventDefault(); return; }
+  ev.currentTarget.href = complaintMailto(overdueUnits());
+});
+
+document.getElementById('calendar').addEventListener('click', () => {
+  const link = el('a', { href: calendarFile(), download: 'party-spam-reminder.ics' });
+  link.click();
+});
+document.getElementById('share').href =
+  `https://wa.me/?text=${enc(`מחקתי את הפרטים שלי ממאגרי המפלגות. לוקח שתי דקות: ${SITE_URL}`)}`;
+['f-name', 'f-id', 'f-phone', 'f-address'].forEach(id =>
   document.getElementById(id).addEventListener('input', render));
 render();
 </script>
