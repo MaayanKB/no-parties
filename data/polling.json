@@ -1,0 +1,27 @@
+{
+  "_comment": "Registered parties that are part of a list polling at least 4 seats in at least one 2026 poll. Everything else in parties.json is section 2. Checked 2026-10-19.",
+  "likely": [
+    {"number": "59-900002-3", "list": "הליכוד"},
+    {"number": "59-900200-3", "list": "ביחד (בנט + יש עתיד)"},
+    {"number": "59-900091-6", "list": "ביחד (בנט + יש עתיד)"},
+    {"number": "59-900206-0", "list": "ישר! (איזנקוט)"},
+    {"number": "59-900218-5", "list": "ישר! (איזנקוט)", "note": "טרופר הצטרף לישר"},
+    {"number": "59-900001-5", "list": "הדמוקרטים"},
+    {"number": "59-900065-0", "list": "הדמוקרטים", "note": "מרצ התאחדה עם העבודה"},
+    {"number": "59-900042-9", "list": "ישראל ביתנו"},
+    {"number": "59-900007-2", "list": "ש\"ס"},
+    {"number": "59-900009-8", "list": "יהדות התורה"},
+    {"number": "59-900010-6", "list": "יהדות התורה"},
+    {"number": "59-900056-9", "list": "יהדות התורה"},
+    {"number": "59-900064-3", "list": "עוצמה יהודית"},
+    {"number": "59-900037-9", "list": "הציונות הדתית-זהות", "note": "Religious Zionism is the new name of this party, per IDI and Hebrew Wikipedia (not checked against the registry itself)"},
+    {"number": "59-900106-2", "list": "הציונות הדתית-זהות"},
+    {"number": "59-900011-4", "list": "הרשימה המשותפת", "note": "מק\"י, the core of Hadash"},
+    {"number": "59-900025-4", "list": "הרשימה המשותפת", "note": "תע\"ל"},
+    {"number": "59-900026-2", "list": "הרשימה המשותפת", "note": "בל\"ד"},
+    {"number": "59-900034-6", "list": "רע\"ם", "note": "Hebrew Wikipedia links Ra'am to this registry entry (secondary source only)"},
+    {"number": "59-900165-8", "list": "עמך ישראל (וינטר)", "note": "amchaisrael.co.il/privacy: the site is run by עמי חי לעד, party number 59-900165-8"},
+    {"number": "59-900203-7", "list": "המילואימניקים-הכלכלית"},
+    {"number": "59-900161-7", "list": "המילואימניקים-הכלכלית"}
+  ]
+}
