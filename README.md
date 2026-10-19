@@ -1,24 +1,16 @@
 # party-spam
 
-A static page that helps Israeli voters demand deletion of their personal data from party databases
-(section 17ו of the Privacy Protection Law). It generates one email per electoral list and opens it in your own mail client.
-Nothing you type leaves your browser.
+דף שעוזר לבוחרים לדרוש מהמפלגות למחוק את המידע האישי שלהם ממאגרי המידע
+(סעיף 17ו לחוק הגנת הפרטיות). הדף מכין מייל לכל רשימה ופותח אותו בתוכנת הדואר שלכם.
+שום מידע שתמלאו לא יוצא מהדפדפן.
 
-Live: https://nadavbh12.github.io/party-spam/
+לאתר: https://nadavbh12.github.io/party-spam/
 
-## Data
+## הנתונים
 
-- `data/parties.json` - registered parties behind lists that polled at least 4 seats in at least one 2026 poll,
-  from the [Party Registrar](https://www.gov.il/he/departments/dynamiccollectors/parties-db) (scraped 19.10.2026).
-- `data/polling.json` - which registered parties make up each list.
-- `data/contacts.json` - privacy contacts found on the parties' own websites, with the source page.
+- `data/parties.json` - המפלגות הרשומות שמרכיבות רשימות שקיבלו 4 מנדטים לפחות בסקר אחד לפחות ב-2026,
+  מתוך [מאגר רשם המפלגות](https://www.gov.il/he/departments/dynamiccollectors/parties-db) (נשלף ב-19.10.2026).
+- `data/polling.json` - אילו מפלגות רשומות מרכיבות כל רשימה.
+- `data/contacts.json` - כתובות לפניות בנושא פרטיות מאתרי המפלגות, עם הדף שבו נמצאו.
 
-## Build
-
-```
-python3 build.py
-```
-
-This writes `index.html` from `template.html` and the data files. Commit both.
-
-Not legal advice.
+אין לראות בדף ייעוץ משפטי.
