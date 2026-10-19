@@ -10,5 +10,5 @@
   {"number": "59-900037-9", "privacy_email": "office@zionutdatit.org.il", "source_type": "contact_page", "source_url": "https://zionutdatit.org.il/"},
   {"number": "59-900106-2", "privacy_email": "mate@zehut.org.il", "source_type": "privacy_policy", "source_url": "https://zehut.org.il/privacy"},
   {"number": "59-900011-4", "privacy_email": "info@hadash.org.il", "source_type": "privacy_policy", "source_url": "https://www.hadash.org.il/privacy"},
-  {"number": "59-900034-6", "privacy_email": "mabas@knesset.gov.il", "source_type": "chairman_knesset_email", "source_url": "https://knesset.gov.il/Odata/ParliamentInfo.svc/KNS_Person()?$filter=LastName eq 'עבאס'", "note": "כתובת יו\"ר המפלגה בכנסת. למפלגה אין דוא\"ל במרשם"}
+  {"number": "59-900034-6", "privacy_email": "mabas@knesset.gov.il", "source_type": "chairman_knesset_email", "source_url": "https://knesset.gov.il/Odata/ParliamentInfo.svc/KNS_Person()?$filter=LastName eq 'עבאס'", "note_key": "noteChairman"}
 ]

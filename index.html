@@ -12,142 +12,292 @@
 <meta property="og:description" content="דרישה מהמפלגות למחוק את הפרטים שלכם ממאגרי המידע. מייל מוכן לכל רשימה, בלי שרת.">
 <style>
   :root {
-    --bg: #f7f6f2; --card: #ffffff; --ink: #1d1d1b; --muted: #6b6a64;
-    --line: #e2e0d8; --accent: #1f5f8b; --ok: #2e7d4f; --warn: #a15c00; --highlight: #fff6dc;
+    --bg: #f7f6f2; --card: #ffffff; --ink: #1d1d1b; --muted: #6b6a64; --line: #e2e0d8;
+    --accent: #1f5f8b; --on-accent: #ffffff; --ok: #2e7d4f; --highlight: #fff6dc;
+    --error: #b3261e; --error-bg: #fdecea;
   }
   @media (prefers-color-scheme: dark) {
-    :root { --bg: #161615; --card: #1f1f1d; --ink: #ecebe6; --muted: #a09f98;
-            --line: #33322e; --accent: #6fb0de; --ok: #6cc08f; --warn: #e0a24a; --highlight: #2c2817; }
+    :root:not([data-theme="light"]) {
+      --bg: #161615; --card: #1f1f1d; --ink: #ecebe6; --muted: #a09f98; --line: #33322e;
+      --accent: #6fb0de; --on-accent: #10202c; --ok: #6cc08f; --highlight: #2c2817;
+      --error: #f2a097; --error-bg: #3a1f1c;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #161615; --card: #1f1f1d; --ink: #ecebe6; --muted: #a09f98; --line: #33322e;
+    --accent: #6fb0de; --on-accent: #10202c; --ok: #6cc08f; --highlight: #2c2817;
+    --error: #f2a097; --error-bg: #3a1f1c;
   }
   * { box-sizing: border-box; }
   body { margin: 0; background: var(--bg); color: var(--ink);
-         font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Arial, sans-serif; }
-  main { max-width: 720px; margin: 0 auto; padding: 24px 16px 64px; }
-  h1 { font-size: 1.6rem; margin: 0 0 8px; }
-  h2 { font-size: 1.15rem; margin: 0 0 8px; }
+         font: 16px/1.5 system-ui, -apple-system, "Segoe UI", "Noto Sans Ethiopic", Arial, sans-serif; }
+  main { max-width: 720px; margin: 0 auto; padding: 16px 16px 64px; }
+  h1 { font-size: 1.5rem; line-height: 1.33; margin: 16px 0 8px; }
+  h2 { font-size: 1.125rem; margin: 0; }
+  h3 { font-size: 1rem; margin: 16px 0 8px; }
   p { margin: 0 0 8px; }
-  .muted { color: var(--muted); font-size: .9rem; }
-  section { background: var(--card); border: 1px solid var(--line); border-radius: 8px;
-            padding: 16px; margin-top: 16px; }
-  label { display: block; font-weight: 600; margin-top: 16px; }
-  .hint { display: block; font-weight: 400; color: var(--muted); font-size: .85rem; margin-top: 4px; }
-  input[type=text] { width: 100%; min-height: 48px; padding: 8px 12px; margin-top: 8px; font: inherit; color: inherit;
+  a { color: var(--accent); }
+  .muted { color: var(--muted); font-size: .875rem; }
+
+  .topbar { display: flex; justify-content: flex-end; gap: 8px; }
+  .topbar select, .topbar button { min-height: 40px; }
+  select { font: inherit; color: inherit; background: var(--card); border: 1px solid var(--line);
+           border-radius: 8px; padding: 8px; }
+
+  details.panel { background: var(--card); border: 1px solid var(--line); border-radius: 8px; margin-top: 16px; }
+  details.panel > summary { list-style: none; cursor: pointer; padding: 16px; display: flex;
+                            justify-content: space-between; align-items: center; gap: 16px; min-height: 56px; }
+  details.panel > summary::-webkit-details-marker { display: none; }
+  details.panel > summary::after { content: "▾"; color: var(--muted); }
+  details.panel[open] > summary::after { content: "▴"; }
+  .ptitle { font-weight: 700; font-size: 1.125rem; }
+  .psum { color: var(--muted); font-size: .875rem; flex: 1; text-align: end; overflow: hidden;
+          text-overflow: ellipsis; white-space: nowrap; }
+  .pbody { padding: 0 16px 16px; }
+
+  .field { margin-top: 16px; }
+  .field:first-of-type { margin-top: 0; }
+  label { display: block; font-weight: 600; }
+  .hint { font-weight: 400; color: var(--muted); font-size: .875rem; }
+  input[type=text] { width: 100%; min-height: 48px; padding: 8px 16px; margin-top: 8px; font: inherit; color: inherit;
                      background: var(--bg); border: 1px solid var(--line); border-radius: 8px; }
+  .field.invalid input { border-color: var(--error); background: var(--error-bg); }
+  .field-error { color: var(--error); font-size: .875rem; margin: 8px 0 0; }
+  .field-error:empty { display: none; }
+  .form-alert { color: var(--error); background: var(--error-bg); border-radius: 8px; padding: 8px 16px; }
+
   button, a.btn { font: inherit; cursor: pointer; border-radius: 8px; min-height: 48px; padding: 8px 16px;
                   border: 1px solid var(--line); background: var(--bg); color: var(--ink);
                   text-decoration: none; display: inline-flex; align-items: center; justify-content: center; }
-  button.primary, a.btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
-  .linkish { background: none; border: none; padding: 0 4px; min-height: 32px; color: var(--accent);
-             text-decoration: underline; font-size: .9rem; }
-  .error { color: var(--warn); font-size: .9rem; margin: 8px 0 0; }
-  .banner { border-color: var(--warn); }
-  .progress { font-weight: 600; margin: 8px 0; }
-  ul.lists { list-style: none; margin: 8px 0 0; padding: 0; }
+  button.primary, a.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); font-weight: 600; }
+  a.btn.disabled { opacity: .5; pointer-events: none; }
+  .linkish { background: none; border: none; padding: 0 8px; min-height: 40px; color: var(--accent);
+             text-decoration: underline; font-size: .875rem; }
+  .block { width: 100%; margin-top: 16px; }
+
+  .progress { font-weight: 600; margin: 16px 0 8px; }
+  .bulk { border: 1px solid var(--line); border-radius: 8px; padding: 16px; margin: 8px 0 16px; }
+  .bulk .btn.primary { width: 100%; }
+  .actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 8px; }
+  ul.lists { list-style: none; margin: 0; padding: 0; }
   ul.lists > li { padding: 16px 8px; border-top: 1px solid var(--line); }
   ul.lists > li.next { background: var(--highlight); border-radius: 8px; }
   .row { display: flex; justify-content: space-between; align-items: center; gap: 16px; }
+  .row label { display: flex; align-items: center; gap: 8px; }
+  .row input[type=checkbox] { width: 24px; height: 24px; }
   .lname { font-weight: 600; }
-  .actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 8px; }
   .status-sent { color: var(--ok); font-weight: 600; }
-  .status-nomail { color: var(--warn); }
-  .recipients { color: var(--muted); font-size: .85rem; margin: 8px 0 0; padding: 0; list-style: none; word-break: break-word; }
-  details > summary { cursor: pointer; }
-  pre.letter { white-space: pre-wrap; font: inherit; background: var(--bg);
-               border: 1px solid var(--line); border-radius: 8px; padding: 16px; margin: 8px 0 0; }
-  .done-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+  .recipients { color: var(--muted); font-size: .875rem; margin: 8px 0 0; padding: 0; list-style: none; word-break: break-word; }
+  .recipients li { padding: 4px 0; }
+
+  pre.letter { white-space: pre-wrap; font: inherit; background: var(--bg); border: 1px solid var(--line);
+               border-radius: 8px; padding: 16px; margin: 0; }
+  pre.letter[dir="rtl"] { text-align: right; }
+  .banner { border-color: var(--error); }
+
+  dialog { max-width: 480px; border: 1px solid var(--line); border-radius: 8px; padding: 24px;
+           background: var(--card); color: var(--ink); }
+  dialog::backdrop { background: rgb(0 0 0 / .5); }
+  dialog form { margin-top: 16px; }
+  footer { margin-top: 24px; }
 </style>
 </head>
 <body>
 <main>
-  <section class="banner" id="overdue" hidden>
-    <h2>עברו 30 יום</h2>
-    <p id="overdue-text"></p>
-    <p class="muted">צרפו לתלונה את המייל המקורי ששלחתם (מתיקיית הדואר היוצא).</p>
-    <div class="done-actions">
-      <a class="btn primary" id="complaint-mail">פתיחת מייל תלונה לרשות להגנת הפרטיות</a>
+  <div class="topbar">
+    <select id="lang" aria-label="שפה"></select>
+    <button type="button" id="theme"></button>
+  </div>
+
+  <details class="panel banner" id="p-overdue" open hidden>
+    <summary><span class="ptitle" data-t="overdueTitle"></span></summary>
+    <div class="pbody">
+      <p id="overdue-text"></p>
+      <p class="muted" data-t="overdueAttach"></p>
+      <a class="btn primary" id="complaint-mail" href="#" data-t="complaint"></a>
     </div>
-  </section>
+  </details>
 
-  <h1>מחיקת הפרטים שלי ממאגרי המפלגות</h1>
-  <p>כל אדם רשאי לדרוש ממפלגה למחוק את המידע עליו (סעיף 17ו לחוק הגנת הפרטיות).
-     ממלאים פרטים, לוחצים "שליחה" ליד כל רשימה, והמייל נפתח מוכן בתוכנת הדואר שלכם.</p>
+  <h1 data-t="title"></h1>
+  <p data-t="intro"></p>
 
-  <section>
-    <h2>הפרטים שלכם</h2>
-    <label for="f-name">שם מלא</label>
-    <input type="text" id="f-name" autocomplete="name">
-
-    <label for="f-id">מספר תעודת זהות
-      <span class="hint">המפלגות קיבלו את פנקס הבוחרים, שבו אתם רשומים לפי מספר ת"ז. כשהוא מופיע במכתב, קשה למפלגה לטעון שלא מצאה אתכם במאגר ולהתחמק מאחריות.
-        המספר לא נשמר ולא נשלח לשום מקום חוץ מהמייל שאתם שולחים. <a href="https://github.com/nadavbh12/party-spam" target="_blank" rel="noopener">קוד המקור</a>.</span>
-    </label>
-    <input type="text" id="f-id" inputmode="numeric">
-
-    <label for="f-phone">מספר טלפון <span class="hint">המספר שאליו מגיעות ההודעות.</span></label>
-    <input type="text" id="f-phone" inputmode="tel" autocomplete="tel">
-
-    <label for="f-address">כתובת מגורים <span class="hint">לא חובה.</span></label>
-    <input type="text" id="f-address" autocomplete="street-address">
-    <p class="error" id="form-error" role="alert"></p>
-  </section>
-
-  <section>
-    <h2>הרשימות</h2>
-    <p class="muted">מסודרות לפי גודל בסקרים, מהגדולה לקטנה. כל מייל מופנה לכל המפלגות הרשומות שמרכיבות את הרשימה.</p>
-    <p class="progress" id="progress"></p>
-    <ul class="lists" id="lists"></ul>
-  </section>
-
-  <section id="done" hidden>
-    <h2>מה עכשיו</h2>
-    <p>המייל שמור בתיקיית הדואר היוצא שלכם. זו ההוכחה שלכם, אל תמחקו אותו.</p>
-    <p>למפלגה יש 30 יום למחוק אתכם ולהודיע לכם. אם לא ענתה, אפשר להתלונן לרשות להגנת הפרטיות או לתבוע בבית משפט השלום.
-      <a href="https://www.kolzchut.org.il/he/הסרת_פרטים_של_בעלי_זכות_בחירה_ממאגרי_המידע_של_המפלגות" target="_blank" rel="noopener">כל הפרטים בכל זכות</a>.</p>
-    <div class="done-actions">
-      <button type="button" id="calendar">הוספה ליומן: בדיקה בעוד 30 יום</button>
-      <a class="btn" id="share" target="_blank" rel="noopener">שיתוף בוואטסאפ</a>
+  <details class="panel" id="p-form">
+    <summary><span class="ptitle" data-t="formTitle"></span><span class="psum" id="form-summary"></span></summary>
+    <div class="pbody">
+      <p class="form-alert" id="form-alert" role="alert" hidden></p>
+      <div class="field" id="fld-name">
+        <label for="f-name" data-t="nameLabel"></label>
+        <input type="text" id="f-name" autocomplete="name" aria-describedby="err-name">
+        <p class="field-error" id="err-name"></p>
+      </div>
+      <div class="field" id="fld-id">
+        <label for="f-id" data-t="idLabel"></label>
+        <input type="text" id="f-id" inputmode="numeric" autocomplete="off" aria-describedby="err-id">
+        <button type="button" class="linkish" id="id-why" data-t="idWhy"></button>
+        <p class="field-error" id="err-id"></p>
+      </div>
+      <div class="field" id="fld-phone">
+        <label for="f-phone"><span data-t="phoneLabel"></span> <span class="hint" data-t="phoneHint"></span></label>
+        <input type="text" id="f-phone" inputmode="tel" autocomplete="tel" aria-describedby="err-phone">
+        <p class="field-error" id="err-phone"></p>
+      </div>
+      <div class="field" id="fld-address">
+        <label for="f-address"><span data-t="addressLabel"></span> <span class="hint" data-t="addressHint"></span></label>
+        <input type="text" id="f-address" autocomplete="street-address">
+      </div>
+      <p class="muted" style="margin-top:16px" data-t="savedNote"></p>
+      <button type="button" class="primary block" id="continue" data-t="continue"></button>
     </div>
-  </section>
+  </details>
 
-  <section>
-    <details>
-      <summary>הצגת המכתב</summary>
-      <pre class="letter" id="preview"></pre>
-    </details>
-  </section>
+  <details class="panel" id="p-lists">
+    <summary><span class="ptitle" data-t="listsTitle"></span><span class="psum" id="lists-summary"></span></summary>
+    <div class="pbody">
+      <p class="muted" data-t="orderNote"></p>
+      <p class="progress" id="progress"></p>
+      <div class="bulk">
+        <div id="bulk"></div>
+        <p class="muted" style="margin-top:8px" data-t="spamNote"></p>
+        <p class="muted" data-t="hebrewNote" data-not-he></p>
+      </div>
+      <ul class="lists" id="lists"></ul>
+    </div>
+  </details>
 
-  <p class="muted" style="margin-top:16px">כתובות המפלגות מ<a href="https://www.gov.il/he/departments/dynamiccollectors/parties-db" target="_blank" rel="noopener">מאגר רשם המפלגות</a> (נשלף ב-19.10.2026)
-     ומאתרי המפלגות. הדף אינו ייעוץ משפטי.</p>
+  <details class="panel" id="p-done" hidden>
+    <summary><span class="ptitle" data-t="doneTitle"></span></summary>
+    <div class="pbody">
+      <p data-t="doneProof"></p>
+      <p><span data-t="done30"></span>
+        <a href="https://www.kolzchut.org.il/he/הסרת_פרטים_של_בעלי_זכות_בחירה_ממאגרי_המידע_של_המפלגות" target="_blank" rel="noopener" data-t="kolzchut"></a></p>
+      <div class="actions">
+        <button type="button" id="calendar" data-t="calendar"></button>
+        <a class="btn" id="share" target="_blank" rel="noopener" data-t="share"></a>
+      </div>
+    </div>
+  </details>
+
+  <details class="panel" id="p-letter">
+    <summary><span class="ptitle" data-t="letterTitle"></span></summary>
+    <div class="pbody">
+      <p class="muted" data-t="hebrewNote" data-not-he></p>
+      <h3 data-t="letterHebrew" data-not-he></h3>
+      <pre class="letter" id="letter-he" dir="rtl" lang="he"></pre>
+      <h3 data-t="letterTranslation" data-not-he></h3>
+      <pre class="letter" id="letter-tr" data-not-he></pre>
+    </div>
+  </details>
+
+  <footer class="muted" id="footer"></footer>
 </main>
 
-<script id="data" type="application/json">{"parties": [{"name": "אגודת החרדים - דגל התורה", "number": "59-900010-6", "address": "מען רשום של המפלגה: רח' כהנמן 86 בני-ברק 5155230; מען למשלוח דואר: ת.ד 375 בני-ברק 5110301", "emails": ["degel@degel.org.il"], "contact_note": null, "likely": true, "list": "יהדות התורה"}, {"name": "אלתג'מוע אלווטני אלדמוקרטי", "number": "59-900026-2", "address": "נצרת 482 ב 12 רחוב 2013 - ת.ד. 50273 נצרת 16161", "emails": ["tajamoa48@gmail.com"], "contact_note": null, "likely": true, "list": "הרשימה המשותפת"}, {"name": "ביחד בראשות בנט מחזירים את התקווה (שם קודם: בנט 2026)", "number": "59-900200-3", "address": "רחוב התדהר 5 (קומה 8), רעננה", "emails": ["info@bennett2026.co.il", "DPO@bennett2026.co.il"], "contact_note": "כולל כתובת מאתר המפלגה", "likely": true, "list": "ביחד (בנט + יש עתיד)"}, {"name": "האיחוד הלאומי-תקומה", "number": "59-900037-9", "address": "רחוב בית הדפוס 12, אגף B, קומה 5, ירושלים 9548315.", "emails": ["haleumi10@gmail.com", "office@zionutdatit.org.il"], "contact_note": "כולל כתובת מאתר המפלגה", "likely": true, "list": "הציונות הדתית-זהות"}, {"name": "הכלכלית החדשה", "number": "59-900161-7", "address": "רחוב הדס 7, רמת גן 5264707, אצל פרופסור ירון זליכה", "emails": ["yaronzl@013.net", "admin@hakalkalit.org"], "contact_note": "כולל כתובת מאתר המפלגה", "likely": true, "list": "המילואימניקים-הכלכלית"}, {"name": "הליכוד - תנועה לאומית ליברלית", "number": "59-900002-3", "address": "המלך ג'ורג' 38 תל אביב", "emails": ["mali@likud.org.il", "it@likud.org.il"], "contact_note": "כולל כתובת מאתר המפלגה", "likely": true, "list": "הליכוד"}, {"name": "המילואימניקים", "number": "59-900203-7", "address": "רחוב האלה 214, נס הרים אצל: אלעזר בן ימין", "emails": ["Elazar.m.benjamin@gmail.com", "info@themiluimnikim.co.il"], "contact_note": "כולל כתובת מאתר המפלגה", "likely": true, "list": "המילואימניקים-הכלכלית"}, {"name": "המפלגה הקומוניסטית הישראלית", "number": "59-900011-4", "address": "רח' בן גוריון 39, עכו", "emails": ["info@hadash.org.il"], "contact_note": "כולל כתובת מאתר המפלגה", "likely": true, "list": "הרשימה המשותפת"}, {"name": "הסתדרות אגודת ישראל בארץ ישראל", "number": "59-900009-8", "address": "ר' עקביא 57 בני ברק ת\"ד 3138 מיקוד 51130", "emails": [], "contact_note": null, "likely": true, "list": "יהדות התורה"}, {"name": "התנועה הערבית להתחדשות", "number": "59-900025-4", "address": "ת\"ד 4539 טייבה המשולש 40400", "emails": ["amcmails@gmail.com"], "contact_note": null, "likely": true, "list": "הרשימה המשותפת"}, {"name": "זהות - תנועה ישראלית יהודית", "number": "59-900106-2", "address": "המלאכה 23, ראש העין.", "emails": ["zehut.mate@gmail.com", "mate@zehut.org.il"], "contact_note": "כולל כתובת מאתר המפלגה", "likely": true, "list": "הציונות הדתית-זהות"}, {"name": "חומת תורת ישראל (שם קודם: מנהיגות יהודית לישראל)", "number": "59-900056-9", "address": "רחוב מרדכי היהודי 17, ירושלים 9362717", "emails": ["sdcasper@netvision.net.il"], "contact_note": null, "likely": true, "list": "יהדות התורה"}, {"name": "חזית יהודית לאומית", "number": "59-900064-3", "address": "שטנר 3 ירושלים, ת.ד. 34594 ירושלים, מיקוד 9134402", "emails": ["ibengvir333@gmail.com", "public.otzma@gmail.com"], "contact_note": "כולל כתובת מאתר המפלגה", "likely": true, "list": "עוצמה יהודית"}, {"name": "יסודות ישראל", "number": "59-900218-5", "address": "רחוב השיזף 252, נס הרים  אצל: ח\"כ חילי טרופר", "emails": ["shaybiri1@gmail.com"], "contact_note": null, "likely": true, "list": "ישר! (איזנקוט)"}, {"name": "יש עתיד - בראשות יאיר לפיד", "number": "59-900091-6", "address": "רח' יגאל אלון 157 (כניסה ב') תל אביב 67443", "emails": ["contact@yeshatid.org.il"], "contact_note": "כולל כתובת מאתר המפלגה", "likely": true, "list": "ביחד (בנט + יש עתיד)"}, {"name": "ישר לישראל עם איזנקוט", "number": "59-900206-0", "address": "רחוב בר כוכבא 23 קומה 6, בני ברק אצל: עורך דין אורי הברמן", "emails": ["uri.h@cbalaw.co.il", "info@eisenkot.com"], "contact_note": "כולל כתובת מאתר המפלגה", "likely": true, "list": "ישר! (איזנקוט)"}, {"name": "ישראל ביתנו", "number": "59-900042-9", "address": "רחוב השדרה המרכזית 15, מודיעין מכבים רעות, מיקוד 7173002, ת\"ד 37.", "emails": ["israel@beytenu.org.il"], "contact_note": null, "likely": true, "list": "ישראל ביתנו"}, {"name": "מפלגת הדמוקרטים מיסודה של תנועה העבודה (שם קודם: העבודה הישראלית)", "number": "59-900001-5", "address": "יגאל אלון 53, תל אביב, מיקוד 6706206", "emails": ["richard@havoda.org.il", "hi@democrats.org.il"], "contact_note": "כולל כתובת מאתר המפלגה", "likely": true, "list": "הדמוקרטים"}, {"name": "מרצ", "number": "59-900065-0", "address": "דרך השלום 7, תל אביב יפו ת.ד 20177", "emails": ["enav@merez.org.il"], "contact_note": null, "likely": true, "list": "הדמוקרטים"}, {"name": "עמי חי לעד (שם קודם: חופש)", "number": "59-900165-8", "address": "רחוב אליהו חכים 9/2, ירושלים", "emails": ["Amichai2027@gmail.com"], "contact_note": null, "likely": true, "list": "עמך ישראל (וינטר)"}, {"name": "רשימת האיחוד הערבי", "number": "59-900034-6", "address": "ת\"ד 3279 טירה 44915", "emails": ["mabas@knesset.gov.il"], "contact_note": "כתובת יו\"ר המפלגה בכנסת. למפלגה אין דוא\"ל במרשם", "likely": true, "list": "רע\"ם"}, {"name": "ש\"ס - התאחדות הספרדים העולמית שומרי תורה", "number": "59-900007-2", "address": "רחוב נחום חפצדי 17, מגדל רם, גבעת שאול, ירושלים, ת\"ד 34263 ירושלים, מיקוד 9134102", "emails": ["Yehuda@shas.org.il"], "contact_note": null, "likely": true, "list": "ש\"ס"}], "list_order": ["הליכוד", "ישר! (איזנקוט)", "ביחד (בנט + יש עתיד)", "הדמוקרטים", "ישראל ביתנו", "עוצמה יהודית", "הרשימה המשותפת", "יהדות התורה", "ש\"ס", "הציונות הדתית-זהות", "רע\"ם", "עמך ישראל (וינטר)", "המילואימניקים-הכלכלית"]}</script>
+<dialog id="id-dialog" aria-labelledby="id-dialog-title">
+  <h2 id="id-dialog-title" data-t="idDialogTitle"></h2>
+  <p style="margin-top:16px" data-t="idDialogBody"></p>
+  <form method="dialog"><button type="submit" class="primary" data-t="close"></button></form>
+</dialog>
+
+<script id="data" type="application/json">{"parties": [{"name": "אגודת החרדים - דגל התורה", "number": "59-900010-6", "address": "מען רשום של המפלגה: רח' כהנמן 86 בני-ברק 5155230; מען למשלוח דואר: ת.ד 375 בני-ברק 5110301", "emails": ["degel@degel.org.il"], "note_key": null, "likely": true, "list": "יהדות התורה"}, {"name": "אלתג'מוע אלווטני אלדמוקרטי", "number": "59-900026-2", "address": "נצרת 482 ב 12 רחוב 2013 - ת.ד. 50273 נצרת 16161", "emails": ["tajamoa48@gmail.com"], "note_key": null, "likely": true, "list": "הרשימה המשותפת"}, {"name": "ביחד בראשות בנט מחזירים את התקווה (שם קודם: בנט 2026)", "number": "59-900200-3", "address": "רחוב התדהר 5 (קומה 8), רעננה", "emails": ["info@bennett2026.co.il", "DPO@bennett2026.co.il"], "note_key": "noteSite", "likely": true, "list": "ביחד (בנט + יש עתיד)"}, {"name": "האיחוד הלאומי-תקומה", "number": "59-900037-9", "address": "רחוב בית הדפוס 12, אגף B, קומה 5, ירושלים 9548315.", "emails": ["haleumi10@gmail.com", "office@zionutdatit.org.il"], "note_key": "noteSite", "likely": true, "list": "הציונות הדתית-זהות"}, {"name": "הכלכלית החדשה", "number": "59-900161-7", "address": "רחוב הדס 7, רמת גן 5264707, אצל פרופסור ירון זליכה", "emails": ["yaronzl@013.net", "admin@hakalkalit.org"], "note_key": "noteSite", "likely": true, "list": "המילואימניקים-הכלכלית"}, {"name": "הליכוד - תנועה לאומית ליברלית", "number": "59-900002-3", "address": "המלך ג'ורג' 38 תל אביב", "emails": ["mali@likud.org.il", "it@likud.org.il"], "note_key": "noteSite", "likely": true, "list": "הליכוד"}, {"name": "המילואימניקים", "number": "59-900203-7", "address": "רחוב האלה 214, נס הרים אצל: אלעזר בן ימין", "emails": ["Elazar.m.benjamin@gmail.com", "info@themiluimnikim.co.il"], "note_key": "noteSite", "likely": true, "list": "המילואימניקים-הכלכלית"}, {"name": "המפלגה הקומוניסטית הישראלית", "number": "59-900011-4", "address": "רח' בן גוריון 39, עכו", "emails": ["info@hadash.org.il"], "note_key": "noteSite", "likely": true, "list": "הרשימה המשותפת"}, {"name": "הסתדרות אגודת ישראל בארץ ישראל", "number": "59-900009-8", "address": "ר' עקביא 57 בני ברק ת\"ד 3138 מיקוד 51130", "emails": [], "note_key": null, "likely": true, "list": "יהדות התורה"}, {"name": "התנועה הערבית להתחדשות", "number": "59-900025-4", "address": "ת\"ד 4539 טייבה המשולש 40400", "emails": ["amcmails@gmail.com"], "note_key": null, "likely": true, "list": "הרשימה המשותפת"}, {"name": "זהות - תנועה ישראלית יהודית", "number": "59-900106-2", "address": "המלאכה 23, ראש העין.", "emails": ["zehut.mate@gmail.com", "mate@zehut.org.il"], "note_key": "noteSite", "likely": true, "list": "הציונות הדתית-זהות"}, {"name": "חומת תורת ישראל (שם קודם: מנהיגות יהודית לישראל)", "number": "59-900056-9", "address": "רחוב מרדכי היהודי 17, ירושלים 9362717", "emails": ["sdcasper@netvision.net.il"], "note_key": null, "likely": true, "list": "יהדות התורה"}, {"name": "חזית יהודית לאומית", "number": "59-900064-3", "address": "שטנר 3 ירושלים, ת.ד. 34594 ירושלים, מיקוד 9134402", "emails": ["ibengvir333@gmail.com", "public.otzma@gmail.com"], "note_key": "noteSite", "likely": true, "list": "עוצמה יהודית"}, {"name": "יסודות ישראל", "number": "59-900218-5", "address": "רחוב השיזף 252, נס הרים  אצל: ח\"כ חילי טרופר", "emails": ["shaybiri1@gmail.com"], "note_key": null, "likely": true, "list": "ישר! (איזנקוט)"}, {"name": "יש עתיד - בראשות יאיר לפיד", "number": "59-900091-6", "address": "רח' יגאל אלון 157 (כניסה ב') תל אביב 67443", "emails": ["contact@yeshatid.org.il"], "note_key": "noteSite", "likely": true, "list": "ביחד (בנט + יש עתיד)"}, {"name": "ישר לישראל עם איזנקוט", "number": "59-900206-0", "address": "רחוב בר כוכבא 23 קומה 6, בני ברק אצל: עורך דין אורי הברמן", "emails": ["uri.h@cbalaw.co.il", "info@eisenkot.com"], "note_key": "noteSite", "likely": true, "list": "ישר! (איזנקוט)"}, {"name": "ישראל ביתנו", "number": "59-900042-9", "address": "רחוב השדרה המרכזית 15, מודיעין מכבים רעות, מיקוד 7173002, ת\"ד 37.", "emails": ["israel@beytenu.org.il"], "note_key": null, "likely": true, "list": "ישראל ביתנו"}, {"name": "מפלגת הדמוקרטים מיסודה של תנועה העבודה (שם קודם: העבודה הישראלית)", "number": "59-900001-5", "address": "יגאל אלון 53, תל אביב, מיקוד 6706206", "emails": ["richard@havoda.org.il", "hi@democrats.org.il"], "note_key": "noteSite", "likely": true, "list": "הדמוקרטים"}, {"name": "מרצ", "number": "59-900065-0", "address": "דרך השלום 7, תל אביב יפו ת.ד 20177", "emails": ["enav@merez.org.il"], "note_key": null, "likely": true, "list": "הדמוקרטים"}, {"name": "עמי חי לעד (שם קודם: חופש)", "number": "59-900165-8", "address": "רחוב אליהו חכים 9/2, ירושלים", "emails": ["Amichai2027@gmail.com"], "note_key": null, "likely": true, "list": "עמך ישראל (וינטר)"}, {"name": "רשימת האיחוד הערבי", "number": "59-900034-6", "address": "ת\"ד 3279 טירה 44915", "emails": ["mabas@knesset.gov.il"], "note_key": "noteChairman", "likely": true, "list": "רע\"ם"}, {"name": "ש\"ס - התאחדות הספרדים העולמית שומרי תורה", "number": "59-900007-2", "address": "רחוב נחום חפצדי 17, מגדל רם, גבעת שאול, ירושלים, ת\"ד 34263 ירושלים, מיקוד 9134102", "emails": ["Yehuda@shas.org.il"], "note_key": null, "likely": true, "list": "ש\"ס"}], "list_order": ["הליכוד", "ישר! (איזנקוט)", "ביחד (בנט + יש עתיד)", "הדמוקרטים", "ישראל ביתנו", "עוצמה יהודית", "הרשימה המשותפת", "יהדות התורה", "ש\"ס", "הציונות הדתית-זהות", "רע\"ם", "עמך ישראל (וינטר)", "המילואימניקים-הכלכלית"], "i18n": {"_comment": "UI strings and display-only letter translations. The email itself is always sent in Hebrew (letter.he). Only 'he' has been reviewed; the other languages are first drafts awaiting a native speaker.", "reviewed": {"he": true, "en": false, "ar": false, "ru": false, "am": false}, "languages": {"he": {"name": "עברית", "dir": "rtl", "locale": "he-IL"}, "ar": {"name": "العربية", "dir": "rtl", "locale": "ar"}, "en": {"name": "English", "dir": "ltr", "locale": "en-GB"}, "ru": {"name": "Русский", "dir": "ltr", "locale": "ru-RU"}, "am": {"name": "አማርኛ", "dir": "ltr", "locale": "am-ET"}}, "ui": {"he": {"title": "מחיקת הפרטים שלי ממאגרי המפלגות", "intro": "כל אדם רשאי לדרוש ממפלגה למחוק את המידע עליו (סעיף 17ו לחוק הגנת הפרטיות). ממלאים פרטים, לוחצים \"שליחה\", והמייל נפתח מוכן בתוכנת הדואר שלכם.", "language": "שפה", "themeToDark": "מצב כהה", "themeToLight": "מצב בהיר", "formTitle": "הפרטים שלכם", "nameLabel": "שם מלא", "idLabel": "מספר תעודת זהות", "idWhy": "למה צריך תעודת זהות?", "idDialogTitle": "למה צריך תעודת זהות?", "idDialogBody": "המפלגות קיבלו את פנקס הבוחרים, שבו אתם רשומים לפי מספר תעודת זהות. כשהמספר מופיע במכתב, קשה למפלגה לטעון שלא מצאה אתכם במאגר ולהתחמק מאחריות. המספר לא נשמר ולא נשלח לשום מקום חוץ מהמייל שאתם שולחים בעצמכם.", "close": "סגירה", "phoneLabel": "מספר טלפון", "phoneHint": "המספר שאליו מגיעות ההודעות", "addressLabel": "כתובת מגורים", "addressHint": "לא חובה", "savedNote": "השם, הטלפון והכתובת נשמרים רק בדפדפן הזה, כדי שלא תצטרכו להקליד שוב. תעודת הזהות לא נשמרת.", "continue": "המשך לרשימות", "edit": "עריכה", "nameRequired": "חסר שם מלא.", "nameInvalid": "השם צריך לכלול לפחות שתי אותיות, בלי מספרים.", "idInvalid": "מספר תעודת הזהות לא תקין. כדאי לבדוק את הספרות.", "phoneInvalid": "מספר הטלפון לא נראה ישראלי. למשל: 050-1234567.", "idOrPhone": "צריך תעודת זהות או טלפון, כדי שהמפלגה תוכל לזהות אתכם.", "fixBelow": "יש מה לתקן בפרטים. סימנו איפה.", "listsTitle": "הרשימות", "orderNote": "מסודרות לפי גודל בסקרים, מהגדולה לקטנה.", "progress": "{sent} מתוך {total} נשלחו", "sendAll": "שליחה לכל הרשימות", "sendRemaining": "שליחה ל-{n} הרשימות שנותרו", "spamNote": "מייל אחד לכל הרשימות חוסך זמן, אבל מייל לעשרות נמענים עלול להיתפס כספאם אצל חלק מהמפלגות. כדי להיות בטוחים שהוא מגיע, אפשר לשלוח לכל רשימה בנפרד.", "choose": "בחירת רשימות", "sendSelected": "שליחה ל-{n} רשימות שנבחרו", "cancelChoose": "ביטול", "send": "שליחה", "gmail": "פתיחה ב-Gmail", "copy": "העתקה", "copied": "הועתק", "copyFailed": "ההעתקה נכשלה. אפשר להעתיק מ\"המכתב\" למטה.", "whoGetsIt": "למי זה נשלח", "sentOn": "נשלח ב-{date}", "confirmQ": "המייל נשלח?", "confirmQMany": "המייל ל-{n} רשימות נשלח?", "yes": "כן, נשלח", "notYet": "עוד לא", "regMail": "דואר רשום בלבד", "noAddress": "אין כתובת במרשם", "noteSite": "כתובת מאתר המפלגה", "noteChairman": "כתובת יו\"ר המפלגה בכנסת, כי למפלגה אין דוא\"ל במרשם", "hebrewNote": "המייל עצמו נשלח בעברית, כדי שלמפלגה לא יהיה תירוץ שלא הבינה. התרגום כאן רק בשבילכם.", "doneTitle": "מה עכשיו", "doneProof": "המייל שמור בתיקיית הדואר היוצא שלכם. זו ההוכחה שלכם, אל תמחקו אותו.", "done30": "למפלגה יש 30 יום למחוק אתכם ולהודיע לכם. אם לא ענתה, אפשר להתלונן לרשות להגנת הפרטיות או לתבוע בבית משפט השלום.", "kolzchut": "כל הפרטים בכל זכות", "calendar": "הוספה ליומן: בדיקה בעוד 30 יום", "share": "שיתוף בוואטסאפ", "shareText": "מחקתי את הפרטים שלי ממאגרי המפלגות. לוקח שתי דקות:", "overdueTitle": "עברו 30 יום", "overdueText": "{lists}: עברו 30 יום מהפנייה. קיבלתם אישור מחיקה? אם לא, אפשר להתלונן.", "overdueAttach": "צרפו לתלונה את המייל המקורי ששלחתם (מתיקיית הדואר היוצא).", "complaint": "פתיחת מייל תלונה לרשות להגנת הפרטיות", "letterTitle": "המכתב", "letterHebrew": "המכתב כפי שיישלח (בעברית)", "letterTranslation": "תרגום בשבילכם", "footer": "כתובות המפלגות מ{registry} (נשלף ב-{date}) ומאתרי המפלגות. הדף אינו ייעוץ משפטי.", "registry": "מאגר רשם המפלגות", "source": "קוד המקור", "icsSummary": "המפלגות מחקו אותי?", "icsDescription": "עברו 30 יום מהפנייה. אם לא קיבלתם אישור מחיקה, אפשר להתלונן:"}, "en": {"title": "Delete my details from party databases", "intro": "Anyone may demand that a party delete the information it holds about them (section 17F of the Privacy Protection Law). Fill in your details, tap \"Send\", and a ready email opens in your mail app.", "language": "Language", "themeToDark": "Dark mode", "themeToLight": "Light mode", "formTitle": "Your details", "nameLabel": "Full name", "idLabel": "ID number", "idWhy": "Why is my ID number needed?", "idDialogTitle": "Why is my ID number needed?", "idDialogBody": "The parties received the voter registry, where you are listed by your ID number. With the number in the letter, a party can hardly claim it could not find you in its database and dodge responsibility. The number is never stored and never sent anywhere except in the email you send yourself.", "close": "Close", "phoneLabel": "Phone number", "phoneHint": "The number the messages arrive at", "addressLabel": "Home address", "addressHint": "Optional", "savedNote": "Your name, phone and address are saved only in this browser, so you won't have to type them again. Your ID number is not saved.", "continue": "Continue to the lists", "edit": "Edit", "nameRequired": "Full name is missing.", "nameInvalid": "The name needs at least two letters and no digits.", "idInvalid": "This ID number isn't valid. Please check the digits.", "phoneInvalid": "This doesn't look like an Israeli phone number. For example: 050-1234567.", "idOrPhone": "Please give an ID number or a phone number, so the party can identify you.", "fixBelow": "Something in your details needs fixing. We marked where.", "listsTitle": "The lists", "orderNote": "Ordered by size in the polls, largest first.", "progress": "{sent} of {total} sent", "sendAll": "Send to all lists", "sendRemaining": "Send to the {n} remaining lists", "spamNote": "One email to every list saves time, but an email to dozens of recipients may be caught as spam by some parties. To make sure it arrives, you can send to each list separately.", "choose": "Choose lists", "sendSelected": "Send to {n} selected lists", "cancelChoose": "Cancel", "send": "Send", "gmail": "Open in Gmail", "copy": "Copy", "copied": "Copied", "copyFailed": "Copying failed. You can copy from \"The letter\" below.", "whoGetsIt": "Who gets it", "sentOn": "Sent on {date}", "confirmQ": "Did the email go out?", "confirmQMany": "Did the email to {n} lists go out?", "yes": "Yes, sent", "notYet": "Not yet", "regMail": "Registered post only", "noAddress": "No address in the registry", "noteSite": "address from the party's website", "noteChairman": "the party chair's Knesset address, since the party has no email in the registry", "hebrewNote": "The email itself is sent in Hebrew, so the party can't claim it didn't understand. The translation here is just for you.", "doneTitle": "What now", "doneProof": "The email is saved in your Sent folder. That's your proof, so don't delete it.", "done30": "The party has 30 days to delete you and let you know. If it doesn't answer, you can complain to the Privacy Protection Authority or sue in the Magistrate's Court.", "kolzchut": "Full details on Kol Zchut (Hebrew)", "calendar": "Add to calendar: check in 30 days", "share": "Share on WhatsApp", "shareText": "I deleted my details from the party databases. Takes two minutes:", "overdueTitle": "30 days have passed", "overdueText": "{lists}: 30 days have passed since your request. Did you get confirmation of deletion? If not, you can complain.", "overdueAttach": "Attach the original email you sent (from your Sent folder) to the complaint.", "complaint": "Open a complaint email to the Privacy Protection Authority", "letterTitle": "The letter", "letterHebrew": "The letter as it will be sent (in Hebrew)", "letterTranslation": "Translation for you", "footer": "Party addresses come from the {registry} (retrieved {date}) and from the parties' websites. This page is not legal advice.", "registry": "Party Registrar's database", "source": "Source code", "icsSummary": "Did the parties delete me?", "icsDescription": "30 days have passed since your request. If you got no confirmation of deletion, you can complain:"}, "ar": {"title": "حذف بياناتي من قواعد بيانات الأحزاب", "intro": "يحق لكل شخص أن يطالب أي حزب بحذف المعلومات المتعلقة به (البند 17و من قانون حماية الخصوصية). املأ بياناتك، اضغط \"إرسال\"، فيُفتح بريد إلكتروني جاهز في تطبيق البريد لديك.", "language": "اللغة", "themeToDark": "الوضع الداكن", "themeToLight": "الوضع الفاتح", "formTitle": "بياناتك", "nameLabel": "الاسم الكامل", "idLabel": "رقم الهوية", "idWhy": "لماذا يلزم رقم الهوية؟", "idDialogTitle": "لماذا يلزم رقم الهوية؟", "idDialogBody": "حصلت الأحزاب على سجل الناخبين، وأنت مسجل فيه برقم هويتك. عندما يظهر الرقم في الرسالة، يصعب على الحزب الادعاء بأنه لم يجدك في قاعدة بياناته والتهرب من المسؤولية. لا يُحفظ الرقم ولا يُرسل إلى أي مكان سوى البريد الذي ترسله بنفسك.", "close": "إغلاق", "phoneLabel": "رقم الهاتف", "phoneHint": "الرقم الذي تصل إليه الرسائل", "addressLabel": "عنوان السكن", "addressHint": "اختياري", "savedNote": "يُحفظ الاسم والهاتف والعنوان في هذا المتصفح فقط، حتى لا تضطر إلى كتابتها مرة أخرى. رقم الهوية لا يُحفظ.", "continue": "متابعة إلى القوائم", "edit": "تعديل", "nameRequired": "الاسم الكامل ناقص.", "nameInvalid": "يجب أن يحتوي الاسم على حرفين على الأقل، ودون أرقام.", "idInvalid": "رقم الهوية غير صحيح. يُرجى التحقق من الأرقام.", "phoneInvalid": "لا يبدو هذا رقم هاتف إسرائيليًا. مثال: 050-1234567.", "idOrPhone": "يلزم رقم هوية أو رقم هاتف، حتى يتمكن الحزب من التعرف عليك.", "fixBelow": "هناك ما يجب تصحيحه في البيانات. أشرنا إلى المكان.", "listsTitle": "القوائم", "orderNote": "مرتبة حسب حجمها في الاستطلاعات، من الأكبر إلى الأصغر.", "progress": "أُرسل {sent} من أصل {total}", "sendAll": "إرسال إلى جميع القوائم", "sendRemaining": "إرسال إلى القوائم المتبقية ({n})", "spamNote": "رسالة واحدة إلى جميع القوائم توفّر الوقت، لكن رسالة إلى عشرات المستلمين قد تُصنَّف كرسالة مزعجة لدى بعض الأحزاب. للتأكد من وصولها، يمكنك الإرسال إلى كل قائمة على حدة.", "choose": "اختيار القوائم", "sendSelected": "إرسال إلى القوائم المختارة ({n})", "cancelChoose": "إلغاء", "send": "إرسال", "gmail": "فتح في Gmail", "copy": "نسخ", "copied": "تم النسخ", "copyFailed": "فشل النسخ. يمكنك النسخ من \"الرسالة\" أدناه.", "whoGetsIt": "إلى من تُرسل", "sentOn": "أُرسلت في {date}", "confirmQ": "هل أُرسل البريد؟", "confirmQMany": "هل أُرسل البريد إلى {n} قوائم؟", "yes": "نعم، أُرسل", "notYet": "ليس بعد", "regMail": "بريد مسجل فقط", "noAddress": "لا يوجد عنوان في السجل", "noteSite": "عنوان من موقع الحزب", "noteChairman": "عنوان رئيس الحزب في الكنيست، لأن الحزب لا يملك بريدًا إلكترونيًا في السجل", "hebrewNote": "يُرسل البريد نفسه بالعبرية، حتى لا يكون لدى الحزب عذر بأنه لم يفهم. الترجمة هنا لك فقط.", "doneTitle": "ماذا الآن", "doneProof": "البريد محفوظ في مجلد البريد المرسل لديك. هذا هو إثباتك، فلا تحذفه.", "done30": "أمام الحزب 30 يومًا لحذفك وإبلاغك. إذا لم يرد، يمكنك تقديم شكوى إلى سلطة حماية الخصوصية أو رفع دعوى في محكمة الصلح.", "kolzchut": "التفاصيل الكاملة في موقع كول زخوت (بالعبرية)", "calendar": "إضافة إلى التقويم: تحقق بعد 30 يومًا", "share": "مشاركة عبر واتساب", "shareText": "حذفت بياناتي من قواعد بيانات الأحزاب. يستغرق الأمر دقيقتين:", "overdueTitle": "مرّ 30 يومًا", "overdueText": "{lists}: مرّ 30 يومًا على طلبك. هل تلقيت تأكيدًا بالحذف؟ إذا لم يحدث ذلك، يمكنك تقديم شكوى.", "overdueAttach": "أرفق بالشكوى البريد الأصلي الذي أرسلته (من مجلد البريد المرسل).", "complaint": "فتح بريد شكوى إلى سلطة حماية الخصوصية", "letterTitle": "الرسالة", "letterHebrew": "الرسالة كما ستُرسل (بالعبرية)", "letterTranslation": "ترجمة لك", "footer": "عناوين الأحزاب مأخوذة من {registry} (تاريخ الاسترجاع {date}) ومن مواقع الأحزاب. هذه الصفحة ليست استشارة قانونية.", "registry": "قاعدة بيانات مسجّل الأحزاب", "source": "الشيفرة المصدرية", "icsSummary": "هل حذفتني الأحزاب؟", "icsDescription": "مرّ 30 يومًا على طلبك. إذا لم تتلقَّ تأكيدًا بالحذف، يمكنك تقديم شكوى:"}, "ru": {"title": "Удалить мои данные из баз партий", "intro": "Каждый вправе потребовать от партии удалить информацию о нём (статья 17е Закона о защите частной жизни). Заполните данные, нажмите «Отправить», и в вашей почтовой программе откроется готовое письмо.", "language": "Язык", "themeToDark": "Тёмная тема", "themeToLight": "Светлая тема", "formTitle": "Ваши данные", "nameLabel": "Полное имя", "idLabel": "Номер удостоверения личности (теудат зеут)", "idWhy": "Зачем нужен номер удостоверения?", "idDialogTitle": "Зачем нужен номер удостоверения?", "idDialogBody": "Партии получили список избирателей, в котором вы записаны по номеру удостоверения личности. Если номер указан в письме, партии трудно заявить, что она не нашла вас в базе, и уйти от ответственности. Номер нигде не сохраняется и никуда не отправляется, кроме письма, которое вы отправляете сами.", "close": "Закрыть", "phoneLabel": "Номер телефона", "phoneHint": "Номер, на который приходят сообщения", "addressLabel": "Домашний адрес", "addressHint": "Необязательно", "savedNote": "Имя, телефон и адрес сохраняются только в этом браузере, чтобы не вводить их заново. Номер удостоверения не сохраняется.", "continue": "Перейти к спискам", "edit": "Изменить", "nameRequired": "Не указано полное имя.", "nameInvalid": "Имя должно содержать хотя бы две буквы и не содержать цифр.", "idInvalid": "Номер удостоверения неверный. Проверьте цифры.", "phoneInvalid": "Это не похоже на израильский номер. Например: 050-1234567.", "idOrPhone": "Укажите номер удостоверения или телефона, чтобы партия могла вас найти.", "fixBelow": "В данных есть что исправить. Мы отметили, где.", "listsTitle": "Списки", "orderNote": "Упорядочены по результатам опросов, от крупных к малым.", "progress": "Отправлено {sent} из {total}", "sendAll": "Отправить всем спискам", "sendRemaining": "Отправить оставшимся спискам ({n})", "spamNote": "Одно письмо всем спискам экономит время, но письмо на десятки адресов некоторые партии могут принять за спам. Чтобы письмо точно дошло, можно отправить каждому списку отдельно.", "choose": "Выбрать списки", "sendSelected": "Отправить выбранным спискам ({n})", "cancelChoose": "Отмена", "send": "Отправить", "gmail": "Открыть в Gmail", "copy": "Копировать", "copied": "Скопировано", "copyFailed": "Не удалось скопировать. Можно скопировать из раздела «Письмо» ниже.", "whoGetsIt": "Кому отправляется", "sentOn": "Отправлено {date}", "confirmQ": "Письмо отправлено?", "confirmQMany": "Письмо {n} спискам отправлено?", "yes": "Да, отправлено", "notYet": "Ещё нет", "regMail": "Только заказной почтой", "noAddress": "Адреса в реестре нет", "noteSite": "адрес с сайта партии", "noteChairman": "адрес председателя партии в Кнессете, так как у партии нет почты в реестре", "hebrewNote": "Само письмо отправляется на иврите, чтобы у партии не было оправдания, что она не поняла. Перевод здесь только для вас.", "doneTitle": "Что дальше", "doneProof": "Письмо сохранено в папке «Отправленные». Это ваше доказательство, не удаляйте его.", "done30": "У партии есть 30 дней, чтобы удалить ваши данные и сообщить вам. Если ответа нет, можно пожаловаться в Управление по защите частной жизни или подать иск в мировой суд.", "kolzchut": "Подробности на сайте Коль Зхут (на иврите)", "calendar": "Добавить в календарь: проверить через 30 дней", "share": "Поделиться в WhatsApp", "shareText": "Я удалил свои данные из баз партий. Это занимает две минуты:", "overdueTitle": "Прошло 30 дней", "overdueText": "{lists}: прошло 30 дней с момента обращения. Вы получили подтверждение удаления? Если нет, можно подать жалобу.", "overdueAttach": "Приложите к жалобе исходное письмо (из папки «Отправленные»).", "complaint": "Открыть письмо с жалобой в Управление по защите частной жизни", "letterTitle": "Письмо", "letterHebrew": "Письмо в том виде, в каком оно будет отправлено (на иврите)", "letterTranslation": "Перевод для вас", "footer": "Адреса партий взяты из {registry} (получено {date}) и с сайтов партий. Эта страница не является юридической консультацией.", "registry": "базы данных Регистратора партий", "source": "Исходный код", "icsSummary": "Партии удалили мои данные?", "icsDescription": "Прошло 30 дней с момента обращения. Если подтверждения удаления нет, можно подать жалобу:"}, "am": {"title": "መረጃዬን ከፓርቲዎች የመረጃ ቋት ማስወገድ", "intro": "ማንኛውም ሰው ፓርቲ ስለ እሱ የያዘውን መረጃ እንዲሰርዝ የመጠየቅ መብት አለው (የግላዊነት ጥበቃ ሕግ አንቀጽ 17)። መረጃዎን ይሙሉ፣ \"ላክ\" የሚለውን ይጫኑ፣ ዝግጁ የሆነ ኢሜይል በኢሜይል መተግበሪያዎ ውስጥ ይከፈታል።", "language": "ቋንቋ", "themeToDark": "ጨለማ ገጽታ", "themeToLight": "ብሩህ ገጽታ", "formTitle": "የእርስዎ መረጃ", "nameLabel": "ሙሉ ስም", "idLabel": "የመታወቂያ ቁጥር", "idWhy": "የመታወቂያ ቁጥር ለምን ያስፈልጋል?", "idDialogTitle": "የመታወቂያ ቁጥር ለምን ያስፈልጋል?", "idDialogBody": "ፓርቲዎቹ የመራጮችን መዝገብ ተቀብለዋል፤ በውስጡ እርስዎ በመታወቂያ ቁጥርዎ ተመዝግበዋል። ቁጥሩ በደብዳቤው ውስጥ ሲኖር ፓርቲው እርስዎን በመረጃ ቋቱ ውስጥ አላገኘሁም ብሎ ከኃላፊነት ማምለጥ ይከብደዋል። ቁጥሩ አይቀመጥም፤ እርስዎ ራስዎ ከሚልኩት ኢሜይል በስተቀር ወደ የትም አይላክም።", "close": "ዝጋ", "phoneLabel": "ስልክ ቁጥር", "phoneHint": "መልእክቶቹ የሚደርሱበት ቁጥር", "addressLabel": "የመኖሪያ አድራሻ", "addressHint": "አማራጭ", "savedNote": "ስም፣ ስልክ እና አድራሻ በዚህ አሳሽ ውስጥ ብቻ ይቀመጣሉ፤ ዳግም እንዳይጽፉ። የመታወቂያ ቁጥር አይቀመጥም።", "continue": "ወደ ዝርዝሮቹ ቀጥል", "edit": "አርትዕ", "nameRequired": "ሙሉ ስም አልተሞላም።", "nameInvalid": "ስሙ ቢያንስ ሁለት ፊደላት ሊኖሩት ይገባል፤ ቁጥሮች የሉትም።", "idInvalid": "የመታወቂያ ቁጥሩ ትክክል አይደለም። እባክዎ አሃዞቹን ያረጋግጡ።", "phoneInvalid": "ይህ የእስራኤል ስልክ ቁጥር አይመስልም። ለምሳሌ፦ 050-1234567።", "idOrPhone": "ፓርቲው እርስዎን እንዲለይ የመታወቂያ ወይም የስልክ ቁጥር ያስፈልጋል።", "fixBelow": "በመረጃው ውስጥ መስተካከል ያለበት ነገር አለ። ቦታውን ምልክት አድርገናል።", "listsTitle": "ዝርዝሮቹ", "orderNote": "በሕዝብ አስተያየት መጠናቸው ከትልቁ ወደ ትንሹ ተደርድረዋል።", "progress": "ከ{total} ውስጥ {sent} ተልከዋል", "sendAll": "ለሁሉም ዝርዝሮች ላክ", "sendRemaining": "ለቀሩት {n} ዝርዝሮች ላክ", "spamNote": "ለሁሉም ዝርዝሮች አንድ ኢሜይል መላክ ጊዜ ይቆጥባል፤ ነገር ግን ለብዙ ተቀባዮች የሚላክ ኢሜይል በአንዳንድ ፓርቲዎች እንደ አይፈለጌ መልእክት ሊያዝ ይችላል። መድረሱን ለማረጋገጥ ለእያንዳንዱ ዝርዝር ለየብቻ መላክ ይችላሉ።", "choose": "ዝርዝሮችን ምረጥ", "sendSelected": "ለተመረጡት {n} ዝርዝሮች ላክ", "cancelChoose": "ሰርዝ", "send": "ላክ", "gmail": "በGmail ክፈት", "copy": "ቅዳ", "copied": "ተቀድቷል", "copyFailed": "መቅዳት አልተሳካም። ከታች ካለው \"ደብዳቤው\" መቅዳት ይችላሉ።", "whoGetsIt": "ለማን ይላካል", "sentOn": "በ{date} ተልኳል", "confirmQ": "ኢሜይሉ ተልኳል?", "confirmQMany": "ለ{n} ዝርዝሮች የተዘጋጀው ኢሜይል ተልኳል?", "yes": "አዎ፣ ተልኳል", "notYet": "ገና ነው", "regMail": "በተመዘገበ ፖስታ ብቻ", "noAddress": "በመዝገቡ ውስጥ አድራሻ የለም", "noteSite": "ከፓርቲው ድረ ገጽ የተገኘ አድራሻ", "noteChairman": "የፓርቲው ሊቀመንበር በክኔሴት ያለው አድራሻ፤ ፓርቲው በመዝገቡ ውስጥ ኢሜይል ስለሌለው", "hebrewNote": "ኢሜይሉ ራሱ በዕብራይስጥ ይላካል፤ ፓርቲው አልገባኝም የሚል ሰበብ እንዳይኖረው። እዚህ ያለው ትርጉም ለእርስዎ ብቻ ነው።", "doneTitle": "ቀጥሎ ምን", "doneProof": "ኢሜይሉ በተላኩ መልእክቶች ማህደርዎ ውስጥ ተቀምጧል። ማስረጃዎ እሱ ነው፤ አይሰርዙት።", "done30": "ፓርቲው መረጃዎን ለመሰረዝና ለማሳወቅ 30 ቀናት አሉት። ካልመለሰ ለግላዊነት ጥበቃ ባለሥልጣን ቅሬታ ማቅረብ ወይም በሰላም ፍርድ ቤት ክስ መመሥረት ይችላሉ።", "kolzchut": "ሙሉ ዝርዝሩ በኮል ዝኹት (በዕብራይስጥ)", "calendar": "ወደ ቀን መቁጠሪያ ጨምር፦ ከ30 ቀናት በኋላ አረጋግጥ", "share": "በWhatsApp አጋራ", "shareText": "መረጃዬን ከፓርቲዎች የመረጃ ቋት አስወገድኩ። ሁለት ደቂቃ ይወስዳል፦", "overdueTitle": "30 ቀናት አልፈዋል", "overdueText": "{lists}፦ ጥያቄዎን ካቀረቡ 30 ቀናት አልፈዋል። የመሰረዝ ማረጋገጫ ደርሶዎታል? ካልደረሰዎት ቅሬታ ማቅረብ ይችላሉ።", "overdueAttach": "የላኩትን የመጀመሪያ ኢሜይል (ከተላኩ መልእክቶች ማህደር) ከቅሬታው ጋር ያያይዙ።", "complaint": "ለግላዊነት ጥበቃ ባለሥልጣን የቅሬታ ኢሜይል ክፈት", "letterTitle": "ደብዳቤው", "letterHebrew": "የሚላከው ደብዳቤ (በዕብራይስጥ)", "letterTranslation": "ለእርስዎ የተዘጋጀ ትርጉም", "footer": "የፓርቲዎቹ አድራሻዎች ከ{registry} ({date} የተወሰደ) እና ከፓርቲዎቹ ድረ ገጾች የተገኙ ናቸው። ይህ ገጽ የሕግ ምክር አይደለም።", "registry": "የፓርቲዎች መዝጋቢ የመረጃ ቋት", "source": "የምንጭ ኮድ", "icsSummary": "ፓርቲዎቹ መረጃዬን ሰርዘዋል?", "icsDescription": "ጥያቄዎን ካቀረቡ 30 ቀናት አልፈዋል። የመሰረዝ ማረጋገጫ ካልደረሰዎት ቅሬታ ማቅረብ ይችላሉ፦"}}, "lists": {"en": {"הליכוד": "Likud", "ישר! (איזנקוט)": "Yashar! (Eisenkot)", "ביחד (בנט + יש עתיד)": "Together (Bennett + Yesh Atid)", "הדמוקרטים": "The Democrats", "ישראל ביתנו": "Yisrael Beytenu", "עוצמה יהודית": "Otzma Yehudit", "הרשימה המשותפת": "Joint List", "יהדות התורה": "United Torah Judaism", "ש\"ס": "Shas", "הציונות הדתית-זהות": "Religious Zionism–Zehut", "רע\"ם": "Ra'am", "עמך ישראל (וינטר)": "Amcha Yisrael (Winter)", "המילואימניקים-הכלכלית": "The Reservists–New Economic Party"}, "ar": {"הליכוד": "الليكود", "ישר! (איזנקוט)": "ياشار! (آيزنكوت)", "ביחד (בנט + יש עתיד)": "معًا (بينيت + يش عتيد)", "הדמוקרטים": "الديمقراطيون", "ישראל ביתנו": "يسرائيل بيتينو", "עוצמה יהודית": "عوتسما يهوديت", "הרשימה המשותפת": "القائمة المشتركة", "יהדות התורה": "يهدوت هتوراة", "ש\"ס": "شاس", "הציונות הדתית-זהות": "الصهيونية الدينية–زهوت", "רע\"ם": "القائمة العربية الموحدة (راعم)", "עמך ישראל (וינטר)": "عمخا يسرائيل (فينتر)", "המילואימניקים-הכלכלית": "جنود الاحتياط–الحزب الاقتصادي الجديد"}, "ru": {"הליכוד": "Ликуд", "ישר! (איזנקוט)": "Яшар! (Айзенкот)", "ביחד (בנט + יש עתיד)": "Вместе (Беннет + Еш Атид)", "הדמוקרטים": "Демократы", "ישראל ביתנו": "Наш дом Израиль", "עוצמה יהודית": "Оцма Йегудит", "הרשימה המשותפת": "Объединённый список", "יהדות התורה": "Яадут ха-Тора", "ש\"ס": "ШАС", "הציונות הדתית-זהות": "Религиозный сионизм–Зеут", "רע\"ם": "РААМ", "עמך ישראל (וינטר)": "Амха Исраэль (Винтер)", "המילואימניקים-הכלכלית": "Резервисты–Новая экономическая партия"}, "am": {"הליכוד": "ሊኩድ", "ישר! (איזנקוט)": "ያሻር! (አይዘንኮት)", "ביחד (בנט + יש עתיד)": "በያሓድ (ቤኔት + የሽ አቲድ)", "הדמוקרטים": "ዴሞክራቶች", "ישראל ביתנו": "ይስራኤል ቤይቴኑ", "עוצמה יהודית": "ኦጽማ የሁዲት", "הרשימה המשותפת": "የጋራ ዝርዝር", "יהדות התורה": "የቶራ አይሁድ አንድነት", "ש\"ס": "ሻስ", "הציונות הדתית-זהות": "ሃይማኖታዊ ጽዮናዊነት–ዘሁት", "רע\"ם": "ራዓም", "עמך ישראל (וינטר)": "አምቻ ይስራኤል (ዊንተር)", "המילואימניקים-הכלכלית": "ተጠባባቂ ወታደሮች–አዲሱ የኢኮኖሚ ፓርቲ"}}, "letter": {"he": {"subject": "דרישה למחיקת מידע אישי ממאגרי המידע של המפלגה", "to": "לכבוד", "partyLine": "{name} (מספר מפלגה {number})", "re": "הנדון: דרישה למחיקת מידע אישי ממאגרי המידע של המפלגה", "intro": "שמי {name}{idPart}.", "idPart": ", ת\"ז {id}", "demand": "בהתאם לסעיף 17ו לחוק הגנת הפרטיות, התשמ\"א-1981, הנני לדרוש למחוק מכל מאגרי המידע שבשליטתכם, לרבות מאגרים המשמשים לדיוור ישיר ויישומוני בחירות, כל מידע אישי המתייחס אליי, ובכלל זה:", "items": ["- פרטים שהתקבלו מפנקס הבוחרים;", "- מספרי טלפון, כתובות דואר אלקטרוני וכתובות מגורים;", "- מידע שהוזן או הועלה על ידי פעילים או משתמשי יישומונים;", "- כל סיווג, הערכה או תיעוד של עמדותיי הפוליטיות או של השתתפותי בהצבעה."], "also": "כמו כן, אבקש שלא תעבירו מידע זה לאחר ושתחדלו מכל פנייה אליי.", "ask": "אבקש לקבל אישור בכתב על ביצוע המחיקה, בתשובה למייל זה.", "identify": "פרטים לזיהוי:", "phone": "טלפון: {phone}", "address": "כתובת: {address}", "regards": "בכבוד רב,", "placeholderName": "[שם מלא]"}, "en": {"to": "To", "partyLine": "{name} (party no. {number})", "re": "Re: Demand to delete personal information from the party's databases", "intro": "My name is {name}{idPart}.", "idPart": ", ID no. {id}", "demand": "Under section 17F of the Privacy Protection Law, 5741-1981, I hereby demand that you delete from all databases under your control, including databases used for direct mail and election apps, all personal information relating to me, including:", "items": ["- details obtained from the voter registry;", "- phone numbers, email addresses and home addresses;", "- information entered or uploaded by activists or app users;", "- any classification, assessment or record of my political views or of my participation in voting."], "also": "I also ask that you not pass this information on to anyone else and that you stop contacting me in any way.", "ask": "Please confirm in writing, in reply to this email, that the deletion has been carried out.", "identify": "Identifying details:", "phone": "Phone: {phone}", "address": "Address: {address}", "regards": "Sincerely,", "placeholderName": "[full name]"}, "ar": {"to": "إلى", "partyLine": "{name} (رقم الحزب {number})", "re": "الموضوع: مطالبة بحذف معلومات شخصية من قواعد بيانات الحزب", "intro": "اسمي {name}{idPart}.", "idPart": "، رقم الهوية {id}", "demand": "بموجب البند 17و من قانون حماية الخصوصية لسنة 1981، أطالبكم بحذف جميع المعلومات الشخصية المتعلقة بي من جميع قواعد البيانات الخاضعة لسيطرتكم، بما في ذلك قواعد البيانات المستخدمة للبريد المباشر وتطبيقات الانتخابات، ومن ضمنها:", "items": ["- التفاصيل المأخوذة من سجل الناخبين؛", "- أرقام الهواتف وعناوين البريد الإلكتروني وعناوين السكن؛", "- المعلومات التي أدخلها أو رفعها نشطاء أو مستخدمو التطبيقات؛", "- أي تصنيف أو تقييم أو توثيق لآرائي السياسية أو لمشاركتي في التصويت."], "also": "كما أطلب ألّا تنقلوا هذه المعلومات إلى أي جهة أخرى وأن تتوقفوا عن التواصل معي بأي شكل.", "ask": "أطلب تأكيدًا خطيًا على تنفيذ الحذف، ردًا على هذا البريد.", "identify": "تفاصيل للتعريف:", "phone": "الهاتف: {phone}", "address": "العنوان: {address}", "regards": "مع الاحترام،", "placeholderName": "[الاسم الكامل]"}, "ru": {"to": "Кому", "partyLine": "{name} (номер партии {number})", "re": "Тема: требование удалить личную информацию из баз данных партии", "intro": "Меня зовут {name}{idPart}.", "idPart": ", удостоверение личности № {id}", "demand": "В соответствии со статьёй 17е Закона о защите частной жизни 1981 года требую удалить из всех баз данных, находящихся под вашим контролем, включая базы для прямой рассылки и предвыборные приложения, всю личную информацию, относящуюся ко мне, в том числе:", "items": ["- данные, полученные из списка избирателей;", "- номера телефонов, адреса электронной почты и домашние адреса;", "- информацию, введённую или загруженную активистами или пользователями приложений;", "- любую классификацию, оценку или запись моих политических взглядов или моего участия в голосовании."], "also": "Также прошу не передавать эту информацию третьим лицам и прекратить любые обращения ко мне.", "ask": "Прошу письменно подтвердить удаление в ответ на это письмо.", "identify": "Данные для идентификации:", "phone": "Телефон: {phone}", "address": "Адрес: {address}", "regards": "С уважением,", "placeholderName": "[полное имя]"}, "am": {"to": "ለ", "partyLine": "{name} (የፓርቲ ቁጥር {number})", "re": "ጉዳዩ፦ የግል መረጃን ከፓርቲው የመረጃ ቋቶች እንዲሰረዝ የቀረበ ጥያቄ", "intro": "ስሜ {name}{idPart} ነው።", "idPart": "፣ የመታወቂያ ቁጥር {id}", "demand": "በ1981 የግላዊነት ጥበቃ ሕግ አንቀጽ 17 መሠረት፣ በእርስዎ ቁጥጥር ሥር ካሉ የመረጃ ቋቶች ሁሉ፣ ለቀጥታ መልእክት እና ለምርጫ መተግበሪያዎች የሚያገለግሉትን ጨምሮ፣ እኔን የሚመለከት የግል መረጃ በሙሉ እንዲሰረዝ እጠይቃለሁ፤ ይህም የሚከተሉትን ያካትታል፦", "items": ["- ከመራጮች መዝገብ የተገኙ ዝርዝሮች፤", "- ስልክ ቁጥሮች፣ የኢሜይል አድራሻዎች እና የመኖሪያ አድራሻዎች፤", "- በአክቲቪስቶች ወይም በመተግበሪያ ተጠቃሚዎች የገባ ወይም የተጫነ መረጃ፤", "- የፖለቲካ አመለካከቴን ወይም በድምጽ መስጠት ላይ ያለኝን ተሳትፎ የሚመለከት ማንኛውም ምደባ፣ ግምገማ ወይም መዝገብ።"], "also": "እንዲሁም ይህን መረጃ ለሌላ አካል እንዳታስተላልፉ እና በማንኛውም መንገድ እኔን ማግኘታችሁን እንድታቆሙ እጠይቃለሁ።", "ask": "መሰረዙ መፈጸሙን ለዚህ ኢሜይል በሚሰጥ ምላሽ በጽሑፍ እንድታረጋግጡልኝ እጠይቃለሁ።", "identify": "ለመለያ የሚሆኑ ዝርዝሮች፦", "phone": "ስልክ፦ {phone}", "address": "አድራሻ፦ {address}", "regards": "ከሠላምታ ጋር፣", "placeholderName": "[ሙሉ ስም]"}}}}</script>
+<script>
+// Form validators. Inlined into index.html by build.py and tested by tests/validate.test.mjs.
+
+// Israeli ID number: up to 9 digits, left-padded with zeros, with a Luhn-style check digit.
+function isValidIsraeliId(raw) {
+  const digits = String(raw).replace(/[\s-]/g, '');
+  if (!/^\d{5,9}$/.test(digits)) return false;
+  const padded = digits.padStart(9, '0');
+  let sum = 0;
+  for (let i = 0; i < 9; i++) {
+    let n = Number(padded[i]) * (i % 2 === 0 ? 1 : 2);
+    if (n > 9) n -= 9;
+    sum += n;
+  }
+  return sum % 10 === 0;
+}
+
+// Israeli phone number in local form: mobile 05X (10 digits), 07X (10 digits) or landline 0[2-4,8,9] (9 digits).
+// Accepts spaces, dashes, parentheses and a +972 / 972 prefix.
+function normalizeIsraeliPhone(raw) {
+  let digits = String(raw).replace(/[\s\-()]/g, '');
+  if (digits.startsWith('+972')) digits = '0' + digits.slice(4);
+  else if (digits.startsWith('972')) digits = '0' + digits.slice(3);
+  return digits;
+}
+
+function isValidIsraeliPhone(raw) {
+  const phone = normalizeIsraeliPhone(raw);
+  return /^05\d{8}$/.test(phone) || /^07\d{8}$/.test(phone) || /^0[23489]\d{7}$/.test(phone);
+}
+
+// A full name: at least two letters, no digits.
+function isValidName(raw) {
+  const name = String(raw).trim();
+  return (name.match(/\p{L}/gu) || []).length >= 2 && !/\d/.test(name);
+}
+
+// Returns {field: errorKey} for every problem; an empty object means the form is valid.
+function validateForm({ name, id, phone }) {
+  const errors = {};
+  if (!name.trim()) errors.name = 'nameRequired';
+  else if (!isValidName(name)) errors.name = 'nameInvalid';
+  if (id.trim() && !isValidIsraeliId(id)) errors.id = 'idInvalid';
+  if (phone.trim() && !isValidIsraeliPhone(phone)) errors.phone = 'phoneInvalid';
+  if (!id.trim() && !phone.trim()) errors.phone = 'idOrPhone';
+  return errors;
+}
+
+if (typeof module !== 'undefined') {
+  module.exports = { isValidIsraeliId, isValidIsraeliPhone, normalizeIsraeliPhone, isValidName, validateForm };
+}
+
+</script>
 <script>
 const DATA = JSON.parse(document.getElementById('data').textContent);
+const I18N = DATA.i18n;
 const SITE_URL = 'https://nadavbh12.github.io/party-spam/';
+const SOURCE_URL = 'https://github.com/nadavbh12/party-spam';
+const REGISTRY_URL = 'https://www.gov.il/he/departments/dynamiccollectors/parties-db';
 const PPA_EMAIL = 'ppa@justice.gov.il';
-const SUBJECT = 'דרישה למחיקת מידע אישי ממאגרי המידע של המפלגה';
 const DAY_MS = 24 * 60 * 60 * 1000;
+const $ = id => document.getElementById(id);
+const enc = encodeURIComponent;
 
-// Kept only in this browser: 'opened' = mail client opened but not yet confirmed;
-// 'sent' = the user confirmed sending; 'details' = name, phone and address, so a reload
-// does not wipe the form. The ID number is deliberately never stored.
-function load(key) {
-  try { return JSON.parse(localStorage.getItem(key)) || {}; } catch (e) { return {}; }
+// ---- Storage: kept only in this browser. The ID number is deliberately never stored. ----
+function load(key, fallback) {
+  try { return JSON.parse(localStorage.getItem(key)) ?? fallback; } catch (e) { return fallback; }
 }
 function save(key, value) {
   try { localStorage.setItem(key, JSON.stringify(value)); } catch (e) { /* storage unavailable: state lasts only this visit */ }
 }
-const sent = load('party-deletion-sent');
-const opened = load('party-deletion-opened');
+const sent = load('party-deletion-sent', {});           // party number -> ISO date the user confirmed sending
+let pending = load('party-deletion-pending', null);     // {titles, source: 'row' | 'bulk'} awaiting "did it go out?"
+const details = load('party-deletion-details', {});     // name, phone, address
 const SAVED_FIELDS = ['f-name', 'f-phone', 'f-address'];
-const details = load('party-deletion-details');
-SAVED_FIELDS.forEach(id => { document.getElementById(id).value = details[id] || ''; });
-const field = id => document.getElementById(id).value.trim();
-const today = () => new Date().toISOString().slice(0, 10);
-const formatDate = iso => new Date(iso).toLocaleDateString('he-IL', { day: 'numeric', month: 'numeric', year: 'numeric' });
 
-// One unit = one row and one email: an electoral list and the registered parties behind it.
-function buildUnits() {
+// ---- Language and theme ----
+// Hebrew unless the user picked another language: many Israelis run their phone in English.
+function initialLang() {
+  const saved = load('party-deletion-lang', null);
+  return saved && I18N.languages[saved] ? saved : 'he';
+}
+let lang = initialLang();
+const t = (key, vars = {}) => I18N.ui[lang][key].replace(/\{(\w+)\}/g, (_, k) => vars[k]);
+const listName = title => (lang === 'he' ? title : I18N.lists[lang][title]);
+const formatDate = iso => new Date(iso).toLocaleDateString(I18N.languages[lang].locale);
+const today = () => new Date().toISOString().slice(0, 10);
+
+function effectiveTheme() {
+  return load('party-deletion-theme', null) || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+}
+function applyTheme() {
+  const stored = load('party-deletion-theme', null);
+  if (stored) document.documentElement.dataset.theme = stored;
+  else delete document.documentElement.dataset.theme;
+  $('theme').textContent = effectiveTheme() === 'dark' ? t('themeToLight') : t('themeToDark');
+}
+
+// ---- Data ----
+const UNITS = (() => {
   const byList = new Map(DATA.list_order.map(name => [name, []]));
   DATA.parties.forEach(p => byList.get(p.list).push(p));
   return [...byList].map(([title, parties]) => {
@@ -157,80 +307,84 @@ function buildUnits() {
     }));
     return { title, parties, emails };
   });
-}
-const UNITS = buildUnits();
+})();
 const isSent = unit => unit.parties.some(p => sent[p.number]);
-const isOpened = unit => unit.parties.some(p => opened[p.number]);
 const sentDate = unit => unit.parties.map(p => sent[p.number]).find(Boolean);
+const remaining = () => UNITS.filter(u => u.emails.length && !isSent(u));
+const unitsByTitle = titles => UNITS.filter(u => titles.includes(u.title));
 
-function letterBody(unit) {
+// ---- Form and validation ----
+const value = id => $(id).value.trim();
+const formValues = () => ({ name: value('f-name'), id: value('f-id'), phone: value('f-phone') });
+const touched = new Set();
+const FIELD_INPUT = { name: 'f-name', id: 'f-id', phone: 'f-phone' };
+
+function renderErrors(showAll) {
+  const errors = validateForm(formValues());
+  for (const field of Object.keys(FIELD_INPUT)) {
+    const key = (showAll || touched.has(field)) ? errors[field] : null;
+    // "ID or phone" is one error about two fields: mark both, explain once under the phone.
+    const markedById = field === 'id' && errors.phone === 'idOrPhone' && (showAll || touched.has('phone'));
+    $(`fld-${field}`).classList.toggle('invalid', Boolean(key || markedById));
+    $(FIELD_INPUT[field]).setAttribute('aria-invalid', String(Boolean(key || markedById)));
+    $(`err-${field}`).textContent = key ? t(key) : '';
+  }
+  if (!Object.keys(errors).length) $('form-alert').hidden = true;
+  return errors;
+}
+
+// Checks the form before any send; on failure opens the form, marks every problem and focuses the first.
+function requireValidForm() {
+  const errors = renderErrors(true);
+  const first = Object.keys(FIELD_INPUT).find(f => errors[f]);
+  if (!first) return true;
+  $('p-form').open = true;
+  $('form-alert').textContent = t('fixBelow');
+  $('form-alert').hidden = false;
+  $(FIELD_INPUT[first]).focus();
+  $('fld-' + first).scrollIntoView({ behavior: 'smooth', block: 'center' });
+  return false;
+}
+
+// ---- Letters (always sent in Hebrew; other languages are shown for understanding only) ----
+function letterText(letterLang, parties) {
+  const L = I18N.letter[letterLang];
+  const fill = (s, vars) => s.replace(/\{(\w+)\}/g, (_, k) => vars[k]);
+  const name = value('f-name') || L.placeholderName;
   const lines = [
-    'לכבוד',
-    ...unit.parties.map(p => `${p.name} (מספר מפלגה ${p.number})`),
-    '',
-    'הנדון: דרישה למחיקת מידע אישי ממאגרי המידע של המפלגה',
-    '',
-    `שמי ${field('f-name') || '[שם מלא]'}${field('f-id') ? `, ת"ז ${field('f-id')}` : ''}.`,
-    'בהתאם לסעיף 17ו לחוק הגנת הפרטיות, התשמ"א-1981, הנני לדרוש למחוק מכל מאגרי המידע שבשליטתכם, לרבות מאגרים המשמשים לדיוור ישיר ויישומוני בחירות, כל מידע אישי המתייחס אליי, ובכלל זה:',
-    '- פרטים שהתקבלו מפנקס הבוחרים;',
-    '- מספרי טלפון, כתובות דואר אלקטרוני וכתובות מגורים;',
-    '- מידע שהוזן או הועלה על ידי פעילים או משתמשי יישומונים;',
-    '- כל סיווג, הערכה או תיעוד של עמדותיי הפוליטיות או של השתתפותי בהצבעה.',
-    '',
-    'כמו כן, אבקש שלא תעבירו מידע זה לאחר ושתחדלו מכל פנייה אליי.',
-    'אבקש לקבל אישור בכתב על ביצוע המחיקה, בתשובה למייל זה.',
-    '',
-    'פרטים לזיהוי:',
+    L.to,
+    ...parties.map(p => fill(L.partyLine, { name: p.name, number: p.number })),
+    '', L.re, '',
+    fill(L.intro, { name, idPart: value('f-id') ? fill(L.idPart, { id: value('f-id') }) : '' }),
+    L.demand, ...L.items, '', L.also, L.ask, '', L.identify,
   ];
-  if (field('f-phone')) lines.push(`טלפון: ${field('f-phone')}`);
-  if (field('f-address')) lines.push(`כתובת: ${field('f-address')}`);
-  lines.push('', 'בכבוד רב,', field('f-name') || '[שם מלא]');
+  if (value('f-phone')) lines.push(fill(L.phone, { phone: value('f-phone') }));
+  if (value('f-address')) lines.push(fill(L.address, { address: value('f-address') }));
+  lines.push('', L.regards, name);
   return lines.join('\n');
 }
+const SUBJECT = I18N.letter.he.subject;
+const partiesOf = units => units.flatMap(u => u.parties);
+const emailsOf = units => [...new Set(units.flatMap(u => u.emails))];
+const mailtoUrl = units => `mailto:${emailsOf(units).join(',')}?subject=${enc(SUBJECT)}&body=${enc(letterText('he', partiesOf(units)))}`;
+const gmailUrl = units => `https://mail.google.com/mail/?view=cm&fs=1&to=${enc(emailsOf(units).join(','))}&su=${enc(SUBJECT)}&body=${enc(letterText('he', partiesOf(units)))}`;
 
-const enc = encodeURIComponent;
-const mailtoUrl = unit => `mailto:${unit.emails.join(',')}?subject=${enc(SUBJECT)}&body=${enc(letterBody(unit))}`;
-const gmailUrl = unit => `https://mail.google.com/mail/?view=cm&fs=1&to=${enc(unit.emails.join(','))}&su=${enc(SUBJECT)}&body=${enc(letterBody(unit))}`;
-
-function formError() {
-  if (!field('f-name')) return 'יש למלא שם מלא לפני השליחה.';
-  if (!field('f-id') && !field('f-phone')) return 'יש למלא תעודת זהות או טלפון, כדי שהמפלגה תוכל לזהות אתכם.';
-  return '';
-}
-
-// Returns true when the form is complete; otherwise shows the error next to the form.
-function checkForm() {
-  const err = formError();
-  const box = document.getElementById('form-error');
-  box.textContent = err;
-  if (err) box.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  return !err;
-}
-
-function markOpened(unit) {
-  unit.parties.forEach(p => { opened[p.number] = today(); });
-  save('party-deletion-opened', opened);
+// ---- Sending ----
+function setPending(units, source) {
+  pending = { titles: units.map(u => u.title), source };
+  save('party-deletion-pending', pending);
   render();
 }
 
-function confirmSent(unit, didSend) {
-  unit.parties.forEach(p => {
-    delete opened[p.number];
-    if (didSend) sent[p.number] = today();
-  });
-  save('party-deletion-opened', opened);
+function confirmPending(didSend) {
+  if (didSend) {
+    unitsByTitle(pending.titles).forEach(u => u.parties.forEach(p => { sent[p.number] = today(); }));
+    choosing = false;
+  }
+  pending = null;
+  save('party-deletion-pending', null);
   save('party-deletion-sent', sent);
   render();
-}
-
-async function copyLetter(unit, button) {
-  const text = (unit.emails.length ? `אל: ${unit.emails.join(', ')}\n` : '') + `נושא: ${SUBJECT}\n\n${letterBody(unit)}`;
-  try {
-    await navigator.clipboard.writeText(text);
-    button.textContent = 'הועתק';
-  } catch (e) {
-    button.textContent = 'ההעתקה נכשלה. פתחו את "הצגת המכתב" והעתיקו ידנית';
-  }
 }
 
 function el(tag, props = {}, children = []) {
@@ -239,72 +393,114 @@ function el(tag, props = {}, children = []) {
   return node;
 }
 
+// A send link (mail app or Gmail): validates first, then builds the URL at click time so it uses the latest details.
+function sendLink(text, units, source, { primary = false, gmail = false } = {}) {
+  const a = el('a', { className: primary ? 'btn primary' : 'linkish', textContent: text, href: '#' });
+  if (gmail) { a.target = '_blank'; a.rel = 'noopener'; }
+  if (!units.length) a.classList.add('disabled');
+  a.addEventListener('click', ev => {
+    if (!units.length || !requireValidForm()) { ev.preventDefault(); return; }
+    a.href = gmail ? gmailUrl(units) : mailtoUrl(units);
+    setTimeout(() => setPending(units, source), 0);
+  });
+  return a;
+}
+
+function copyButton(units) {
+  const b = el('button', { type: 'button', className: 'linkish', textContent: t('copy') });
+  b.addEventListener('click', async () => {
+    if (!units.length || !requireValidForm()) return;
+    const text = `${emailsOf(units).join(', ')}\n${SUBJECT}\n\n${letterText('he', partiesOf(units))}`;
+    try { await navigator.clipboard.writeText(text); b.textContent = t('copied'); }
+    catch (e) { b.textContent = t('copyFailed'); }
+  });
+  return b;
+}
+
+function confirmBox(question) {
+  const yes = el('button', { type: 'button', className: 'primary', textContent: t('yes') });
+  const no = el('button', { type: 'button', textContent: t('notYet') });
+  yes.addEventListener('click', () => confirmPending(true));
+  no.addEventListener('click', () => confirmPending(false));
+  return el('div', { className: 'actions' }, [el('span', { textContent: question }), yes, no]);
+}
+
+let choosing = false;
+let chosen = new Set();
+
+function renderBulk() {
+  const box = $('bulk');
+  const left = remaining();
+  if (pending?.source === 'bulk') {
+    box.replaceChildren(confirmBox(t('confirmQMany', { n: pending.titles.length })));
+  } else if (!left.length) {
+    box.replaceChildren();
+  } else if (choosing) {
+    const picked = left.filter(u => chosen.has(u.title));
+    const cancel = el('button', { type: 'button', className: 'linkish', textContent: t('cancelChoose') });
+    cancel.addEventListener('click', () => { choosing = false; render(); });
+    box.replaceChildren(
+      sendLink(t('sendSelected', { n: picked.length }), picked, 'bulk', { primary: true }),
+      el('div', { className: 'actions' }, [sendLink(t('gmail'), picked, 'bulk', { gmail: true }), copyButton(picked), cancel]));
+  } else {
+    const label = left.length === UNITS.filter(u => u.emails.length).length ? t('sendAll') : t('sendRemaining', { n: left.length });
+    const choose = el('button', { type: 'button', className: 'linkish', textContent: t('choose') });
+    choose.addEventListener('click', () => { choosing = true; chosen = new Set(left.map(u => u.title)); render(); });
+    box.replaceChildren(
+      sendLink(label, left, 'bulk', { primary: true }),
+      el('div', { className: 'actions' }, [sendLink(t('gmail'), left, 'bulk', { gmail: true }), copyButton(left), choose]));
+  }
+}
+
 function unitRow(unit, isNext) {
   const li = el('li', { className: isNext ? 'next' : '' });
-  const head = el('div', { className: 'row' }, [el('span', { className: 'lname', textContent: unit.title })]);
+  const nameEl = el('span', { className: 'lname', textContent: listName(unit.title) });
+  const head = el('div', { className: 'row' });
   const actions = el('div', { className: 'actions' });
 
-  if (isSent(unit)) {
-    head.append(el('span', { className: 'status-sent', textContent: `נשלח ב-${formatDate(sentDate(unit))}` }));
-  } else if (!unit.emails.length) {
-    head.append(el('span', { className: 'status-nomail', textContent: 'אין דוא"ל' }));
-    const copy = el('button', { type: 'button', className: 'linkish', textContent: 'העתקת המכתב לדואר רשום' });
-    copy.addEventListener('click', () => { if (checkForm()) copyLetter(unit, copy); });
-    actions.append(copy);
-  } else if (isOpened(unit)) {
-    const yes = el('button', { type: 'button', className: 'primary', textContent: 'כן, נשלח' });
-    const no = el('button', { type: 'button', textContent: 'עוד לא' });
-    yes.addEventListener('click', () => confirmSent(unit, true));
-    no.addEventListener('click', () => confirmSent(unit, false));
-    actions.append(el('span', { textContent: 'המייל נשלח?' }), yes, no);
+  if (choosing && !isSent(unit)) {
+    const box = el('input', { type: 'checkbox', checked: chosen.has(unit.title) });
+    box.addEventListener('change', () => { box.checked ? chosen.add(unit.title) : chosen.delete(unit.title); render(); });
+    head.append(el('label', {}, [box, nameEl]));
   } else {
-    const send = el('a', { className: 'btn primary', textContent: 'שליחה', href: '#' });
-    send.addEventListener('click', ev => {
-      if (!checkForm()) { ev.preventDefault(); return; }
-      send.href = mailtoUrl(unit);
-      setTimeout(() => markOpened(unit), 0);
-    });
-    head.append(send);
-    const gmail = el('a', { className: 'linkish', textContent: 'פתיחה ב-Gmail', href: '#', target: '_blank', rel: 'noopener' });
-    gmail.addEventListener('click', ev => {
-      if (!checkForm()) { ev.preventDefault(); return; }
-      gmail.href = gmailUrl(unit);
-      setTimeout(() => markOpened(unit), 0);
-    });
-    const copy = el('button', { type: 'button', className: 'linkish', textContent: 'העתקה' });
-    copy.addEventListener('click', () => { if (checkForm()) copyLetter(unit, copy); });
-    actions.append(gmail, copy);
+    head.append(nameEl);
+  }
+
+  if (isSent(unit)) {
+    head.append(el('span', { className: 'status-sent', textContent: t('sentOn', { date: formatDate(sentDate(unit)) }) }));
+  } else if (pending?.source === 'row' && pending.titles.includes(unit.title)) {
+    actions.append(confirmBox(t('confirmQ')));
+  } else if (!choosing && unit.emails.length) {
+    head.append(sendLink(t('send'), [unit], 'row', { primary: true }));
+    actions.append(sendLink(t('gmail'), [unit], 'row', { gmail: true }), copyButton([unit]));
   }
 
   const recipients = el('ul', { className: 'recipients' }, unit.parties.map(p => el('li', {
     textContent: p.emails.length
-      ? `${p.name}: ${p.emails.join(', ')}` + (p.contact_note ? ` (${p.contact_note})` : '')
-      : `${p.name}: דואר רשום בלבד, ${p.address || 'אין כתובת במרשם'}`,
+      ? `${p.name}: ${p.emails.join(', ')}` + (p.note_key ? ` (${t(p.note_key)})` : '')
+      : `${p.name}: ${t('regMail')}, ${p.address || t('noAddress')}`,
   })));
-  actions.append(el('details', {}, [el('summary', { className: 'linkish', textContent: 'למי זה נשלח' }), recipients]));
+  actions.append(el('details', {}, [el('summary', { className: 'linkish', textContent: t('whoGetsIt') }), recipients]));
 
   li.append(head, actions);
   return li;
 }
 
+// ---- After sending ----
 function overdueUnits() {
-  const now = Date.now();
-  return UNITS.filter(u => isSent(u) && now - new Date(sentDate(u)).getTime() >= 30 * DAY_MS);
+  return UNITS.filter(u => isSent(u) && Date.now() - new Date(sentDate(u)).getTime() >= 30 * DAY_MS);
 }
 
 function complaintMailto(units) {
+  const name = value('f-name');
   const body = [
-    'לכבוד הרשות להגנת הפרטיות,',
-    '',
-    `שמי ${field('f-name') || '[שם מלא]'}${field('f-id') ? `, ת"ז ${field('f-id')}` : ''}.`,
+    'לכבוד הרשות להגנת הפרטיות,', '',
+    `שמי ${name}${value('f-id') ? `, ת"ז ${value('f-id')}` : ''}.`,
     'פניתי בכתב למפלגות הבאות בדרישה למחוק את המידע האישי שלי ממאגרי המידע שלהן, לפי סעיף 17ו לחוק הגנת הפרטיות, התשמ"א-1981, ולא קיבלתי אישור על המחיקה בתוך 30 יום:',
-    ...units.map(u => `- ${u.parties.map(p => `${p.name} (${p.number})`).join(', ')}: פנייה מ-${formatDate(sentDate(u))}`),
-    '',
-    'הפניות המקוריות מצורפות.',
+    ...units.map(u => `- ${u.parties.map(p => `${p.name} (${p.number})`).join(', ')}: פנייה מ-${new Date(sentDate(u)).toLocaleDateString('he-IL')}`),
+    '', 'הפניות המקוריות מצורפות.',
     'אבקש שהרשות תבדוק את הטיפול בבקשתי ותורה על מחיקת המידע.',
-    '',
-    'בכבוד רב,',
-    field('f-name') || '[שם מלא]',
+    '', 'בכבוד רב,', name,
   ].join('\n');
   return `mailto:${PPA_EMAIL}?subject=${enc('תלונה: מפלגות לא מחקו את פרטיי ממאגרי המידע')}&body=${enc(body)}`;
 }
@@ -315,49 +511,103 @@ function calendarFile() {
   const ics = [
     'BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//party-spam//HE', 'BEGIN:VEVENT',
     `UID:party-spam-${first}@nadavbh12.github.io`, `DTSTAMP:${due}T090000Z`,
-    `DTSTART;VALUE=DATE:${due}`, 'SUMMARY:המפלגות מחקו אותי?',
-    `DESCRIPTION:עברו 30 יום מהפנייה. אם לא קיבלתם אישור מחיקה, אפשר להתלונן: ${SITE_URL}`,
+    `DTSTART;VALUE=DATE:${due}`, `SUMMARY:${t('icsSummary')}`,
+    `DESCRIPTION:${t('icsDescription')} ${SITE_URL}`,
     'END:VEVENT', 'END:VCALENDAR',
   ].join('\r\n');
   return URL.createObjectURL(new Blob([ics], { type: 'text/calendar' }));
 }
 
-function render() {
-  const firstOpen = UNITS.find(u => u.emails.length && !isSent(u));
-  document.getElementById('lists').replaceChildren(...UNITS.map(u => unitRow(u, u === firstOpen)));
-  const withMail = UNITS.filter(u => u.emails.length);
-  document.getElementById('progress').textContent =
-    `${withMail.filter(isSent).length} מתוך ${withMail.length} נשלחו`;
-  document.getElementById('preview').textContent = letterBody(UNITS[0]);
-  document.getElementById('done').hidden = !UNITS.some(isSent);
-
-  const overdue = overdueUnits();
-  document.getElementById('overdue').hidden = !overdue.length;
-  if (overdue.length) {
-    document.getElementById('overdue-text').textContent =
-      `${overdue.map(u => u.title).join(', ')}: עברו 30 יום מהפנייה. קיבלתם אישור מחיקה? אם לא, אפשר להתלונן.`;
-  }
+// ---- Rendering ----
+function applyStaticText() {
+  const meta = I18N.languages[lang];
+  document.documentElement.lang = lang;
+  document.documentElement.dir = meta.dir;
+  document.title = t('title');
+  document.querySelectorAll('[data-t]').forEach(node => { node.textContent = t(node.dataset.t); });
+  document.querySelectorAll('[data-not-he]').forEach(node => { node.hidden = lang === 'he'; });
+  $('lang').setAttribute('aria-label', t('language'));
+  const [before, after] = t('footer', { date: '{date}', registry: '\u0000' }).split('\u0000');
+  $('footer').replaceChildren(
+    before, el('a', { href: REGISTRY_URL, target: '_blank', rel: 'noopener', textContent: t('registry') }),
+    after.replace('{date}', '19.10.2026'), ' ',
+    el('a', { href: SOURCE_URL, target: '_blank', rel: 'noopener', textContent: t('source') }));
+  $('share').href = `https://wa.me/?text=${enc(`${t('shareText')} ${SITE_URL}`)}`;
+  applyTheme();
 }
 
-document.getElementById('complaint-mail').addEventListener('click', ev => {
-  if (!checkForm()) { ev.preventDefault(); return; }
+function render() {
+  const firstOpen = choosing ? null : remaining()[0];
+  $('lists').replaceChildren(...UNITS.map(u => unitRow(u, u === firstOpen)));
+  const total = UNITS.filter(u => u.emails.length).length;
+  const sentCount = UNITS.filter(isSent).length;
+  $('progress').textContent = t('progress', { sent: sentCount, total });
+  $('lists-summary').textContent = t('progress', { sent: sentCount, total });
+  renderBulk();
+
+  const errors = validateForm(formValues());
+  $('form-summary').textContent = Object.keys(errors).length ? '' : [value('f-name'), value('f-phone')].filter(Boolean).join(' · ');
+
+  const preview = pending ? partiesOf(unitsByTitle(pending.titles)) : UNITS[0].parties;
+  $('letter-he').textContent = letterText('he', preview);
+  $('letter-tr').textContent = letterText(lang, preview);
+  $('letter-tr').dir = I18N.languages[lang].dir;
+
+  const doneWasHidden = $('p-done').hidden;
+  $('p-done').hidden = !sentCount;
+  if (doneWasHidden && sentCount) $('p-done').open = true;
+
+  const overdue = overdueUnits();
+  $('p-overdue').hidden = !overdue.length;
+  if (overdue.length) $('overdue-text').textContent = t('overdueText', { lists: overdue.map(u => listName(u.title)).join(', ') });
+}
+
+// ---- Wiring ----
+Object.entries(I18N.languages).forEach(([code, meta]) => $('lang').append(el('option', { value: code, textContent: meta.name })));
+$('lang').value = lang;
+$('lang').addEventListener('change', () => {
+  lang = $('lang').value;
+  save('party-deletion-lang', lang);
+  applyStaticText();
+  renderErrors(false);
+  render();
+});
+$('theme').addEventListener('click', () => {
+  save('party-deletion-theme', effectiveTheme() === 'dark' ? 'light' : 'dark');
+  applyTheme();
+});
+
+SAVED_FIELDS.forEach(id => { $(id).value = details[id] || ''; });
+['f-name', 'f-id', 'f-phone', 'f-address'].forEach(id => {
+  $(id).addEventListener('input', () => {
+    if (SAVED_FIELDS.includes(id)) { details[id] = value(id); save('party-deletion-details', details); }
+    renderErrors(false);
+    render();
+  });
+});
+Object.entries(FIELD_INPUT).forEach(([field, id]) => $(id).addEventListener('blur', () => {
+  if (value(id)) touched.add(field);
+  renderErrors(false);
+}));
+
+$('continue').addEventListener('click', () => {
+  if (!requireValidForm()) return;
+  $('p-form').open = false;
+  $('p-lists').open = true;
+  $('p-lists').scrollIntoView({ behavior: 'smooth', block: 'start' });
+});
+$('id-why').addEventListener('click', () => $('id-dialog').showModal());
+$('calendar').addEventListener('click', () => el('a', { href: calendarFile(), download: 'party-spam-reminder.ics' }).click());
+$('complaint-mail').addEventListener('click', ev => {
+  if (!requireValidForm()) { ev.preventDefault(); return; }
   ev.currentTarget.href = complaintMailto(overdueUnits());
 });
 
-document.getElementById('calendar').addEventListener('click', () => {
-  const link = el('a', { href: calendarFile(), download: 'party-spam-reminder.ics' });
-  link.click();
-});
-document.getElementById('share').href =
-  `https://wa.me/?text=${enc(`מחקתי את הפרטים שלי ממאגרי המפלגות. לוקח שתי דקות: ${SITE_URL}`)}`;
-['f-name', 'f-id', 'f-phone', 'f-address'].forEach(id =>
-  document.getElementById(id).addEventListener('input', () => {
-    if (SAVED_FIELDS.includes(id)) {
-      details[id] = field(id);
-      save('party-deletion-details', details);
-    }
-    render();
-  }));
+// Open the form first; if saved details already make it valid, go straight to the lists.
+const startValid = !Object.keys(validateForm(formValues())).length;
+$('p-form').open = !startValid;
+$('p-lists').open = startValid;
+applyStaticText();
 render();
 </script>
 </body>

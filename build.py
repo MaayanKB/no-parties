@@ -49,11 +49,25 @@ def build_parties(parties, polling, contacts):
             "number": p["number"],
             "address": p["address"],
             "emails": emails,
-            "contact_note": contact.get("note", "כולל כתובת מאתר המפלגה") if privacy_email else None,
+            "note_key": contact.get("note_key", "noteSite") if privacy_email else None,
             "likely": p["number"] in likely,
             "list": likely.get(p["number"], {}).get("list"),
         })
     return result
+
+
+def check_i18n(i18n, list_order):
+    """Every language must have every UI string, letter line and list name that Hebrew has."""
+    problems = []
+    for lang in i18n["languages"]:
+        missing_ui = set(i18n["ui"]["he"]) - set(i18n["ui"].get(lang, {}))
+        missing_letter = set(i18n["letter"]["he"]) - {"subject"} - set(i18n["letter"].get(lang, {}))
+        missing_lists = [] if lang == "he" else set(list_order) - set(i18n["lists"].get(lang, {}))
+        for kind, keys in (("ui", missing_ui), ("letter", missing_letter), ("lists", missing_lists)):
+            if keys:
+                problems.append(f"{lang} {kind} missing: {sorted(keys)}")
+    if problems:
+        sys.exit("i18n.json is incomplete:\n" + "\n".join(problems))
 
 
 def main():
@@ -64,11 +78,15 @@ def main():
     if sorted(list_order) != sorted({x["list"] for x in polling}):
         sys.exit("list_order in polling.json must name every list exactly once")
     contacts = load("contacts.json", default=[])
-    data = {"parties": build_parties(parties, polling, contacts), "list_order": list_order}
+    i18n = load("i18n.json")
+    check_i18n(i18n, list_order)
+    data = {"parties": build_parties(parties, polling, contacts), "list_order": list_order, "i18n": i18n}
     # Escape "</" so party text can never close the embedding <script> tag.
     payload = json.dumps(data, ensure_ascii=False).replace("</", "<\\/")
+    validate_js = (ROOT / "src" / "validate.js").read_text(encoding="utf-8")
     html = (ROOT / "template.html").read_text(encoding="utf-8")
     html = (html.replace("{{DATA}}", payload)
+                .replace("{{VALIDATE_JS}}", validate_js)
                 .replace("{{SCRAPED_DATE}}", SCRAPED_DATE)
                 .replace("{{CHECKED_DATE}}", CHECKED_DATE))
     (ROOT / "index.html").write_text(html, encoding="utf-8")

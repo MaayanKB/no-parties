@@ -12,142 +12,242 @@
 <meta property="og:description" content="דרישה מהמפלגות למחוק את הפרטים שלכם ממאגרי המידע. מייל מוכן לכל רשימה, בלי שרת.">
 <style>
   :root {
-    --bg: #f7f6f2; --card: #ffffff; --ink: #1d1d1b; --muted: #6b6a64;
-    --line: #e2e0d8; --accent: #1f5f8b; --ok: #2e7d4f; --warn: #a15c00; --highlight: #fff6dc;
+    --bg: #f7f6f2; --card: #ffffff; --ink: #1d1d1b; --muted: #6b6a64; --line: #e2e0d8;
+    --accent: #1f5f8b; --on-accent: #ffffff; --ok: #2e7d4f; --highlight: #fff6dc;
+    --error: #b3261e; --error-bg: #fdecea;
   }
   @media (prefers-color-scheme: dark) {
-    :root { --bg: #161615; --card: #1f1f1d; --ink: #ecebe6; --muted: #a09f98;
-            --line: #33322e; --accent: #6fb0de; --ok: #6cc08f; --warn: #e0a24a; --highlight: #2c2817; }
+    :root:not([data-theme="light"]) {
+      --bg: #161615; --card: #1f1f1d; --ink: #ecebe6; --muted: #a09f98; --line: #33322e;
+      --accent: #6fb0de; --on-accent: #10202c; --ok: #6cc08f; --highlight: #2c2817;
+      --error: #f2a097; --error-bg: #3a1f1c;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #161615; --card: #1f1f1d; --ink: #ecebe6; --muted: #a09f98; --line: #33322e;
+    --accent: #6fb0de; --on-accent: #10202c; --ok: #6cc08f; --highlight: #2c2817;
+    --error: #f2a097; --error-bg: #3a1f1c;
   }
   * { box-sizing: border-box; }
   body { margin: 0; background: var(--bg); color: var(--ink);
-         font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Arial, sans-serif; }
-  main { max-width: 720px; margin: 0 auto; padding: 24px 16px 64px; }
-  h1 { font-size: 1.6rem; margin: 0 0 8px; }
-  h2 { font-size: 1.15rem; margin: 0 0 8px; }
+         font: 16px/1.5 system-ui, -apple-system, "Segoe UI", "Noto Sans Ethiopic", Arial, sans-serif; }
+  main { max-width: 720px; margin: 0 auto; padding: 16px 16px 64px; }
+  h1 { font-size: 1.5rem; line-height: 1.33; margin: 16px 0 8px; }
+  h2 { font-size: 1.125rem; margin: 0; }
+  h3 { font-size: 1rem; margin: 16px 0 8px; }
   p { margin: 0 0 8px; }
-  .muted { color: var(--muted); font-size: .9rem; }
-  section { background: var(--card); border: 1px solid var(--line); border-radius: 8px;
-            padding: 16px; margin-top: 16px; }
-  label { display: block; font-weight: 600; margin-top: 16px; }
-  .hint { display: block; font-weight: 400; color: var(--muted); font-size: .85rem; margin-top: 4px; }
-  input[type=text] { width: 100%; min-height: 48px; padding: 8px 12px; margin-top: 8px; font: inherit; color: inherit;
+  a { color: var(--accent); }
+  .muted { color: var(--muted); font-size: .875rem; }
+
+  .topbar { display: flex; justify-content: flex-end; gap: 8px; }
+  .topbar select, .topbar button { min-height: 40px; }
+  select { font: inherit; color: inherit; background: var(--card); border: 1px solid var(--line);
+           border-radius: 8px; padding: 8px; }
+
+  details.panel { background: var(--card); border: 1px solid var(--line); border-radius: 8px; margin-top: 16px; }
+  details.panel > summary { list-style: none; cursor: pointer; padding: 16px; display: flex;
+                            justify-content: space-between; align-items: center; gap: 16px; min-height: 56px; }
+  details.panel > summary::-webkit-details-marker { display: none; }
+  details.panel > summary::after { content: "▾"; color: var(--muted); }
+  details.panel[open] > summary::after { content: "▴"; }
+  .ptitle { font-weight: 700; font-size: 1.125rem; }
+  .psum { color: var(--muted); font-size: .875rem; flex: 1; text-align: end; overflow: hidden;
+          text-overflow: ellipsis; white-space: nowrap; }
+  .pbody { padding: 0 16px 16px; }
+
+  .field { margin-top: 16px; }
+  .field:first-of-type { margin-top: 0; }
+  label { display: block; font-weight: 600; }
+  .hint { font-weight: 400; color: var(--muted); font-size: .875rem; }
+  input[type=text] { width: 100%; min-height: 48px; padding: 8px 16px; margin-top: 8px; font: inherit; color: inherit;
                      background: var(--bg); border: 1px solid var(--line); border-radius: 8px; }
+  .field.invalid input { border-color: var(--error); background: var(--error-bg); }
+  .field-error { color: var(--error); font-size: .875rem; margin: 8px 0 0; }
+  .field-error:empty { display: none; }
+  .form-alert { color: var(--error); background: var(--error-bg); border-radius: 8px; padding: 8px 16px; }
+
   button, a.btn { font: inherit; cursor: pointer; border-radius: 8px; min-height: 48px; padding: 8px 16px;
                   border: 1px solid var(--line); background: var(--bg); color: var(--ink);
                   text-decoration: none; display: inline-flex; align-items: center; justify-content: center; }
-  button.primary, a.btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
-  .linkish { background: none; border: none; padding: 0 4px; min-height: 32px; color: var(--accent);
-             text-decoration: underline; font-size: .9rem; }
-  .error { color: var(--warn); font-size: .9rem; margin: 8px 0 0; }
-  .banner { border-color: var(--warn); }
-  .progress { font-weight: 600; margin: 8px 0; }
-  ul.lists { list-style: none; margin: 8px 0 0; padding: 0; }
+  button.primary, a.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); font-weight: 600; }
+  a.btn.disabled { opacity: .5; pointer-events: none; }
+  .linkish { background: none; border: none; padding: 0 8px; min-height: 40px; color: var(--accent);
+             text-decoration: underline; font-size: .875rem; }
+  .block { width: 100%; margin-top: 16px; }
+
+  .progress { font-weight: 600; margin: 16px 0 8px; }
+  .bulk { border: 1px solid var(--line); border-radius: 8px; padding: 16px; margin: 8px 0 16px; }
+  .bulk .btn.primary { width: 100%; }
+  .actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 8px; }
+  ul.lists { list-style: none; margin: 0; padding: 0; }
   ul.lists > li { padding: 16px 8px; border-top: 1px solid var(--line); }
   ul.lists > li.next { background: var(--highlight); border-radius: 8px; }
   .row { display: flex; justify-content: space-between; align-items: center; gap: 16px; }
+  .row label { display: flex; align-items: center; gap: 8px; }
+  .row input[type=checkbox] { width: 24px; height: 24px; }
   .lname { font-weight: 600; }
-  .actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 8px; }
   .status-sent { color: var(--ok); font-weight: 600; }
-  .status-nomail { color: var(--warn); }
-  .recipients { color: var(--muted); font-size: .85rem; margin: 8px 0 0; padding: 0; list-style: none; word-break: break-word; }
-  details > summary { cursor: pointer; }
-  pre.letter { white-space: pre-wrap; font: inherit; background: var(--bg);
-               border: 1px solid var(--line); border-radius: 8px; padding: 16px; margin: 8px 0 0; }
-  .done-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+  .recipients { color: var(--muted); font-size: .875rem; margin: 8px 0 0; padding: 0; list-style: none; word-break: break-word; }
+  .recipients li { padding: 4px 0; }
+
+  pre.letter { white-space: pre-wrap; font: inherit; background: var(--bg); border: 1px solid var(--line);
+               border-radius: 8px; padding: 16px; margin: 0; }
+  pre.letter[dir="rtl"] { text-align: right; }
+  .banner { border-color: var(--error); }
+
+  dialog { max-width: 480px; border: 1px solid var(--line); border-radius: 8px; padding: 24px;
+           background: var(--card); color: var(--ink); }
+  dialog::backdrop { background: rgb(0 0 0 / .5); }
+  dialog form { margin-top: 16px; }
+  footer { margin-top: 24px; }
 </style>
 </head>
 <body>
 <main>
-  <section class="banner" id="overdue" hidden>
-    <h2>עברו 30 יום</h2>
-    <p id="overdue-text"></p>
-    <p class="muted">צרפו לתלונה את המייל המקורי ששלחתם (מתיקיית הדואר היוצא).</p>
-    <div class="done-actions">
-      <a class="btn primary" id="complaint-mail">פתיחת מייל תלונה לרשות להגנת הפרטיות</a>
+  <div class="topbar">
+    <select id="lang" aria-label="שפה"></select>
+    <button type="button" id="theme"></button>
+  </div>
+
+  <details class="panel banner" id="p-overdue" open hidden>
+    <summary><span class="ptitle" data-t="overdueTitle"></span></summary>
+    <div class="pbody">
+      <p id="overdue-text"></p>
+      <p class="muted" data-t="overdueAttach"></p>
+      <a class="btn primary" id="complaint-mail" href="#" data-t="complaint"></a>
     </div>
-  </section>
+  </details>
 
-  <h1>מחיקת הפרטים שלי ממאגרי המפלגות</h1>
-  <p>כל אדם רשאי לדרוש ממפלגה למחוק את המידע עליו (סעיף 17ו לחוק הגנת הפרטיות).
-     ממלאים פרטים, לוחצים "שליחה" ליד כל רשימה, והמייל נפתח מוכן בתוכנת הדואר שלכם.</p>
+  <h1 data-t="title"></h1>
+  <p data-t="intro"></p>
 
-  <section>
-    <h2>הפרטים שלכם</h2>
-    <label for="f-name">שם מלא</label>
-    <input type="text" id="f-name" autocomplete="name">
-
-    <label for="f-id">מספר תעודת זהות
-      <span class="hint">המפלגות קיבלו את פנקס הבוחרים, שבו אתם רשומים לפי מספר ת"ז. כשהוא מופיע במכתב, קשה למפלגה לטעון שלא מצאה אתכם במאגר ולהתחמק מאחריות.
-        המספר לא נשמר ולא נשלח לשום מקום חוץ מהמייל שאתם שולחים. <a href="https://github.com/nadavbh12/party-spam" target="_blank" rel="noopener">קוד המקור</a>.</span>
-    </label>
-    <input type="text" id="f-id" inputmode="numeric">
-
-    <label for="f-phone">מספר טלפון <span class="hint">המספר שאליו מגיעות ההודעות.</span></label>
-    <input type="text" id="f-phone" inputmode="tel" autocomplete="tel">
-
-    <label for="f-address">כתובת מגורים <span class="hint">לא חובה.</span></label>
-    <input type="text" id="f-address" autocomplete="street-address">
-    <p class="error" id="form-error" role="alert"></p>
-  </section>
-
-  <section>
-    <h2>הרשימות</h2>
-    <p class="muted">מסודרות לפי גודל בסקרים, מהגדולה לקטנה. כל מייל מופנה לכל המפלגות הרשומות שמרכיבות את הרשימה.</p>
-    <p class="progress" id="progress"></p>
-    <ul class="lists" id="lists"></ul>
-  </section>
-
-  <section id="done" hidden>
-    <h2>מה עכשיו</h2>
-    <p>המייל שמור בתיקיית הדואר היוצא שלכם. זו ההוכחה שלכם, אל תמחקו אותו.</p>
-    <p>למפלגה יש 30 יום למחוק אתכם ולהודיע לכם. אם לא ענתה, אפשר להתלונן לרשות להגנת הפרטיות או לתבוע בבית משפט השלום.
-      <a href="https://www.kolzchut.org.il/he/הסרת_פרטים_של_בעלי_זכות_בחירה_ממאגרי_המידע_של_המפלגות" target="_blank" rel="noopener">כל הפרטים בכל זכות</a>.</p>
-    <div class="done-actions">
-      <button type="button" id="calendar">הוספה ליומן: בדיקה בעוד 30 יום</button>
-      <a class="btn" id="share" target="_blank" rel="noopener">שיתוף בוואטסאפ</a>
+  <details class="panel" id="p-form">
+    <summary><span class="ptitle" data-t="formTitle"></span><span class="psum" id="form-summary"></span></summary>
+    <div class="pbody">
+      <p class="form-alert" id="form-alert" role="alert" hidden></p>
+      <div class="field" id="fld-name">
+        <label for="f-name" data-t="nameLabel"></label>
+        <input type="text" id="f-name" autocomplete="name" aria-describedby="err-name">
+        <p class="field-error" id="err-name"></p>
+      </div>
+      <div class="field" id="fld-id">
+        <label for="f-id" data-t="idLabel"></label>
+        <input type="text" id="f-id" inputmode="numeric" autocomplete="off" aria-describedby="err-id">
+        <button type="button" class="linkish" id="id-why" data-t="idWhy"></button>
+        <p class="field-error" id="err-id"></p>
+      </div>
+      <div class="field" id="fld-phone">
+        <label for="f-phone"><span data-t="phoneLabel"></span> <span class="hint" data-t="phoneHint"></span></label>
+        <input type="text" id="f-phone" inputmode="tel" autocomplete="tel" aria-describedby="err-phone">
+        <p class="field-error" id="err-phone"></p>
+      </div>
+      <div class="field" id="fld-address">
+        <label for="f-address"><span data-t="addressLabel"></span> <span class="hint" data-t="addressHint"></span></label>
+        <input type="text" id="f-address" autocomplete="street-address">
+      </div>
+      <p class="muted" style="margin-top:16px" data-t="savedNote"></p>
+      <button type="button" class="primary block" id="continue" data-t="continue"></button>
     </div>
-  </section>
+  </details>
 
-  <section>
-    <details>
-      <summary>הצגת המכתב</summary>
-      <pre class="letter" id="preview"></pre>
-    </details>
-  </section>
+  <details class="panel" id="p-lists">
+    <summary><span class="ptitle" data-t="listsTitle"></span><span class="psum" id="lists-summary"></span></summary>
+    <div class="pbody">
+      <p class="muted" data-t="orderNote"></p>
+      <p class="progress" id="progress"></p>
+      <div class="bulk">
+        <div id="bulk"></div>
+        <p class="muted" style="margin-top:8px" data-t="spamNote"></p>
+        <p class="muted" data-t="hebrewNote" data-not-he></p>
+      </div>
+      <ul class="lists" id="lists"></ul>
+    </div>
+  </details>
 
-  <p class="muted" style="margin-top:16px">כתובות המפלגות מ<a href="https://www.gov.il/he/departments/dynamiccollectors/parties-db" target="_blank" rel="noopener">מאגר רשם המפלגות</a> (נשלף ב-{{SCRAPED_DATE}})
-     ומאתרי המפלגות. הדף אינו ייעוץ משפטי.</p>
+  <details class="panel" id="p-done" hidden>
+    <summary><span class="ptitle" data-t="doneTitle"></span></summary>
+    <div class="pbody">
+      <p data-t="doneProof"></p>
+      <p><span data-t="done30"></span>
+        <a href="https://www.kolzchut.org.il/he/הסרת_פרטים_של_בעלי_זכות_בחירה_ממאגרי_המידע_של_המפלגות" target="_blank" rel="noopener" data-t="kolzchut"></a></p>
+      <div class="actions">
+        <button type="button" id="calendar" data-t="calendar"></button>
+        <a class="btn" id="share" target="_blank" rel="noopener" data-t="share"></a>
+      </div>
+    </div>
+  </details>
+
+  <details class="panel" id="p-letter">
+    <summary><span class="ptitle" data-t="letterTitle"></span></summary>
+    <div class="pbody">
+      <p class="muted" data-t="hebrewNote" data-not-he></p>
+      <h3 data-t="letterHebrew" data-not-he></h3>
+      <pre class="letter" id="letter-he" dir="rtl" lang="he"></pre>
+      <h3 data-t="letterTranslation" data-not-he></h3>
+      <pre class="letter" id="letter-tr" data-not-he></pre>
+    </div>
+  </details>
+
+  <footer class="muted" id="footer"></footer>
 </main>
+
+<dialog id="id-dialog" aria-labelledby="id-dialog-title">
+  <h2 id="id-dialog-title" data-t="idDialogTitle"></h2>
+  <p style="margin-top:16px" data-t="idDialogBody"></p>
+  <form method="dialog"><button type="submit" class="primary" data-t="close"></button></form>
+</dialog>
 
 <script id="data" type="application/json">{{DATA}}</script>
 <script>
+{{VALIDATE_JS}}
+</script>
+<script>
 const DATA = JSON.parse(document.getElementById('data').textContent);
+const I18N = DATA.i18n;
 const SITE_URL = 'https://nadavbh12.github.io/party-spam/';
+const SOURCE_URL = 'https://github.com/nadavbh12/party-spam';
+const REGISTRY_URL = 'https://www.gov.il/he/departments/dynamiccollectors/parties-db';
 const PPA_EMAIL = 'ppa@justice.gov.il';
-const SUBJECT = 'דרישה למחיקת מידע אישי ממאגרי המידע של המפלגה';
 const DAY_MS = 24 * 60 * 60 * 1000;
+const $ = id => document.getElementById(id);
+const enc = encodeURIComponent;
 
-// Kept only in this browser: 'opened' = mail client opened but not yet confirmed;
-// 'sent' = the user confirmed sending; 'details' = name, phone and address, so a reload
-// does not wipe the form. The ID number is deliberately never stored.
-function load(key) {
-  try { return JSON.parse(localStorage.getItem(key)) || {}; } catch (e) { return {}; }
+// ---- Storage: kept only in this browser. The ID number is deliberately never stored. ----
+function load(key, fallback) {
+  try { return JSON.parse(localStorage.getItem(key)) ?? fallback; } catch (e) { return fallback; }
 }
 function save(key, value) {
   try { localStorage.setItem(key, JSON.stringify(value)); } catch (e) { /* storage unavailable: state lasts only this visit */ }
 }
-const sent = load('party-deletion-sent');
-const opened = load('party-deletion-opened');
+const sent = load('party-deletion-sent', {});           // party number -> ISO date the user confirmed sending
+let pending = load('party-deletion-pending', null);     // {titles, source: 'row' | 'bulk'} awaiting "did it go out?"
+const details = load('party-deletion-details', {});     // name, phone, address
 const SAVED_FIELDS = ['f-name', 'f-phone', 'f-address'];
-const details = load('party-deletion-details');
-SAVED_FIELDS.forEach(id => { document.getElementById(id).value = details[id] || ''; });
-const field = id => document.getElementById(id).value.trim();
-const today = () => new Date().toISOString().slice(0, 10);
-const formatDate = iso => new Date(iso).toLocaleDateString('he-IL', { day: 'numeric', month: 'numeric', year: 'numeric' });
 
-// One unit = one row and one email: an electoral list and the registered parties behind it.
-function buildUnits() {
+// ---- Language and theme ----
+// Hebrew unless the user picked another language: many Israelis run their phone in English.
+function initialLang() {
+  const saved = load('party-deletion-lang', null);
+  return saved && I18N.languages[saved] ? saved : 'he';
+}
+let lang = initialLang();
+const t = (key, vars = {}) => I18N.ui[lang][key].replace(/\{(\w+)\}/g, (_, k) => vars[k]);
+const listName = title => (lang === 'he' ? title : I18N.lists[lang][title]);
+const formatDate = iso => new Date(iso).toLocaleDateString(I18N.languages[lang].locale);
+const today = () => new Date().toISOString().slice(0, 10);
+
+function effectiveTheme() {
+  return load('party-deletion-theme', null) || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+}
+function applyTheme() {
+  const stored = load('party-deletion-theme', null);
+  if (stored) document.documentElement.dataset.theme = stored;
+  else delete document.documentElement.dataset.theme;
+  $('theme').textContent = effectiveTheme() === 'dark' ? t('themeToLight') : t('themeToDark');
+}
+
+// ---- Data ----
+const UNITS = (() => {
   const byList = new Map(DATA.list_order.map(name => [name, []]));
   DATA.parties.forEach(p => byList.get(p.list).push(p));
   return [...byList].map(([title, parties]) => {
@@ -157,80 +257,84 @@ function buildUnits() {
     }));
     return { title, parties, emails };
   });
-}
-const UNITS = buildUnits();
+})();
 const isSent = unit => unit.parties.some(p => sent[p.number]);
-const isOpened = unit => unit.parties.some(p => opened[p.number]);
 const sentDate = unit => unit.parties.map(p => sent[p.number]).find(Boolean);
+const remaining = () => UNITS.filter(u => u.emails.length && !isSent(u));
+const unitsByTitle = titles => UNITS.filter(u => titles.includes(u.title));
 
-function letterBody(unit) {
+// ---- Form and validation ----
+const value = id => $(id).value.trim();
+const formValues = () => ({ name: value('f-name'), id: value('f-id'), phone: value('f-phone') });
+const touched = new Set();
+const FIELD_INPUT = { name: 'f-name', id: 'f-id', phone: 'f-phone' };
+
+function renderErrors(showAll) {
+  const errors = validateForm(formValues());
+  for (const field of Object.keys(FIELD_INPUT)) {
+    const key = (showAll || touched.has(field)) ? errors[field] : null;
+    // "ID or phone" is one error about two fields: mark both, explain once under the phone.
+    const markedById = field === 'id' && errors.phone === 'idOrPhone' && (showAll || touched.has('phone'));
+    $(`fld-${field}`).classList.toggle('invalid', Boolean(key || markedById));
+    $(FIELD_INPUT[field]).setAttribute('aria-invalid', String(Boolean(key || markedById)));
+    $(`err-${field}`).textContent = key ? t(key) : '';
+  }
+  if (!Object.keys(errors).length) $('form-alert').hidden = true;
+  return errors;
+}
+
+// Checks the form before any send; on failure opens the form, marks every problem and focuses the first.
+function requireValidForm() {
+  const errors = renderErrors(true);
+  const first = Object.keys(FIELD_INPUT).find(f => errors[f]);
+  if (!first) return true;
+  $('p-form').open = true;
+  $('form-alert').textContent = t('fixBelow');
+  $('form-alert').hidden = false;
+  $(FIELD_INPUT[first]).focus();
+  $('fld-' + first).scrollIntoView({ behavior: 'smooth', block: 'center' });
+  return false;
+}
+
+// ---- Letters (always sent in Hebrew; other languages are shown for understanding only) ----
+function letterText(letterLang, parties) {
+  const L = I18N.letter[letterLang];
+  const fill = (s, vars) => s.replace(/\{(\w+)\}/g, (_, k) => vars[k]);
+  const name = value('f-name') || L.placeholderName;
   const lines = [
-    'לכבוד',
-    ...unit.parties.map(p => `${p.name} (מספר מפלגה ${p.number})`),
-    '',
-    'הנדון: דרישה למחיקת מידע אישי ממאגרי המידע של המפלגה',
-    '',
-    `שמי ${field('f-name') || '[שם מלא]'}${field('f-id') ? `, ת"ז ${field('f-id')}` : ''}.`,
-    'בהתאם לסעיף 17ו לחוק הגנת הפרטיות, התשמ"א-1981, הנני לדרוש למחוק מכל מאגרי המידע שבשליטתכם, לרבות מאגרים המשמשים לדיוור ישיר ויישומוני בחירות, כל מידע אישי המתייחס אליי, ובכלל זה:',
-    '- פרטים שהתקבלו מפנקס הבוחרים;',
-    '- מספרי טלפון, כתובות דואר אלקטרוני וכתובות מגורים;',
-    '- מידע שהוזן או הועלה על ידי פעילים או משתמשי יישומונים;',
-    '- כל סיווג, הערכה או תיעוד של עמדותיי הפוליטיות או של השתתפותי בהצבעה.',
-    '',
-    'כמו כן, אבקש שלא תעבירו מידע זה לאחר ושתחדלו מכל פנייה אליי.',
-    'אבקש לקבל אישור בכתב על ביצוע המחיקה, בתשובה למייל זה.',
-    '',
-    'פרטים לזיהוי:',
+    L.to,
+    ...parties.map(p => fill(L.partyLine, { name: p.name, number: p.number })),
+    '', L.re, '',
+    fill(L.intro, { name, idPart: value('f-id') ? fill(L.idPart, { id: value('f-id') }) : '' }),
+    L.demand, ...L.items, '', L.also, L.ask, '', L.identify,
   ];
-  if (field('f-phone')) lines.push(`טלפון: ${field('f-phone')}`);
-  if (field('f-address')) lines.push(`כתובת: ${field('f-address')}`);
-  lines.push('', 'בכבוד רב,', field('f-name') || '[שם מלא]');
+  if (value('f-phone')) lines.push(fill(L.phone, { phone: value('f-phone') }));
+  if (value('f-address')) lines.push(fill(L.address, { address: value('f-address') }));
+  lines.push('', L.regards, name);
   return lines.join('\n');
 }
+const SUBJECT = I18N.letter.he.subject;
+const partiesOf = units => units.flatMap(u => u.parties);
+const emailsOf = units => [...new Set(units.flatMap(u => u.emails))];
+const mailtoUrl = units => `mailto:${emailsOf(units).join(',')}?subject=${enc(SUBJECT)}&body=${enc(letterText('he', partiesOf(units)))}`;
+const gmailUrl = units => `https://mail.google.com/mail/?view=cm&fs=1&to=${enc(emailsOf(units).join(','))}&su=${enc(SUBJECT)}&body=${enc(letterText('he', partiesOf(units)))}`;
 
-const enc = encodeURIComponent;
-const mailtoUrl = unit => `mailto:${unit.emails.join(',')}?subject=${enc(SUBJECT)}&body=${enc(letterBody(unit))}`;
-const gmailUrl = unit => `https://mail.google.com/mail/?view=cm&fs=1&to=${enc(unit.emails.join(','))}&su=${enc(SUBJECT)}&body=${enc(letterBody(unit))}`;
-
-function formError() {
-  if (!field('f-name')) return 'יש למלא שם מלא לפני השליחה.';
-  if (!field('f-id') && !field('f-phone')) return 'יש למלא תעודת זהות או טלפון, כדי שהמפלגה תוכל לזהות אתכם.';
-  return '';
-}
-
-// Returns true when the form is complete; otherwise shows the error next to the form.
-function checkForm() {
-  const err = formError();
-  const box = document.getElementById('form-error');
-  box.textContent = err;
-  if (err) box.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  return !err;
-}
-
-function markOpened(unit) {
-  unit.parties.forEach(p => { opened[p.number] = today(); });
-  save('party-deletion-opened', opened);
+// ---- Sending ----
+function setPending(units, source) {
+  pending = { titles: units.map(u => u.title), source };
+  save('party-deletion-pending', pending);
   render();
 }
 
-function confirmSent(unit, didSend) {
-  unit.parties.forEach(p => {
-    delete opened[p.number];
-    if (didSend) sent[p.number] = today();
-  });
-  save('party-deletion-opened', opened);
+function confirmPending(didSend) {
+  if (didSend) {
+    unitsByTitle(pending.titles).forEach(u => u.parties.forEach(p => { sent[p.number] = today(); }));
+    choosing = false;
+  }
+  pending = null;
+  save('party-deletion-pending', null);
   save('party-deletion-sent', sent);
   render();
-}
-
-async function copyLetter(unit, button) {
-  const text = (unit.emails.length ? `אל: ${unit.emails.join(', ')}\n` : '') + `נושא: ${SUBJECT}\n\n${letterBody(unit)}`;
-  try {
-    await navigator.clipboard.writeText(text);
-    button.textContent = 'הועתק';
-  } catch (e) {
-    button.textContent = 'ההעתקה נכשלה. פתחו את "הצגת המכתב" והעתיקו ידנית';
-  }
 }
 
 function el(tag, props = {}, children = []) {
@@ -239,72 +343,114 @@ function el(tag, props = {}, children = []) {
   return node;
 }
 
+// A send link (mail app or Gmail): validates first, then builds the URL at click time so it uses the latest details.
+function sendLink(text, units, source, { primary = false, gmail = false } = {}) {
+  const a = el('a', { className: primary ? 'btn primary' : 'linkish', textContent: text, href: '#' });
+  if (gmail) { a.target = '_blank'; a.rel = 'noopener'; }
+  if (!units.length) a.classList.add('disabled');
+  a.addEventListener('click', ev => {
+    if (!units.length || !requireValidForm()) { ev.preventDefault(); return; }
+    a.href = gmail ? gmailUrl(units) : mailtoUrl(units);
+    setTimeout(() => setPending(units, source), 0);
+  });
+  return a;
+}
+
+function copyButton(units) {
+  const b = el('button', { type: 'button', className: 'linkish', textContent: t('copy') });
+  b.addEventListener('click', async () => {
+    if (!units.length || !requireValidForm()) return;
+    const text = `${emailsOf(units).join(', ')}\n${SUBJECT}\n\n${letterText('he', partiesOf(units))}`;
+    try { await navigator.clipboard.writeText(text); b.textContent = t('copied'); }
+    catch (e) { b.textContent = t('copyFailed'); }
+  });
+  return b;
+}
+
+function confirmBox(question) {
+  const yes = el('button', { type: 'button', className: 'primary', textContent: t('yes') });
+  const no = el('button', { type: 'button', textContent: t('notYet') });
+  yes.addEventListener('click', () => confirmPending(true));
+  no.addEventListener('click', () => confirmPending(false));
+  return el('div', { className: 'actions' }, [el('span', { textContent: question }), yes, no]);
+}
+
+let choosing = false;
+let chosen = new Set();
+
+function renderBulk() {
+  const box = $('bulk');
+  const left = remaining();
+  if (pending?.source === 'bulk') {
+    box.replaceChildren(confirmBox(t('confirmQMany', { n: pending.titles.length })));
+  } else if (!left.length) {
+    box.replaceChildren();
+  } else if (choosing) {
+    const picked = left.filter(u => chosen.has(u.title));
+    const cancel = el('button', { type: 'button', className: 'linkish', textContent: t('cancelChoose') });
+    cancel.addEventListener('click', () => { choosing = false; render(); });
+    box.replaceChildren(
+      sendLink(t('sendSelected', { n: picked.length }), picked, 'bulk', { primary: true }),
+      el('div', { className: 'actions' }, [sendLink(t('gmail'), picked, 'bulk', { gmail: true }), copyButton(picked), cancel]));
+  } else {
+    const label = left.length === UNITS.filter(u => u.emails.length).length ? t('sendAll') : t('sendRemaining', { n: left.length });
+    const choose = el('button', { type: 'button', className: 'linkish', textContent: t('choose') });
+    choose.addEventListener('click', () => { choosing = true; chosen = new Set(left.map(u => u.title)); render(); });
+    box.replaceChildren(
+      sendLink(label, left, 'bulk', { primary: true }),
+      el('div', { className: 'actions' }, [sendLink(t('gmail'), left, 'bulk', { gmail: true }), copyButton(left), choose]));
+  }
+}
+
 function unitRow(unit, isNext) {
   const li = el('li', { className: isNext ? 'next' : '' });
-  const head = el('div', { className: 'row' }, [el('span', { className: 'lname', textContent: unit.title })]);
+  const nameEl = el('span', { className: 'lname', textContent: listName(unit.title) });
+  const head = el('div', { className: 'row' });
   const actions = el('div', { className: 'actions' });
 
-  if (isSent(unit)) {
-    head.append(el('span', { className: 'status-sent', textContent: `נשלח ב-${formatDate(sentDate(unit))}` }));
-  } else if (!unit.emails.length) {
-    head.append(el('span', { className: 'status-nomail', textContent: 'אין דוא"ל' }));
-    const copy = el('button', { type: 'button', className: 'linkish', textContent: 'העתקת המכתב לדואר רשום' });
-    copy.addEventListener('click', () => { if (checkForm()) copyLetter(unit, copy); });
-    actions.append(copy);
-  } else if (isOpened(unit)) {
-    const yes = el('button', { type: 'button', className: 'primary', textContent: 'כן, נשלח' });
-    const no = el('button', { type: 'button', textContent: 'עוד לא' });
-    yes.addEventListener('click', () => confirmSent(unit, true));
-    no.addEventListener('click', () => confirmSent(unit, false));
-    actions.append(el('span', { textContent: 'המייל נשלח?' }), yes, no);
+  if (choosing && !isSent(unit)) {
+    const box = el('input', { type: 'checkbox', checked: chosen.has(unit.title) });
+    box.addEventListener('change', () => { box.checked ? chosen.add(unit.title) : chosen.delete(unit.title); render(); });
+    head.append(el('label', {}, [box, nameEl]));
   } else {
-    const send = el('a', { className: 'btn primary', textContent: 'שליחה', href: '#' });
-    send.addEventListener('click', ev => {
-      if (!checkForm()) { ev.preventDefault(); return; }
-      send.href = mailtoUrl(unit);
-      setTimeout(() => markOpened(unit), 0);
-    });
-    head.append(send);
-    const gmail = el('a', { className: 'linkish', textContent: 'פתיחה ב-Gmail', href: '#', target: '_blank', rel: 'noopener' });
-    gmail.addEventListener('click', ev => {
-      if (!checkForm()) { ev.preventDefault(); return; }
-      gmail.href = gmailUrl(unit);
-      setTimeout(() => markOpened(unit), 0);
-    });
-    const copy = el('button', { type: 'button', className: 'linkish', textContent: 'העתקה' });
-    copy.addEventListener('click', () => { if (checkForm()) copyLetter(unit, copy); });
-    actions.append(gmail, copy);
+    head.append(nameEl);
+  }
+
+  if (isSent(unit)) {
+    head.append(el('span', { className: 'status-sent', textContent: t('sentOn', { date: formatDate(sentDate(unit)) }) }));
+  } else if (pending?.source === 'row' && pending.titles.includes(unit.title)) {
+    actions.append(confirmBox(t('confirmQ')));
+  } else if (!choosing && unit.emails.length) {
+    head.append(sendLink(t('send'), [unit], 'row', { primary: true }));
+    actions.append(sendLink(t('gmail'), [unit], 'row', { gmail: true }), copyButton([unit]));
   }
 
   const recipients = el('ul', { className: 'recipients' }, unit.parties.map(p => el('li', {
     textContent: p.emails.length
-      ? `${p.name}: ${p.emails.join(', ')}` + (p.contact_note ? ` (${p.contact_note})` : '')
-      : `${p.name}: דואר רשום בלבד, ${p.address || 'אין כתובת במרשם'}`,
+      ? `${p.name}: ${p.emails.join(', ')}` + (p.note_key ? ` (${t(p.note_key)})` : '')
+      : `${p.name}: ${t('regMail')}, ${p.address || t('noAddress')}`,
   })));
-  actions.append(el('details', {}, [el('summary', { className: 'linkish', textContent: 'למי זה נשלח' }), recipients]));
+  actions.append(el('details', {}, [el('summary', { className: 'linkish', textContent: t('whoGetsIt') }), recipients]));
 
   li.append(head, actions);
   return li;
 }
 
+// ---- After sending ----
 function overdueUnits() {
-  const now = Date.now();
-  return UNITS.filter(u => isSent(u) && now - new Date(sentDate(u)).getTime() >= 30 * DAY_MS);
+  return UNITS.filter(u => isSent(u) && Date.now() - new Date(sentDate(u)).getTime() >= 30 * DAY_MS);
 }
 
 function complaintMailto(units) {
+  const name = value('f-name');
   const body = [
-    'לכבוד הרשות להגנת הפרטיות,',
-    '',
-    `שמי ${field('f-name') || '[שם מלא]'}${field('f-id') ? `, ת"ז ${field('f-id')}` : ''}.`,
+    'לכבוד הרשות להגנת הפרטיות,', '',
+    `שמי ${name}${value('f-id') ? `, ת"ז ${value('f-id')}` : ''}.`,
     'פניתי בכתב למפלגות הבאות בדרישה למחוק את המידע האישי שלי ממאגרי המידע שלהן, לפי סעיף 17ו לחוק הגנת הפרטיות, התשמ"א-1981, ולא קיבלתי אישור על המחיקה בתוך 30 יום:',
-    ...units.map(u => `- ${u.parties.map(p => `${p.name} (${p.number})`).join(', ')}: פנייה מ-${formatDate(sentDate(u))}`),
-    '',
-    'הפניות המקוריות מצורפות.',
+    ...units.map(u => `- ${u.parties.map(p => `${p.name} (${p.number})`).join(', ')}: פנייה מ-${new Date(sentDate(u)).toLocaleDateString('he-IL')}`),
+    '', 'הפניות המקוריות מצורפות.',
     'אבקש שהרשות תבדוק את הטיפול בבקשתי ותורה על מחיקת המידע.',
-    '',
-    'בכבוד רב,',
-    field('f-name') || '[שם מלא]',
+    '', 'בכבוד רב,', name,
   ].join('\n');
   return `mailto:${PPA_EMAIL}?subject=${enc('תלונה: מפלגות לא מחקו את פרטיי ממאגרי המידע')}&body=${enc(body)}`;
 }
@@ -315,49 +461,103 @@ function calendarFile() {
   const ics = [
     'BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//party-spam//HE', 'BEGIN:VEVENT',
     `UID:party-spam-${first}@nadavbh12.github.io`, `DTSTAMP:${due}T090000Z`,
-    `DTSTART;VALUE=DATE:${due}`, 'SUMMARY:המפלגות מחקו אותי?',
-    `DESCRIPTION:עברו 30 יום מהפנייה. אם לא קיבלתם אישור מחיקה, אפשר להתלונן: ${SITE_URL}`,
+    `DTSTART;VALUE=DATE:${due}`, `SUMMARY:${t('icsSummary')}`,
+    `DESCRIPTION:${t('icsDescription')} ${SITE_URL}`,
     'END:VEVENT', 'END:VCALENDAR',
   ].join('\r\n');
   return URL.createObjectURL(new Blob([ics], { type: 'text/calendar' }));
 }
 
-function render() {
-  const firstOpen = UNITS.find(u => u.emails.length && !isSent(u));
-  document.getElementById('lists').replaceChildren(...UNITS.map(u => unitRow(u, u === firstOpen)));
-  const withMail = UNITS.filter(u => u.emails.length);
-  document.getElementById('progress').textContent =
-    `${withMail.filter(isSent).length} מתוך ${withMail.length} נשלחו`;
-  document.getElementById('preview').textContent = letterBody(UNITS[0]);
-  document.getElementById('done').hidden = !UNITS.some(isSent);
-
-  const overdue = overdueUnits();
-  document.getElementById('overdue').hidden = !overdue.length;
-  if (overdue.length) {
-    document.getElementById('overdue-text').textContent =
-      `${overdue.map(u => u.title).join(', ')}: עברו 30 יום מהפנייה. קיבלתם אישור מחיקה? אם לא, אפשר להתלונן.`;
-  }
+// ---- Rendering ----
+function applyStaticText() {
+  const meta = I18N.languages[lang];
+  document.documentElement.lang = lang;
+  document.documentElement.dir = meta.dir;
+  document.title = t('title');
+  document.querySelectorAll('[data-t]').forEach(node => { node.textContent = t(node.dataset.t); });
+  document.querySelectorAll('[data-not-he]').forEach(node => { node.hidden = lang === 'he'; });
+  $('lang').setAttribute('aria-label', t('language'));
+  const [before, after] = t('footer', { date: '{date}', registry: '\u0000' }).split('\u0000');
+  $('footer').replaceChildren(
+    before, el('a', { href: REGISTRY_URL, target: '_blank', rel: 'noopener', textContent: t('registry') }),
+    after.replace('{date}', '{{SCRAPED_DATE}}'), ' ',
+    el('a', { href: SOURCE_URL, target: '_blank', rel: 'noopener', textContent: t('source') }));
+  $('share').href = `https://wa.me/?text=${enc(`${t('shareText')} ${SITE_URL}`)}`;
+  applyTheme();
 }
 
-document.getElementById('complaint-mail').addEventListener('click', ev => {
-  if (!checkForm()) { ev.preventDefault(); return; }
+function render() {
+  const firstOpen = choosing ? null : remaining()[0];
+  $('lists').replaceChildren(...UNITS.map(u => unitRow(u, u === firstOpen)));
+  const total = UNITS.filter(u => u.emails.length).length;
+  const sentCount = UNITS.filter(isSent).length;
+  $('progress').textContent = t('progress', { sent: sentCount, total });
+  $('lists-summary').textContent = t('progress', { sent: sentCount, total });
+  renderBulk();
+
+  const errors = validateForm(formValues());
+  $('form-summary').textContent = Object.keys(errors).length ? '' : [value('f-name'), value('f-phone')].filter(Boolean).join(' · ');
+
+  const preview = pending ? partiesOf(unitsByTitle(pending.titles)) : UNITS[0].parties;
+  $('letter-he').textContent = letterText('he', preview);
+  $('letter-tr').textContent = letterText(lang, preview);
+  $('letter-tr').dir = I18N.languages[lang].dir;
+
+  const doneWasHidden = $('p-done').hidden;
+  $('p-done').hidden = !sentCount;
+  if (doneWasHidden && sentCount) $('p-done').open = true;
+
+  const overdue = overdueUnits();
+  $('p-overdue').hidden = !overdue.length;
+  if (overdue.length) $('overdue-text').textContent = t('overdueText', { lists: overdue.map(u => listName(u.title)).join(', ') });
+}
+
+// ---- Wiring ----
+Object.entries(I18N.languages).forEach(([code, meta]) => $('lang').append(el('option', { value: code, textContent: meta.name })));
+$('lang').value = lang;
+$('lang').addEventListener('change', () => {
+  lang = $('lang').value;
+  save('party-deletion-lang', lang);
+  applyStaticText();
+  renderErrors(false);
+  render();
+});
+$('theme').addEventListener('click', () => {
+  save('party-deletion-theme', effectiveTheme() === 'dark' ? 'light' : 'dark');
+  applyTheme();
+});
+
+SAVED_FIELDS.forEach(id => { $(id).value = details[id] || ''; });
+['f-name', 'f-id', 'f-phone', 'f-address'].forEach(id => {
+  $(id).addEventListener('input', () => {
+    if (SAVED_FIELDS.includes(id)) { details[id] = value(id); save('party-deletion-details', details); }
+    renderErrors(false);
+    render();
+  });
+});
+Object.entries(FIELD_INPUT).forEach(([field, id]) => $(id).addEventListener('blur', () => {
+  if (value(id)) touched.add(field);
+  renderErrors(false);
+}));
+
+$('continue').addEventListener('click', () => {
+  if (!requireValidForm()) return;
+  $('p-form').open = false;
+  $('p-lists').open = true;
+  $('p-lists').scrollIntoView({ behavior: 'smooth', block: 'start' });
+});
+$('id-why').addEventListener('click', () => $('id-dialog').showModal());
+$('calendar').addEventListener('click', () => el('a', { href: calendarFile(), download: 'party-spam-reminder.ics' }).click());
+$('complaint-mail').addEventListener('click', ev => {
+  if (!requireValidForm()) { ev.preventDefault(); return; }
   ev.currentTarget.href = complaintMailto(overdueUnits());
 });
 
-document.getElementById('calendar').addEventListener('click', () => {
-  const link = el('a', { href: calendarFile(), download: 'party-spam-reminder.ics' });
-  link.click();
-});
-document.getElementById('share').href =
-  `https://wa.me/?text=${enc(`מחקתי את הפרטים שלי ממאגרי המפלגות. לוקח שתי דקות: ${SITE_URL}`)}`;
-['f-name', 'f-id', 'f-phone', 'f-address'].forEach(id =>
-  document.getElementById(id).addEventListener('input', () => {
-    if (SAVED_FIELDS.includes(id)) {
-      details[id] = field(id);
-      save('party-deletion-details', details);
-    }
-    render();
-  }));
+// Open the form first; if saved details already make it valid, go straight to the lists.
+const startValid = !Object.keys(validateForm(formValues())).length;
+$('p-form').open = !startValid;
+$('p-lists').open = startValid;
+applyStaticText();
 render();
 </script>
 </body>
