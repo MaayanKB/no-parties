@@ -1,32 +1,36 @@
 <!doctype html>
-<!-- Source of og.png (the WhatsApp/social preview image). Render with:
+<!-- Source of og.png (the WhatsApp/social preview image). Render from the repo root with:
      "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" --headless --hide-scrollbars \
-       --window-size=1200,630 --screenshot=og.png og/og.html
+       --allow-file-access-from-files --window-size=1200,630 --screenshot="$PWD/og.png" "file://$PWD/og/og.html"
      Senders are deliberately generic: no real party names or logos. -->
 <html lang="he" dir="rtl">
 <head>
 <meta charset="utf-8">
 <style>
+  @font-face { font-family: "Rubik"; src: url("../fonts/Rubik-Variable.ttf"); font-weight: 300 900; }
+  @font-face { font-family: "Karantina"; src: url("../fonts/Karantina-Bold.ttf"); font-weight: 700; }
   * { box-sizing: border-box; margin: 0; }
-  body { width: 1200px; height: 630px; overflow: hidden; background: #1f5f8b; color: #fff;
-         font-family: "Arial Hebrew", "Noto Sans Hebrew", Arial, sans-serif;
+  body { width: 1200px; height: 630px; overflow: hidden; background: #0B1630; color: #EEF2FF; font-family: "Rubik";
          display: flex; align-items: center; justify-content: space-between; padding: 0 80px; gap: 64px; }
   .text { flex: 1; }
-  h1 { font-size: 72px; line-height: 1.1; font-weight: 800; }
-  h1 span { display: block; color: #ffd166; }
-  p { font-size: 32px; margin-top: 32px; opacity: .9; }
-  .phone { width: 360px; height: 560px; margin-top: 96px; background: #f7f6f2; border-radius: 48px 48px 0 0;
-           border: 12px solid #10202c; border-bottom: none; padding: 32px 24px; position: relative; color: #1d1d1b; }
-  .badge { position: absolute; top: -24px; left: -24px; background: #e5383b; color: #fff; font-weight: 800;
-           font-size: 32px; border-radius: 32px; padding: 8px 20px; border: 6px solid #1f5f8b; }
-  .msg { background: #fff; border-radius: 16px; padding: 16px; margin-bottom: 16px; box-shadow: 0 2px 8px rgb(0 0 0 / .08); }
-  .msg b { display: block; font-size: 20px; }
-  .msg span { font-size: 20px; color: #6b6a64; }
+  h1 { font-family: "Karantina"; font-weight: 700; font-size: 112px; line-height: 104px; }
+  .marker { position: relative; z-index: 0; display: inline-block; margin-top: 24px; padding: 0 16px; color: #0B1B3A;
+            transform: rotate(-2deg); }
+  .marker::before { content: ""; position: absolute; z-index: -1; inset: 8px -8px 0 -8px; background: #FFC72C;
+                    border-radius: 16px 4px 24px 8px / 8px 16px 8px 16px; transform: skewX(-8deg); }
+  p { font-size: 32px; line-height: 40px; font-weight: 300; margin-top: 32px; color: #AAB4CC; }
+  .phone { width: 360px; height: 560px; margin-top: 96px; background: #F7F8FC; border-radius: 48px 48px 0 0;
+           border: 12px solid #0038B8; border-bottom: none; padding: 32px 24px; position: relative; color: #0B1B3A; }
+  .badge { position: absolute; top: -24px; left: -24px; background: #E5383B; color: #fff; font-weight: 800;
+           font-size: 32px; border-radius: 32px; padding: 8px 20px; border: 6px solid #0B1630; }
+  .msg { background: #fff; border-radius: 16px; padding: 16px; margin-bottom: 16px; box-shadow: 0 2px 8px rgb(11 27 58 / .08); }
+  .msg b { display: block; font-size: 20px; font-weight: 600; }
+  .msg span { font-size: 20px; color: #4A5670; }
 </style>
 </head>
 <body>
   <div class="text">
-    <h1>נמאס לך מהודעות מהמפלגות?<span>גם לנו.</span></h1>
+    <h1>נמאס לך מהודעות מהמפלגות?<br><span class="marker">גם לנו.</span></h1>
     <p>מוחקים אתכם מהמאגר. שתי דקות, חינם.</p>
   </div>
   <div class="phone">
