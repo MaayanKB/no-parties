@@ -16,43 +16,74 @@
 <meta property="og:image:alt" content="נמאס מהודעות מהמפלגות? גם לנו.">
 <meta name="twitter:card" content="summary_large_image">
 <style>
+  /* Fonts are hosted with the page (no third-party requests): Rubik for text, Karantina for the title. */
+  @font-face { font-family: "Rubik"; src: url("fonts/Rubik-Variable.ttf") format("truetype"); font-weight: 300 900; font-display: swap; }
+  @font-face { font-family: "Karantina"; src: url("fonts/Karantina-Bold.ttf") format("truetype"); font-weight: 700; font-display: swap; }
+
+  /* Palette: Israeli flag blue and white, protest-marker yellow as the only accent.
+     Every pair meets WCAG AA or better; nothing relies on color alone (icons and words carry state). */
   :root {
-    --bg: #f7f6f2; --card: #ffffff; --ink: #1d1d1b; --muted: #6b6a64; --line: #e2e0d8;
-    --accent: #1f5f8b; --on-accent: #ffffff; --ok: #2e7d4f; --highlight: #fff6dc;
-    --error: #b3261e; --error-bg: #fdecea;
+    --bg: #F7F8FC; --card: #FFFFFF; --line: #DCE2EE; --ink: #0B1B3A; --muted: #4A5670;
+    --accent: #0038B8; --on-accent: #FFFFFF; --marker: #FFC72C; --on-marker: #0B1B3A;
+    --highlight: #FFF4CC; --error: #B3261E; --error-bg: #FDECEA;
   }
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
-      --bg: #161615; --card: #1f1f1d; --ink: #ecebe6; --muted: #a09f98; --line: #33322e;
-      --accent: #6fb0de; --on-accent: #10202c; --ok: #6cc08f; --highlight: #2c2817;
-      --error: #f2a097; --error-bg: #3a1f1c;
+      --bg: #0B1630; --card: #13224A; --line: #2A3B66; --ink: #EEF2FF; --muted: #AAB4CC;
+      --accent: #8FB0FF; --on-accent: #0B1630; --highlight: #2E2A12; --error: #FF9A8F; --error-bg: #3A1A24;
     }
   }
   :root[data-theme="dark"] {
-    --bg: #161615; --card: #1f1f1d; --ink: #ecebe6; --muted: #a09f98; --line: #33322e;
-    --accent: #6fb0de; --on-accent: #10202c; --ok: #6cc08f; --highlight: #2c2817;
-    --error: #f2a097; --error-bg: #3a1f1c;
+    --bg: #0B1630; --card: #13224A; --line: #2A3B66; --ink: #EEF2FF; --muted: #AAB4CC;
+    --accent: #8FB0FF; --on-accent: #0B1630; --highlight: #2E2A12; --error: #FF9A8F; --error-bg: #3A1A24;
   }
+
+  /* Type scale on the 8px grid: 48/48 title, 24/32 punch line, 20/28 section titles, 16/24 everything else. */
   * { box-sizing: border-box; }
+  [hidden] { display: none !important; }   /* components below set display; hidden must still win */
   body { margin: 0; background: var(--bg); color: var(--ink);
-         font: 16px/1.5 system-ui, -apple-system, "Segoe UI", "Noto Sans Ethiopic", Arial, sans-serif; }
+         font: 16px/24px "Rubik", system-ui, -apple-system, "Segoe UI", "Noto Sans Ethiopic", Arial, sans-serif; }
   main { max-width: 720px; margin: 0 auto; padding: 16px 16px 64px; }
-  h1 { font-size: 1.5rem; line-height: 1.33; margin: 16px 0 8px; }
-  h2 { font-size: 1.125rem; margin: 0; }
-  h3 { font-size: 1rem; margin: 16px 0 8px; }
+  h1 { font-family: "Karantina", "Rubik", system-ui, sans-serif; font-weight: 700; font-size: 48px; line-height: 48px;
+       margin: 24px 0 16px; }
+  h1[data-icon]::before { width: 40px; height: 40px; vertical-align: -4px; color: var(--accent); }
+  h2 { font-size: 20px; line-height: 28px; margin: 0; }
+  h3 { font-size: 16px; margin: 16px 0 8px; }
   p { margin: 0 0 8px; }
   a { color: var(--accent); }
-  .muted { color: var(--muted); font-size: .875rem; }
+  .muted { color: var(--muted); }
   .intro p { margin: 0; }
-  .intro .punch { font-size: 1.25rem; font-weight: 800; color: var(--accent); margin: 8px 0; }
+  .intro .punch { display: inline-block; margin: 8px 0; padding: 0 8px; font-size: 24px; line-height: 32px; font-weight: 600;
+                  background: var(--marker); color: var(--on-marker); }
+
+  /* Icons: inline SVG masks, so they take the text color and survive text changes. */
+  [data-icon]::before { content: ""; display: inline-block; flex: none; width: 20px; height: 20px; vertical-align: -4px;
+                        background: currentColor; -webkit-mask: var(--icon) center / contain no-repeat; mask: var(--icon) center / contain no-repeat; }
+  [data-icon]:not(:empty)::before { margin-inline-end: 8px; }
+  [dir="rtl"] [data-icon="skip"]::before, [dir="rtl"] [data-icon="send"]::before { transform: scaleX(-1); }
+  [data-icon="send"] { --icon: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M22 2 11 13'/><path d='M22 2 15 22l-4-9-9-4z'/></svg>"); }
+  [data-icon="check"] { --icon: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='9'/><path d='m8 12 3 3 5-6'/></svg>"); }
+  [data-icon="copy"] { --icon: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><rect x='9' y='9' width='12' height='12' rx='2'/><path d='M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1'/></svg>"); }
+  [data-icon="lock"] { --icon: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><rect x='4' y='11' width='16' height='10' rx='2'/><path d='M8 11V7a4 4 0 0 1 8 0v4'/></svg>"); }
+  [data-icon="alert"] { --icon: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M12 3 2 21h20z'/><path d='M12 10v5M12 18h.01'/></svg>"); }
+  [data-icon="calendar"] { --icon: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><rect x='3' y='5' width='18' height='16' rx='2'/><path d='M3 10h18M8 3v4M16 3v4'/></svg>"); }
+  [data-icon="chat"] { --icon: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M3 21l1.6-4.7A8.5 8.5 0 1 1 8 19.6z'/><path d='M9.5 8.5c0 3.3 2.7 6 6 6l.5-2-2-.8-.8.8a4 4 0 0 1-1.7-1.7l.8-.8-.8-2z'/></svg>"); }
+  [data-icon="mail"] { --icon: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><rect x='3' y='5' width='18' height='14' rx='2'/><path d='m3 7 9 6 9-6'/></svg>"); }
+  [data-icon="skip"] { --icon: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='m5 5 9 7-9 7z'/><path d='M19 5v14'/></svg>"); }
+  [data-icon="stop"] { --icon: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><rect x='6' y='6' width='12' height='12' rx='1'/></svg>"); }
+  [data-icon="megaphone"] { --icon: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M3 11v2a1 1 0 0 0 1 1h3l8 5V5L7 10H4a1 1 0 0 0-1 1z'/><path d='M19 9a4 4 0 0 1 0 6'/></svg>"); }
+  [data-icon="sun"] { --icon: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='4'/><path d='M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5 19 19M5 19l1.5-1.5M17.5 6.5 19 5'/></svg>"); }
+  [data-icon="moon"] { --icon: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z'/></svg>"); }
+  :root { --alert-icon: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M12 3 2 21h20z'/><path d='M12 10v5M12 18h.01'/></svg>"); }
 
   .topbar { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
   .langs { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
   .langs .globe { color: var(--accent); flex: none; }
-  .langs button { min-height: 40px; padding: 8px 12px; border-radius: 24px; background: var(--card);
-                  border-color: var(--accent); color: var(--accent); font-size: .875rem; }
+  .langs button { min-height: 40px; padding: 8px 16px; border-radius: 24px; background: var(--card);
+                  border-color: var(--accent); color: var(--accent); }
   .langs button[aria-pressed="true"] { background: var(--accent); color: var(--on-accent); font-weight: 600; }
-  .icon-btn { min-height: 40px; min-width: 40px; padding: 8px; border-radius: 24px; background: var(--card); font-size: 1rem; }
+  .icon-btn { min-height: 40px; min-width: 40px; padding: 8px; border-radius: 24px; background: var(--card); color: var(--ink); }
+  .icon-btn::before { margin: 0; }
 
   details.panel { background: var(--card); border: 1px solid var(--line); border-radius: 8px; margin-top: 16px; }
   details.panel > summary { list-style: none; cursor: pointer; padding: 16px; display: flex;
@@ -60,69 +91,69 @@
   details.panel > summary::-webkit-details-marker { display: none; }
   details.panel > summary::after { content: "▾"; color: var(--muted); }
   details.panel[open] > summary::after { content: "▴"; }
-  .ptitle { font-weight: 700; font-size: 1.125rem; }
-  .psum { color: var(--muted); font-size: .875rem; flex: 1; text-align: end; overflow: hidden;
-          text-overflow: ellipsis; white-space: nowrap; }
+  .ptitle { font-weight: 600; font-size: 20px; line-height: 28px; }
+  .psum { color: var(--muted); flex: 1; text-align: end; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .pbody { padding: 0 16px 16px; }
 
   .field { margin-top: 16px; }
   .field:first-of-type { margin-top: 0; }
   label { display: block; font-weight: 600; }
-  .hint { font-weight: 400; color: var(--muted); font-size: .875rem; }
+  .hint { font-weight: 400; color: var(--muted); }
   input[type=text] { width: 100%; min-height: 48px; padding: 8px 16px; margin-top: 8px; font: inherit; color: inherit;
                      background: var(--bg); border: 1px solid var(--line); border-radius: 8px; }
-  .field.invalid input { border-color: var(--error); background: var(--error-bg); }
-  .field-error { color: var(--error); font-size: .875rem; margin: 8px 0 0; }
+  input[type=text]:focus-visible, button:focus-visible, a:focus-visible, summary:focus-visible {
+    outline: 3px solid var(--accent); outline-offset: 2px; }
+  .field.invalid input { border: 2px solid var(--error); background: var(--error-bg); }
+  .field-error { color: var(--error); margin: 8px 0 0; display: flex; gap: 8px; }
+  .field-error::before { content: ""; flex: none; width: 20px; height: 20px; margin-top: 2px; background: currentColor;
+                         -webkit-mask: var(--alert-icon) center / contain no-repeat; mask: var(--alert-icon) center / contain no-repeat; }
   .field-error:empty { display: none; }
-  .form-alert { color: var(--error); background: var(--error-bg); border-radius: 8px; padding: 8px 16px; }
+  .form-alert { color: var(--error); background: var(--error-bg); border-radius: 8px; padding: 8px 16px; display: flex; align-items: center; }
 
   button, a.btn { font: inherit; cursor: pointer; border-radius: 8px; min-height: 48px; padding: 8px 16px;
                   border: 1px solid var(--line); background: var(--bg); color: var(--ink);
                   text-decoration: none; display: inline-flex; align-items: center; justify-content: center; }
   button.primary, a.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); font-weight: 600; }
   a.btn.disabled { opacity: .5; pointer-events: none; }
-  .linkish { background: none; border: none; padding: 0 8px; min-height: 40px; color: var(--accent);
-             text-decoration: underline; font-size: .875rem; }
+  .linkish { background: none; border: none; padding: 0 8px; min-height: 40px; color: var(--accent); text-decoration: underline; }
   .block { width: 100%; margin-top: 16px; }
 
   .progress { font-weight: 600; margin: 16px 0 8px; }
-  .bulk { border: 1px solid var(--line); border-radius: 8px; padding: 16px; margin: 8px 0 16px; }
+  .bulk { border: 2px solid var(--accent); border-radius: 8px; padding: 16px; margin: 8px 0 16px; }
   .bulk .btn.primary { width: 100%; }
   .actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 8px; }
   ul.lists { list-style: none; margin: 0; padding: 0; }
   ul.lists > li { padding: 16px 8px; border-top: 1px solid var(--line); }
-  ul.lists > li.next { background: var(--highlight); border-radius: 8px; }
+  ul.lists > li.next { background: var(--highlight); border-radius: 8px; border-inline-start: 4px solid var(--marker); }
   .row { display: flex; justify-content: space-between; align-items: center; gap: 16px; }
   .row label { display: flex; align-items: center; gap: 8px; }
-  .row input[type=checkbox] { width: 24px; height: 24px; }
+  .row input[type=checkbox] { width: 24px; height: 24px; accent-color: var(--accent); }
   .lname { font-weight: 600; }
-  .status-sent { color: var(--ok); font-weight: 600; }
-  .recipients { color: var(--muted); font-size: .875rem; margin: 8px 0 0; padding: 0; list-style: none; word-break: break-word; }
+  .status-sent { color: var(--accent); font-weight: 600; display: inline-flex; align-items: center; }
+  .recipients { color: var(--muted); margin: 8px 0 0; padding: 0; list-style: none; word-break: break-word; }
   .recipients li { padding: 4px 0; }
 
   pre.letter { white-space: pre-wrap; font: inherit; background: var(--bg); border: 1px solid var(--line);
                border-radius: 8px; padding: 16px; margin: 0; }
   pre.letter[dir="rtl"] { text-align: right; }
-  .banner { border-color: var(--error); }
+  .banner { border: 2px solid var(--error); }
 
   .label-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; position: relative; }
-  .tip-btn { min-height: 24px; width: 24px; padding: 0; border-radius: 24px; font-size: .875rem; font-weight: 700;
+  .tip-btn { min-height: 24px; width: 24px; padding: 0; border-radius: 24px; font-weight: 700; line-height: 16px;
              border-color: var(--accent); color: var(--accent); background: var(--card); }
-  .tip { display: none; flex-basis: 100%; margin: 8px 0 0; padding: 8px 16px; border-radius: 8px;
-         background: var(--ink); color: var(--bg); font-size: .875rem; }
+  .tip { display: none; flex-basis: 100%; margin: 8px 0 0; padding: 8px 16px; border-radius: 8px; background: var(--ink); color: var(--bg); }
   .tip.open { display: block; }
   @media (hover: hover) { .tip-btn:hover ~ .tip, .tip-btn:focus-visible ~ .tip { display: block; } }
   footer { margin-top: 24px; }
   .toast { position: fixed; inset: auto 16px 16px 16px; max-width: 688px; margin: 0 auto; padding: 16px;
            border-radius: 8px; background: var(--ink); color: var(--bg); box-shadow: 0 8px 24px rgb(0 0 0 / .2);
            display: flex; flex-direction: column; gap: 4px; }
-  .toast.cheer { background: var(--ok); color: #fff; }
+  .toast.cheer { background: var(--marker); color: var(--on-marker); }
   #toast-main:empty, #toast-sub:empty { display: none; }
-  #toast-sub { font-size: .875rem; }
   .meter { height: 8px; border-radius: 8px; background: var(--line); overflow: hidden; margin-bottom: 16px; }
-  #meter-fill { display: block; height: 100%; width: 0; background: var(--ok); border-radius: 8px; transition: width .4s ease; }
+  #meter-fill { display: block; height: 100%; width: 0; background: var(--accent); border-radius: 8px; transition: width .4s ease; }
   .meter.pulse { animation: pulse .6s ease; }
-  @keyframes pulse { 50% { transform: scaleY(1.75); } }
+  @keyframes pulse { 50% { transform: scaleY(1.5); } }
   @media (prefers-reduced-motion: reduce) { #meter-fill { transition: none; } .meter.pulse { animation: none; } }
 </style>
 </head>
@@ -142,11 +173,11 @@
     <div class="pbody">
       <p id="overdue-text"></p>
       <p class="muted" data-t="overdueAttach"></p>
-      <a class="btn primary" id="complaint-mail" href="#" data-t="complaint"></a>
+      <a class="btn primary" id="complaint-mail" href="#" data-t="complaint" data-icon="send"></a>
     </div>
   </details>
 
-  <h1 data-t="title"></h1>
+  <h1 data-t="title" data-icon="megaphone"></h1>
   <div class="intro">
     <p data-t="introQ"></p>
     <p data-t="introMaybe"></p>
@@ -158,7 +189,7 @@
   <details class="panel" id="p-form">
     <summary><span class="ptitle" data-t="formTitle"></span><span class="psum" id="form-summary"></span></summary>
     <div class="pbody">
-      <p class="form-alert" id="form-alert" role="alert" hidden></p>
+      <p class="form-alert" id="form-alert" role="alert" data-icon="alert" hidden></p>
       <div class="field" id="fld-name">
         <label for="f-name" data-t="nameLabel"></label>
         <input type="text" id="f-name" autocomplete="name" aria-describedby="err-name">
@@ -182,7 +213,7 @@
         <label for="f-address"><span data-t="addressLabel"></span> <span class="hint" data-t="addressHint"></span></label>
         <input type="text" id="f-address" autocomplete="street-address">
       </div>
-      <p class="muted" style="margin-top:16px" data-t="savedNote"></p>
+      <p class="muted" style="margin-top:16px" data-t="savedNote" data-icon="lock"></p>
       <button type="button" class="primary block" id="continue" data-t="continue"></button>
     </div>
   </details>
@@ -209,8 +240,8 @@
       <p><span data-t="done30"></span>
         <a href="https://www.kolzchut.org.il/he/הסרת_פרטים_של_בעלי_זכות_בחירה_ממאגרי_המידע_של_המפלגות" target="_blank" rel="noopener" data-t="kolzchut"></a></p>
       <div class="actions">
-        <button type="button" id="calendar" data-t="calendar"></button>
-        <a class="btn" id="share" target="_blank" rel="noopener" data-t="share"></a>
+        <button type="button" id="calendar" data-t="calendar" data-icon="calendar"></button>
+        <a class="btn" id="share" target="_blank" rel="noopener" data-t="share" data-icon="chat"></a>
       </div>
     </div>
   </details>
@@ -280,7 +311,7 @@ function applyTheme() {
   if (stored) document.documentElement.dataset.theme = stored;
   else delete document.documentElement.dataset.theme;
   const toLight = effectiveTheme() === 'dark';
-  $('theme').textContent = toLight ? '☀︎' : '☾';
+  $('theme').dataset.icon = toLight ? 'sun' : 'moon';
   $('theme').setAttribute('aria-label', toLight ? t('themeToLight') : t('themeToDark'));
   $('theme').title = $('theme').getAttribute('aria-label');
 }
@@ -400,8 +431,14 @@ function openSend(ev, a, units, source, gmail = false) {
   return true;
 }
 
+function withIcon(node, name) {
+  node.dataset.icon = name;
+  return node;
+}
+
 function sendLink(text, units, source, { primary = false, gmail = false } = {}) {
   const a = el('a', { className: primary ? 'btn primary' : 'linkish', textContent: text, href: '#' });
+  if (primary) withIcon(a, 'send');
   if (gmail) { a.target = '_blank'; a.rel = 'noopener'; }
   a.addEventListener('click', ev => openSend(ev, a, units, source, gmail));
   return a;
@@ -446,7 +483,7 @@ function celebrate() {
 }
 
 function copyButton(units) {
-  const b = el('button', { type: 'button', className: 'linkish', textContent: t('copy') });
+  const b = withIcon(el('button', { type: 'button', className: 'linkish', textContent: t('copy') }), 'copy');
   b.addEventListener('click', async () => {
     if (!units.length || !requireValidForm()) return;
     const text = `${emailsOf(units).join(', ')}\n${SUBJECT}\n\n${letterText('he', partiesOf(units))}`;
@@ -475,7 +512,7 @@ const queueUnit = i => UNITS.find(u => u.title === queue.titles[i]);
 
 // The main button of the sequence: mail app, or Gmail in a new tab on Windows.
 function primaryAnchor(text) {
-  const a = el('a', { className: 'btn primary', href: '#', textContent: text });
+  const a = withIcon(el('a', { className: 'btn primary', href: '#', textContent: text }), 'send');
   if (PREFER_GMAIL) { a.target = '_blank'; a.rel = 'noopener'; }
   return a;
 }
@@ -519,7 +556,7 @@ function renderQueueStep(box) {
       yes.addEventListener('click', ev => advanceQueue(ev, yes, true));
       parts.push(yes);
     } else {
-      const done = el('button', { type: 'button', className: 'primary block', textContent: t('queueYesDone') });
+      const done = withIcon(el('button', { type: 'button', className: 'primary block', textContent: t('queueYesDone') }), 'check');
       done.addEventListener('click', () => { markSent([current]); endQueue(); celebrate(); });
       parts.push(done);
     }
@@ -527,11 +564,11 @@ function renderQueueStep(box) {
   const extra = PREFER_GMAIL ? [] : [sendLink(t('gmail'), [current], 'queue', { gmail: true })];
   if (opened) extra.push(sendLink(t('queueReopen'), [current], 'queue', { gmail: PREFER_GMAIL }));
   if (next) {
-    const skip = el('a', { className: 'linkish', href: '#', textContent: t('queueSkip') });
+    const skip = withIcon(el('a', { className: 'linkish', href: '#', textContent: t('queueSkip') }), 'skip');
     skip.addEventListener('click', ev => advanceQueue(ev, skip, false));
     extra.push(skip);
   }
-  const stop = el('button', { type: 'button', className: 'linkish', textContent: t('queueStop') });
+  const stop = withIcon(el('button', { type: 'button', className: 'linkish', textContent: t('queueStop') }), 'stop');
   stop.addEventListener('click', endQueue);
   extra.push(stop);
   parts.push(el('div', { className: 'actions' }, extra));
@@ -578,7 +615,7 @@ function unitRow(unit, isNext) {
   }
 
   if (isSent(unit)) {
-    head.append(el('span', { className: 'status-sent', textContent: t('sentOn', { date: formatDate(sentDate(unit)) }) }));
+    head.append(withIcon(el('span', { className: 'status-sent', textContent: t('sentOn', { date: formatDate(sentDate(unit)) }) }), 'check'));
   } else if (pending?.source === 'row' && pending.titles.includes(unit.title)) {
     actions.append(confirmBox(t('confirmQ')));
   } else if (!choosing && !queue && unit.emails.length) {
