@@ -51,18 +51,29 @@
   p { margin: 0 0 8px; }
   a { color: var(--accent); }
   .muted { color: var(--muted); }
-  .read { margin: -8px 0 16px; }
+  .read { display: flex; margin: 24px 0 32px; }
+  .read:has(> [hidden]) { display: none; }   /* no voice for this language: no empty gap */
   .intro { margin-bottom: 48px; }
   .intro p { margin: 0; }
-  .intro .q { font-size: 24px; line-height: 32px; font-weight: 300; margin: 0; }
-  /* The punch line is a tilted marker "sticker" that stamps in once. Pure CSS with fill-mode both, so it is
-     in its starting state from the first paint: no flash before the animation. */
-  .intro .punch { position: relative; z-index: 0; display: inline-block; margin: 24px 8px 32px; padding: 0 8px;
+  /* The three opening lines: tight 1.1 inside a wrapped line, 8px between the lines themselves,
+     and plenty of air above (from the title) and below (to the sticker). */
+  .intro .qs { margin: 40px 0; }
+  .intro .q { font-size: 24px; line-height: 1.1; font-weight: 300; margin: 0 0 8px; }
+  /* The punch line is a tilted marker "sticker". It waits for the title to land, winds up, then hits:
+     ease-in into the impact (speed builds like a punch), one overshoot, settle. fill-mode both keeps it in its
+     starting state from the first paint, so nothing flashes before the animation. */
+  .intro .punch { position: relative; z-index: 0; display: inline-block; margin: 0 8px 32px; padding: 0 8px;
                   font-size: 40px; line-height: 48px; font-weight: 500; color: var(--on-marker);
-                  transform: rotate(-2deg); animation: stamp .5s cubic-bezier(.2, .9, .3, 1.3) .3s both; }
+                  transform: rotate(-2deg); animation: stamp .9s .6s both; }
   .intro .punch::before { content: ""; position: absolute; z-index: -1; inset: 4px -8px 0 -8px; background: var(--marker);
                           border-radius: 16px 4px 24px 8px / 8px 16px 8px 16px; transform: skewX(-8deg); }
-  @keyframes stamp { from { opacity: 0; transform: rotate(-6deg) scale(1.4); } to { opacity: 1; transform: rotate(-2deg) scale(1); } }
+  @keyframes stamp {
+    0%   { opacity: 0; transform: rotate(-10deg) scale(1.8); animation-timing-function: cubic-bezier(.55, 0, 1, .45); }
+    45%  { opacity: 1; transform: rotate(0deg) scale(.9);    animation-timing-function: cubic-bezier(0, .55, .45, 1); }
+    65%  {             transform: rotate(-3deg) scale(1.06); animation-timing-function: ease-in-out; }
+    82%  {             transform: rotate(-1.5deg) scale(.98); animation-timing-function: ease-out; }
+    100% { opacity: 1; transform: rotate(-2deg) scale(1); }
+  }
   @media (prefers-reduced-motion: reduce) { .intro .punch { animation: none; } }
   .intro .body { color: var(--muted); }
   @media (min-width: 600px) {
@@ -199,12 +210,14 @@
     </div>
   </details>
 
+  <div class="read"><button type="button" class="icon-btn" id="read" data-icon="speaker" hidden></button></div>
   <h1 data-t="title"></h1>
-  <button type="button" class="linkish read" id="read" data-icon="speaker" hidden></button>
   <div class="intro">
-    <p class="q" data-t="introQ"></p>
-    <p class="q" data-t="introMaybe"></p>
-    <p class="q" data-t="introNo"></p>
+    <div class="qs">
+      <p class="q" data-t="introQ"></p>
+      <p class="q" data-t="introMaybe"></p>
+      <p class="q" data-t="introNo"></p>
+    </div>
     <p class="punch" data-t="introPunch"></p>
     <p class="body" data-t="introBody"></p>
   </div>
@@ -815,7 +828,10 @@ function readAloudText() {
 }
 function updateReadButton() {
   $('read').hidden = !voiceFor(lang);
-  $('read').textContent = speech?.speaking ? t('stopReading') : t('readAloud');
+  const label = speech?.speaking ? t('stopReading') : t('readAloud');
+  $('read').dataset.icon = speech?.speaking ? 'stop' : 'speaker';
+  $('read').setAttribute('aria-label', label);
+  $('read').title = label;
 }
 $('read').addEventListener('click', () => {
   if (speech.speaking) { speech.cancel(); updateReadButton(); return; }
