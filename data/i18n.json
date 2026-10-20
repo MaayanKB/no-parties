@@ -101,10 +101,6 @@
       "icsSummary": "המפלגות מחקו אותי?",
       "icsDescription": "עברו 30 יום מהפנייה. אם לא קיבלתם אישור מחיקה, אפשר להתלונן:",
       "copiedSafety": "המכתב גם הועתק. אם המייל נפתח ריק או חתוך, הדביקו אותו.",
-      "pasteTitle": "עוד צעד קטן",
-      "pasteSteps": "המכתב הועתק.\nבמייל שייפתח, לחצו בגוף ההודעה על Ctrl+V.\nשלחו.",
-      "pasteWhy": "המייל ארוך מדי לפתיחה ישירה בתוכנות דואר במחשב, אז הוא נפתח בלי הטקסט. אם ההדבקה לא עובדת, העתיקו מכאן:",
-      "pasteOpen": "פתיחת המייל",
       "queueStart": "שליחה לכל הרשימות, אחת אחרי השנייה",
       "queueStartRemaining": "שליחה ל-{n} הרשימות שנותרו, אחת אחרי השנייה",
       "queueStartChosen": "שליחה ל-{n} הרשימות שנבחרו, אחת אחרי השנייה",
@@ -124,8 +120,7 @@
         "זה הולך מהר, הא? עוד אחת."
       ],
       "cheersDone": "סיימת! כל הרשימות קיבלו ממך דרישת מחיקה. עכשיו הן צריכות לעבוד בשבילך 🎉",
-      "gmailPrimary": "פתיחה ב-Gmail",
-      "mailApp": "פתיחה בתוכנת הדואר"
+      "gmailPrimary": "פתיחה ב-Gmail"
     },
     "en": {
       "title": "Delete my details from party databases",
@@ -193,10 +188,6 @@
       "icsSummary": "Did the parties delete me?",
       "icsDescription": "30 days have passed since your request. If you got no confirmation of deletion, you can complain:",
       "copiedSafety": "The letter was also copied. If the email opens empty or cut off, paste it in.",
-      "pasteTitle": "One small step",
-      "pasteSteps": "The letter has been copied.\nIn the email that opens, click the message body and press Ctrl+V.\nSend.",
-      "pasteWhy": "The email is too long to open directly in desktop mail apps, so it opens without the text. If pasting doesn't work, copy it from here:",
-      "pasteOpen": "Open the email",
       "queueStart": "Send to all lists, one after another",
       "queueStartRemaining": "Send to the {n} remaining lists, one after another",
       "queueStartChosen": "Send to the {n} chosen lists, one after another",
@@ -216,8 +207,7 @@
         "Going fast, huh? Next one."
       ],
       "cheersDone": "Done! Every list got your deletion demand. Now they have to do the work 🎉",
-      "gmailPrimary": "Open in Gmail",
-      "mailApp": "Open in mail app"
+      "gmailPrimary": "Open in Gmail"
     },
     "ar": {
       "title": "حذف بياناتي من قواعد بيانات الأحزاب",
@@ -285,10 +275,6 @@
       "icsSummary": "هل حذفتني الأحزاب؟",
       "icsDescription": "مرّ 30 يومًا على طلبك. إذا لم تتلقَّ تأكيدًا بالحذف، يمكنك تقديم شكوى:",
       "copiedSafety": "تم نسخ الرسالة أيضًا. إذا فُتح البريد فارغًا أو مقطوعًا، الصقها فيه.",
-      "pasteTitle": "خطوة صغيرة أخرى",
-      "pasteSteps": "تم نسخ الرسالة.\nفي البريد الذي سيُفتح، انقر على نص الرسالة واضغط Ctrl+V.\nأرسل.",
-      "pasteWhy": "البريد طويل جدًا ليُفتح مباشرة في برامج البريد على الحاسوب، لذلك يُفتح دون النص. إذا لم ينجح اللصق، انسخ من هنا:",
-      "pasteOpen": "فتح البريد",
       "queueStart": "إرسال إلى جميع القوائم، واحدة تلو الأخرى",
       "queueStartRemaining": "إرسال إلى القوائم المتبقية ({n})، واحدة تلو الأخرى",
       "queueStartChosen": "إرسال إلى القوائم المختارة ({n})، واحدة تلو الأخرى",
@@ -308,8 +294,7 @@
         "الأمر يسير بسرعة، صحيح؟ التالي."
       ],
       "cheersDone": "انتهيت! كل القوائم تلقت مطالبتك بالحذف. الآن عليها أن تعمل من أجلك 🎉",
-      "gmailPrimary": "فتح في Gmail",
-      "mailApp": "فتح في تطبيق البريد"
+      "gmailPrimary": "فتح في Gmail"
     },
     "ru": {
       "title": "Удалить мои данные из баз партий",
@@ -377,10 +362,6 @@
       "icsSummary": "Партии удалили мои данные?",
       "icsDescription": "Прошло 30 дней с момента обращения. Если подтверждения удаления нет, можно подать жалобу:",
       "copiedSafety": "Письмо также скопировано. Если письмо откроется пустым или обрезанным, вставьте его.",
-      "pasteTitle": "Ещё один маленький шаг",
-      "pasteSteps": "Письмо скопировано.\nВ открывшемся письме нажмите на текст сообщения и нажмите Ctrl+V.\nОтправьте.",
-      "pasteWhy": "Письмо слишком длинное, чтобы открыться напрямую в почтовой программе на компьютере, поэтому оно откроется без текста. Если вставка не работает, скопируйте отсюда:",
-      "pasteOpen": "Открыть письмо",
       "queueStart": "Отправить всем спискам по очереди",
       "queueStartRemaining": "Отправить оставшимся спискам ({n}) по очереди",
       "queueStartChosen": "Отправить выбранным спискам ({n}) по очереди",
@@ -400,8 +381,7 @@
         "Быстро идёт, правда? Следующая."
       ],
       "cheersDone": "Готово! Все списки получили ваше требование об удалении. Теперь пусть поработают они 🎉",
-      "gmailPrimary": "Открыть в Gmail",
-      "mailApp": "Открыть в почтовой программе"
+      "gmailPrimary": "Открыть в Gmail"
     },
     "am": {
       "title": "መረጃዬን ከፓርቲዎች የመረጃ ቋት ማስወገድ",
@@ -469,10 +449,6 @@
       "icsSummary": "ፓርቲዎቹ መረጃዬን ሰርዘዋል?",
       "icsDescription": "ጥያቄዎን ካቀረቡ 30 ቀናት አልፈዋል። የመሰረዝ ማረጋገጫ ካልደረሰዎት ቅሬታ ማቅረብ ይችላሉ፦",
       "copiedSafety": "ደብዳቤው ተቀድቷልም። ኢሜይሉ ባዶ ወይም ተቆርጦ ከተከፈተ ይለጥፉት።",
-      "pasteTitle": "አንድ ትንሽ እርምጃ",
-      "pasteSteps": "ደብዳቤው ተቀድቷል።\nበሚከፈተው ኢሜይል ውስጥ የመልእክቱን አካል ይጫኑና Ctrl+V ይጫኑ።\nይላኩ።",
-      "pasteWhy": "ኢሜይሉ በኮምፒውተር የኢሜይል መተግበሪያዎች በቀጥታ ለመክፈት በጣም ረጅም ስለሆነ ያለ ጽሑፉ ይከፈታል። መለጠፍ ካልሠራ ከዚህ ይቅዱ፦",
-      "pasteOpen": "ኢሜይሉን ክፈት",
       "queueStart": "ለሁሉም ዝርዝሮች በተራ ላክ",
       "queueStartRemaining": "ለቀሩት {n} ዝርዝሮች በተራ ላክ",
       "queueStartChosen": "ለተመረጡት {n} ዝርዝሮች በተራ ላክ",
@@ -492,8 +468,7 @@
         "በፍጥነት እየሄደ ነው፣ አይደል? ቀጣዩ።"
       ],
       "cheersDone": "ጨርሰዋል! ሁሉም ዝርዝሮች የመሰረዝ ጥያቄዎን ተቀብለዋል። አሁን ለእርስዎ መሥራት አለባቸው 🎉",
-      "gmailPrimary": "በGmail ክፈት",
-      "mailApp": "በኢሜይል መተግበሪያ ክፈት"
+      "gmailPrimary": "በGmail ክፈት"
     }
   },
   "lists": {
