@@ -12,6 +12,14 @@
       if (wanted) document.documentElement.classList.add('intro-anim');
     }
   } catch (e) { /* no storage: skip the sequence */ }
+  try {
+    var savedTheme = JSON.parse(localStorage.getItem('party-deletion-theme'));
+    var hour = new Date().getHours();
+    document.documentElement.dataset.theme = savedTheme || (hour >= 7 && hour < 19 ? 'light' : 'dark');
+  } catch (e) {
+    var h = new Date().getHours();
+    document.documentElement.dataset.theme = h >= 7 && h < 19 ? 'light' : 'dark';
+  }
 </script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>מחיקה ממאגרי המפלגות</title>
@@ -95,13 +103,13 @@
   .motion .intro .punch { color: var(--ink); }
   .motion .intro .punch::after { content: attr(data-text); position: absolute; inset: 0; padding: 0 8px; color: var(--on-marker); }
   .motion .intro .punch::before, .motion .intro .punch::after {
-    clip-path: inset(0 100% 0 0); transition: clip-path .7s cubic-bezier(.6, 0, .2, 1) calc(var(--d, 0ms) + 450ms); }
+    clip-path: inset(0 100% 0 0); transition: clip-path .9s cubic-bezier(.6, 0, .2, 1) calc(var(--d, 0ms) + 700ms); }
   [dir="rtl"] .motion .intro .punch::before, [dir="rtl"] .motion .intro .punch::after { clip-path: inset(0 0 0 100%); }
   .motion .intro .punch.in::before, .motion .intro .punch.in::after { clip-path: inset(-8px -16px -8px -16px); }
 
   /* Reveals: things arrive one after another (--d is set per element by JS), and below the fold as you scroll. */
   .motion .reveal { opacity: 0; translate: 0 12px;
-                    transition: opacity .5s ease var(--d, 0ms), translate .6s cubic-bezier(.2, .8, .2, 1) var(--d, 0ms); }
+                    transition: opacity .7s ease var(--d, 0ms), translate .8s cubic-bezier(.2, .8, .2, 1) var(--d, 0ms); }
   .motion .reveal.in { opacity: 1; translate: 0 0; }
 
   /* Opening sequence (see <head>). --write is set by JS to the writing duration. */
@@ -446,13 +454,14 @@ const listName = title => (lang === 'he' ? title : I18N.lists[lang][title]);
 const formatDate = iso => new Date(iso).toLocaleDateString(I18N.languages[lang].locale);
 const today = () => new Date().toISOString().slice(0, 10);
 
+// Until the user picks a theme, follow the phone's clock: light from 07:00 to 18:59, dark from 19:00 to 06:59.
+// (The same rule runs in <head> before first paint, so the page never flashes the wrong theme.)
+const themeByClock = () => { const h = new Date().getHours(); return h >= 7 && h < 19 ? 'light' : 'dark'; };
 function effectiveTheme() {
-  return load('party-deletion-theme', null) || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  return load('party-deletion-theme', null) || themeByClock();
 }
 function applyTheme() {
-  const stored = load('party-deletion-theme', null);
-  if (stored) document.documentElement.dataset.theme = stored;
-  else delete document.documentElement.dataset.theme;
+  document.documentElement.dataset.theme = effectiveTheme();
   const toLight = effectiveTheme() === 'dark';
   $('theme').dataset.icon = toLight ? 'sun' : 'moon';
   $('theme').setAttribute('aria-label', toLight ? t('themeToLight') : t('themeToDark'));
@@ -1002,7 +1011,7 @@ document.addEventListener('click', ev => {
 function runIntro() {
   const tq = document.querySelector('h1 .tq');
   const letters = Array.from(tq.textContent);
-  const step = 45;   // ms per letter
+  const step = 55;   // ms per letter
   tq.replaceChildren(...letters.map((ch, i) =>
     ch === ' ' ? document.createTextNode(' ') : el('span', { className: 'ch', textContent: ch, style: `animation-delay:${i * step}ms` })));
   tq.classList.add('written');
@@ -1021,7 +1030,7 @@ if (document.documentElement.classList.contains('motion') && 'IntersectionObserv
   let base = titleTime;
   const io = new IntersectionObserver(entries => {
     entries.filter(e => e.isIntersecting).forEach((e, i) => {
-      e.target.style.setProperty('--d', `${base + i * 150}ms`);
+      e.target.style.setProperty('--d', `${base + i * 280}ms`);
       e.target.classList.add('in');
       io.unobserve(e.target);
     });
