@@ -120,10 +120,15 @@
   .intro-anim h1 .ta { animation: pop .5s cubic-bezier(.3, 1.6, .5, 1) calc(var(--write, 1200ms) + 1600ms) both; }
   @keyframes pop { from { opacity: 0; transform: scale(.6); } }
   .intro .body { color: var(--muted); }
+  /* The title fonts only have Hebrew and Latin letters. Arabic, Russian and Amharic fall back to wider, taller
+     fonts: they need more line height (Arabic marks would touch the line above), and fitLine() steps them down. */
+  :lang(ar) h1 .ta, :lang(ru) h1 .ta, :lang(am) h1 .ta { line-height: 136px; margin-top: 0; }
+  h1 .tq, .intro .punch { text-wrap: balance; }
   @media (min-width: 600px) {
     h1 .tq { font-size: 56px; line-height: 64px; }
     h1 .ta { font-size: 144px; line-height: 136px; }
     .intro .punch { font-size: 48px; line-height: 56px; }
+    :lang(ar) h1 .ta, :lang(ru) h1 .ta, :lang(am) h1 .ta { line-height: 176px; }
   }
 
   /* Icons: inline SVG masks, so they take the text color and survive text changes. */
@@ -167,7 +172,7 @@
   details.panel > summary::after { content: "▾"; color: var(--muted); }
   details.panel[open] > summary::after { content: "▴"; }
   .ptitle { font-weight: 600; font-size: 20px; line-height: 28px; }
-  .psum { color: var(--muted); flex: 1; text-align: end; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .psum { color: var(--muted); flex: 1; text-align: end; }
   .pbody { padding: 0 16px 16px; }
 
   .field { margin-top: 16px; }
@@ -224,6 +229,7 @@
   .banner { border: 2px solid var(--error); }
 
   .label-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; position: relative; }
+  .label-row label { max-width: calc(100% - 32px); }   /* a long label wraps itself, the ? stays beside it */
   .tip-btn { min-height: 24px; width: 24px; padding: 0; border-radius: 24px; font-weight: 700; line-height: 16px;
              border-color: var(--accent); color: var(--accent); background: var(--card); }
   .tip { display: none; flex-basis: 100%; margin: 8px 0 0; padding: 8px 16px; border-radius: 8px; background: var(--ink); color: var(--bg); }
@@ -891,6 +897,7 @@ Object.entries(I18N.languages).forEach(([code, meta]) => {
     lang = code;
     save('party-deletion-lang', lang);
     applyStaticText();
+    fitTitle();
     renderErrors(false);
     render();
     setLangMenu(false);
@@ -975,6 +982,42 @@ document.addEventListener('click', ev => {
   // Animations (and their finish events) pause in background tabs; never leave a section stuck half-open.
   setTimeout(finish, 400);
 });
+
+// The title and the punch line are designed as one line (two for the question). Where a language's words are
+// longer, step the size down by 4px, keeping the line-height ratio, until it fits or reaches `min`.
+// Returns whether it fits.
+function fitLine(node, min, maxLines = 1) {
+  node.style.fontSize = node.style.lineHeight = '';
+  const cs = getComputedStyle(node);
+  let size = parseFloat(cs.fontSize);
+  const ratio = parseFloat(cs.lineHeight) / size;
+  const lines = () => lineCount(node);
+  while (size > min && lines() > maxLines) {
+    size -= 4;
+    node.style.fontSize = `${size}px`;
+    node.style.lineHeight = `${Math.round((size * ratio) / 4) * 4}px`;
+  }
+  return lines() <= maxLines;
+}
+// Counts rendered lines from the text's own boxes; dividing the height by the line-height miscounts fallback
+// fonts (Amharic) whose letters are taller than the line.
+function lineCount(node) {
+  const range = document.createRange();
+  range.selectNodeContents(node);
+  const tops = Array.from(range.getClientRects(), r => r.top).sort((a, b) => a - b);
+  const gap = parseFloat(getComputedStyle(node).fontSize) * 0.4;
+  return tops.filter((top, i) => i === 0 || top - tops[i - 1] > gap).length;
+}
+function fitTitle() {
+  fitLine(document.querySelector('h1 .tq'), 32, 2);
+  fitLine(document.querySelector('h1 .ta'), 48);
+  // A punch line that can't fit on one line keeps its full size and wraps (balanced): two big lines hit harder.
+  const punch = document.querySelector('.intro .punch');
+  if (!fitLine(punch, 32)) punch.style.fontSize = punch.style.lineHeight = '';
+}
+fitTitle();
+document.fonts?.ready.then(fitTitle);
+addEventListener('resize', fitTitle);
 
 // Returns how long the title sequence takes (writing, pause, answer pop), so reveals can start after it.
 function runIntro() {
