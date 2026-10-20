@@ -7,8 +7,9 @@
     var nav = performance.getEntriesByType && performance.getEntriesByType('navigation')[0];
     var type = nav ? nav.type : 'navigate';
     var wanted = type === 'reload' || (type === 'navigate' && !localStorage.getItem('party-deletion-seen'));
-    if (wanted && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      document.documentElement.classList.add('intro-anim');
+    if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      document.documentElement.classList.add('motion');
+      if (wanted) document.documentElement.classList.add('intro-anim');
     }
   } catch (e) { /* no storage: skip the sequence */ }
 </script>
@@ -36,17 +37,17 @@
   :root {
     --bg: #F7F8FC; --card: #FFFFFF; --line: #DCE2EE; --ink: #0B1B3A; --muted: #4A5670;
     --accent: #0038B8; --on-accent: #FFFFFF; --marker: #FFC72C; --on-marker: #0B1B3A;
-    --highlight: #FFFBEA; --error: #B3261E; --error-bg: #FDECEA;
+    --highlight: #FFFBEA; --error: #B3261E; --error-bg: #FDECEA; --fine: #646D83;
   }
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
       --bg: #0B1630; --card: #13224A; --line: #2A3B66; --ink: #EEF2FF; --muted: #AAB4CC;
-      --accent: #8FB0FF; --on-accent: #0B1630; --highlight: #2E2A12; --error: #FF9A8F; --error-bg: #3A1A24;
+      --accent: #8FB0FF; --on-accent: #0B1630; --highlight: #2E2A12; --error: #FF9A8F; --error-bg: #3A1A24; --fine: #77829E;
     }
   }
   :root[data-theme="dark"] {
     --bg: #0B1630; --card: #13224A; --line: #2A3B66; --ink: #EEF2FF; --muted: #AAB4CC;
-    --accent: #8FB0FF; --on-accent: #0B1630; --highlight: #2E2A12; --error: #FF9A8F; --error-bg: #3A1A24;
+    --accent: #8FB0FF; --on-accent: #0B1630; --highlight: #2E2A12; --error: #FF9A8F; --error-bg: #3A1A24; --fine: #77829E;
   }
 
   /* Type scale on the 8px grid: 48/48 title, 24/32 punch line, 20/28 section titles, 16/24 everything else. */
@@ -81,34 +82,34 @@
   /* The three opening lines: tight 1.1 inside a wrapped line, 8px between the lines themselves,
      and plenty of air above (from the title) and below (to the sticker). */
   .intro .qs { margin: 40px 0; }
-  .intro .q { font-size: 24px; line-height: 1.1; font-weight: 300; margin: 0 0 8px; }
-  /* The punch line is a tilted marker "sticker". It waits for the title to land, winds up, then hits:
-     ease-in into the impact (speed builds like a punch), one overshoot, settle. fill-mode both keeps it in its
-     starting state from the first paint, so nothing flashes before the animation. */
+  .intro .q { font-size: 20px; line-height: 1; font-weight: 300; margin: 0 0 4px; }
+  /* The punch line: a tilted marker "sticker". Without motion it simply sits there, dark text on yellow. */
   .intro .punch { position: relative; z-index: 0; display: inline-block; margin: 0 8px 32px; padding: 0 8px;
-                  font-size: 40px; line-height: 48px; font-weight: 500; color: var(--on-marker);
-                  transform: rotate(-2deg); }
-  .intro-anim .intro .punch { animation: stamp .9s both; }
+                  font-size: 40px; line-height: 48px; font-weight: 500; color: var(--on-marker); transform: rotate(-2deg); }
   .intro .punch::before { content: ""; position: absolute; z-index: -1; inset: 4px -8px 0 -8px; background: var(--marker);
                           border-radius: 16px 4px 24px 8px / 8px 16px 8px 16px; transform: skewX(-8deg); }
-  @keyframes stamp {
-    0%   { opacity: 0; transform: rotate(-10deg) scale(1.8); animation-timing-function: cubic-bezier(.55, 0, 1, .45); }
-    45%  { opacity: 1; transform: rotate(0deg) scale(.9);    animation-timing-function: cubic-bezier(0, .55, .45, 1); }
-    65%  {             transform: rotate(-3deg) scale(1.06); animation-timing-function: ease-in-out; }
-    82%  {             transform: rotate(-1.5deg) scale(.98); animation-timing-function: ease-out; }
-    100% { opacity: 1; transform: rotate(-2deg) scale(1); }
-  }
-  @media (prefers-reduced-motion: reduce) { .intro .punch { animation: none; } }
-  /* Opening sequence (first visit only, see <head>). --write is set by JS to the writing duration. */
+
+  /* With motion: the text arrives first in the page's own color, then a brush stroke paints the marker from the
+     start of the line to its end. A dark copy of the text (::after) is revealed by the same stroke, so the text
+     turns dark exactly where the yellow arrives: no flash. */
+  .motion .intro .punch { color: var(--ink); }
+  .motion .intro .punch::after { content: attr(data-text); position: absolute; inset: 0; padding: 0 8px; color: var(--on-marker); }
+  .motion .intro .punch::before, .motion .intro .punch::after {
+    clip-path: inset(0 100% 0 0); transition: clip-path .7s cubic-bezier(.6, 0, .2, 1) calc(var(--d, 0ms) + 450ms); }
+  [dir="rtl"] .motion .intro .punch::before, [dir="rtl"] .motion .intro .punch::after { clip-path: inset(0 0 0 100%); }
+  .motion .intro .punch.in::before, .motion .intro .punch.in::after { clip-path: inset(-8px -16px -8px -16px); }
+
+  /* Reveals: things arrive one after another (--d is set per element by JS), and below the fold as you scroll. */
+  .motion .reveal { opacity: 0; translate: 0 12px;
+                    transition: opacity .5s ease var(--d, 0ms), translate .6s cubic-bezier(.2, .8, .2, 1) var(--d, 0ms); }
+  .motion .reveal.in { opacity: 1; translate: 0 0; }
+
+  /* Opening sequence (see <head>). --write is set by JS to the writing duration. */
   .intro-anim h1 .tq:not(.written) { visibility: hidden; }
   .intro-anim h1 .tq .ch { opacity: 0; animation: ink .28s ease-out forwards; }
   @keyframes ink { to { opacity: 1; } }
-  .intro-anim h1 .ta { animation: pop .5s cubic-bezier(.3, 1.6, .5, 1) calc(var(--write, 1200ms) + 100ms) both; }
+  .intro-anim h1 .ta { animation: pop .5s cubic-bezier(.3, 1.6, .5, 1) calc(var(--write, 1200ms) + 600ms) both; }
   @keyframes pop { from { opacity: 0; transform: scale(.6); } }
-  .intro-anim .intro .qs, .intro-anim .intro .body, .intro-anim details.panel {
-    animation: rise .5s ease-out calc(var(--write, 1200ms) + 500ms) both; }
-  @keyframes rise { from { opacity: 0; transform: translateY(8px); } }
-  .intro-anim .intro .punch { animation-delay: calc(var(--write, 1200ms) + 800ms); }
   .intro .body { color: var(--muted); }
   @media (min-width: 600px) {
     h1 .tq { font-size: 56px; line-height: 64px; }
@@ -220,6 +221,7 @@
   .tip.open { display: block; }
   @media (hover: hover) { .tip-btn:hover ~ .tip, .tip-btn:focus-visible ~ .tip { display: block; } }
   footer { margin-top: 24px; }
+  footer .fine { margin-top: 24px; color: var(--fine); }
   .toast { position: fixed; inset: auto 16px 16px 16px; max-width: 688px; margin: 0 auto; padding: 16px;
            border-radius: 8px; background: var(--ink); color: var(--bg); box-shadow: 0 8px 24px rgb(0 0 0 / .2);
            display: flex; flex-direction: column; gap: 4px; }
@@ -696,10 +698,9 @@ function unitRow(unit, isNext) {
   const li = el('li', { className: isNext ? 'next' : '' });
   // Logo on a white tile (logos are drawn for light backgrounds), only for lists with a free text logo.
   const logo = DATA.list_logos[unit.title];
-  const nameEl = el('span', { className: 'lname' }, [
-    ...(logo ? [el('span', { className: 'logo' }, [el('img', { src: logo, alt: '', loading: 'lazy' })])] : []),
-    el('span', { textContent: listName(unit.title) }),
-  ]);
+  const nameEl = el('span', { className: 'lname' }, [logo
+    ? el('span', { className: 'logo' }, [el('img', { src: logo, alt: listName(unit.title), loading: 'lazy' })])
+    : el('span', { textContent: listName(unit.title) })]);
   const head = el('div', { className: 'row' });
   const actions = el('div', { className: 'actions row-actions' });
 
@@ -771,6 +772,7 @@ function applyStaticText() {
   document.documentElement.dir = meta.dir;
   document.title = t('title');
   document.querySelectorAll('[data-t]').forEach(node => { node.textContent = t(node.dataset.t); });
+  document.querySelector('.punch').dataset.text = t('introPunch');
   document.querySelectorAll('[data-not-he]').forEach(node => { node.hidden = lang === 'he'; });
   $('id-why').setAttribute('aria-label', t('idWhy'));
   document.querySelectorAll('#lang-menu button').forEach(b => b.setAttribute('aria-current', String(b.lang === lang)));
@@ -782,7 +784,7 @@ function applyStaticText() {
     before, el('a', { href: REGISTRY_URL, target: '_blank', rel: 'noopener', textContent: t('registry') }),
     after.replace('{date}', '{{SCRAPED_DATE}}'), ' ',
     el('a', { href: SOURCE_URL, target: '_blank', rel: 'noopener', textContent: t('source') }),
-    el('p', { textContent: t('logoNote'), style: 'margin-top:8px' }));
+    el('p', { className: 'fine', textContent: t('logoNote') }));
   $('share').href = `https://wa.me/?text=${enc(`${t('shareText')} ${SITE_URL}`)}`;
   speech?.cancel();
   updateReadButton();
@@ -946,6 +948,7 @@ document.addEventListener('click', ev => {
   setTimeout(finish, 400);
 });
 
+// Returns how long the title sequence takes (writing, pause, answer pop), so reveals can start after it.
 function runIntro() {
   const tq = document.querySelector('h1 .tq');
   const letters = Array.from(tq.textContent);
@@ -953,10 +956,29 @@ function runIntro() {
   tq.replaceChildren(...letters.map((ch, i) =>
     ch === ' ' ? document.createTextNode(' ') : el('span', { className: 'ch', textContent: ch, style: `animation-delay:${i * step}ms` })));
   tq.classList.add('written');
-  document.documentElement.style.setProperty('--write', `${letters.length * step}ms`);
+  const write = letters.length * step;
+  document.documentElement.style.setProperty('--write', `${write}ms`);
   save('party-deletion-seen', true);
+  return write + 600 + 500;   // writing, then a half-second pause, then the 0.5s answer pop
 }
-if (document.documentElement.classList.contains('intro-anim')) runIntro();
+const titleTime = document.documentElement.classList.contains('intro-anim') ? runIntro() : 0;
+
+// One after another: every element in view when it first appears gets a 150ms-stepped delay. The first batch
+// waits for the title sequence; later batches (reached by scrolling) start right away.
+if (document.documentElement.classList.contains('motion') && 'IntersectionObserver' in window) {
+  const targets = document.querySelectorAll('.intro .q, .intro .punch, .intro .body, main > details.panel, footer');
+  targets.forEach(node => node.classList.add('reveal'));
+  let base = titleTime;
+  const io = new IntersectionObserver(entries => {
+    entries.filter(e => e.isIntersecting).forEach((e, i) => {
+      e.target.style.setProperty('--d', `${base + i * 150}ms`);
+      e.target.classList.add('in');
+      io.unobserve(e.target);
+    });
+    base = 0;
+  }, { threshold: 0.1 });
+  targets.forEach(node => io.observe(node));
+}
 
 </script>
 </body>
