@@ -170,7 +170,6 @@
       <p class="progress" id="progress"></p>
       <div class="bulk">
         <div id="bulk"></div>
-        <p class="muted" style="margin-top:8px" data-t="spamNote"></p>
         <p class="muted" data-t="hebrewNote" data-not-he></p>
       </div>
       <ul class="lists" id="lists"></ul>
@@ -357,14 +356,19 @@ function setPending(units, source) {
   render();
 }
 
-function confirmPending(didSend) {
-  if (didSend) {
-    unitsByTitle(pending.titles).forEach(u => u.parties.forEach(p => { sent[p.number] = today(); }));
-    choosing = false;
-  }
+function markSent(units) {
+  units.forEach(u => u.parties.forEach(p => { sent[p.number] = today(); }));
+  save('party-deletion-sent', sent);
+}
+
+function clearPending() {
   pending = null;
   save('party-deletion-pending', null);
-  save('party-deletion-sent', sent);
+}
+
+function confirmPending(didSend) {
+  if (didSend) markSent(unitsByTitle(pending.titles));
+  clearPending();
   render();
 }
 
@@ -374,18 +378,21 @@ function el(tag, props = {}, children = []) {
   return node;
 }
 
-// A send link (mail app or Gmail): validates first, then builds the URL at click time so it uses the latest details.
+// Opens the email for `units` from a click on link `a`. Validates first and builds the URL at click
+// time, so it always carries the latest details. Returns false when the send did not start.
+function openSend(ev, a, units, source, gmail = false) {
+  if (!units.length || !requireValidForm()) { ev.preventDefault(); return false; }
+  if (!gmail && mailtoTooLong(units)) { ev.preventDefault(); openPasteDialog(units, source); return true; }
+  a.href = gmail ? gmailUrl(units) : mailtoUrl(units);
+  copySafetyNet(units);
+  setTimeout(() => setPending(units, source), 0);
+  return true;
+}
+
 function sendLink(text, units, source, { primary = false, gmail = false } = {}) {
   const a = el('a', { className: primary ? 'btn primary' : 'linkish', textContent: text, href: '#' });
   if (gmail) { a.target = '_blank'; a.rel = 'noopener'; }
-  if (!units.length) a.classList.add('disabled');
-  a.addEventListener('click', ev => {
-    if (!units.length || !requireValidForm()) { ev.preventDefault(); return; }
-    if (!gmail && mailtoTooLong(units)) { ev.preventDefault(); openPasteDialog(units, source); return; }
-    a.href = gmail ? gmailUrl(units) : mailtoUrl(units);
-    copySafetyNet(units);
-    setTimeout(() => setPending(units, source), 0);
-  });
+  a.addEventListener('click', ev => openSend(ev, a, units, source, gmail));
   return a;
 }
 
@@ -451,27 +458,93 @@ function confirmBox(question) {
 let choosing = false;
 let chosen = new Set();
 
+// The sequence: each list still gets its own email, but the user moves through them with one tap
+// per step. "Yes, next" marks the current list sent and opens the next email in the same tap.
+let queue = load('party-deletion-queue', null);   // {titles, i}
+function saveQueue() { save('party-deletion-queue', queue); }
+const queueUnit = i => UNITS.find(u => u.title === queue.titles[i]);
+
+function startQueue(ev, a, units) {
+  queue = { titles: units.map(u => u.title), i: 0 };
+  if (!openSend(ev, a, [units[0]], 'queue')) { queue = null; return; }
+  choosing = false;
+  saveQueue();
+}
+
+function endQueue() {
+  queue = null;
+  saveQueue();
+  clearPending();
+  render();
+}
+
+function advanceQueue(ev, a, markCurrent) {
+  const current = queueUnit(queue.i);
+  if (markCurrent) markSent([current]);
+  queue.i += 1;
+  saveQueue();
+  openSend(ev, a, [queueUnit(queue.i)], 'queue');
+}
+
+function renderQueueStep(box) {
+  const n = queue.titles.length;
+  const current = queueUnit(queue.i);
+  const next = queue.i + 1 < n ? queueUnit(queue.i + 1) : null;
+  const opened = pending?.source === 'queue';
+  const parts = [
+    el('p', { className: 'progress', textContent: t('queueStep', { i: queue.i + 1, n, list: listName(current.title) }) }),
+  ];
+  if (!opened) {
+    parts.push(sendLink(t('queueOpen'), [current], 'queue', { primary: true }));
+  } else {
+    parts.push(el('p', { className: 'muted', textContent: t('queueHint') }));
+    if (next) {
+      const yes = el('a', { className: 'btn primary', href: '#', textContent: t('queueYesNext', { list: listName(next.title) }) });
+      yes.addEventListener('click', ev => advanceQueue(ev, yes, true));
+      parts.push(yes);
+    } else {
+      const done = el('button', { type: 'button', className: 'primary block', textContent: t('queueYesDone') });
+      done.addEventListener('click', () => { markSent([current]); endQueue(); });
+      parts.push(done);
+    }
+  }
+  const extra = [sendLink(t('gmail'), [current], 'queue', { gmail: true })];
+  if (opened) extra.push(sendLink(t('queueReopen'), [current], 'queue'));
+  if (next) {
+    const skip = el('a', { className: 'linkish', href: '#', textContent: t('queueSkip') });
+    skip.addEventListener('click', ev => advanceQueue(ev, skip, false));
+    extra.push(skip);
+  }
+  const stop = el('button', { type: 'button', className: 'linkish', textContent: t('queueStop') });
+  stop.addEventListener('click', endQueue);
+  extra.push(stop);
+  parts.push(el('div', { className: 'actions' }, extra));
+  box.replaceChildren(...parts);
+}
+
 function renderBulk() {
   const box = $('bulk');
   const left = remaining();
-  if (pending?.source === 'bulk') {
-    box.replaceChildren(confirmBox(t('confirmQMany', { n: pending.titles.length })));
+  if (queue) {
+    renderQueueStep(box);
   } else if (!left.length) {
     box.replaceChildren();
   } else if (choosing) {
     const picked = left.filter(u => chosen.has(u.title));
+    const start = el('a', { className: 'btn primary', href: '#', textContent: t('queueStartChosen', { n: picked.length }) });
+    if (!picked.length) start.classList.add('disabled');
+    start.addEventListener('click', ev => startQueue(ev, start, picked));
     const cancel = el('button', { type: 'button', className: 'linkish', textContent: t('cancelChoose') });
     cancel.addEventListener('click', () => { choosing = false; render(); });
-    box.replaceChildren(
-      sendLink(t('sendSelected', { n: picked.length }), picked, 'bulk', { primary: true }),
-      el('div', { className: 'actions' }, [sendLink(t('gmail'), picked, 'bulk', { gmail: true }), copyButton(picked), cancel]));
+    box.replaceChildren(start, el('div', { className: 'actions' }, [cancel]));
   } else {
-    const label = left.length === UNITS.filter(u => u.emails.length).length ? t('sendAll') : t('sendRemaining', { n: left.length });
+    const all = left.length === UNITS.filter(u => u.emails.length).length;
+    const start = el('a', { className: 'btn primary', href: '#',
+      textContent: all ? t('queueStart') : t('queueStartRemaining', { n: left.length }) });
+    start.addEventListener('click', ev => startQueue(ev, start, left));
     const choose = el('button', { type: 'button', className: 'linkish', textContent: t('choose') });
     choose.addEventListener('click', () => { choosing = true; chosen = new Set(left.map(u => u.title)); render(); });
-    box.replaceChildren(
-      sendLink(label, left, 'bulk', { primary: true }),
-      el('div', { className: 'actions' }, [sendLink(t('gmail'), left, 'bulk', { gmail: true }), copyButton(left), choose]));
+    box.replaceChildren(start, el('div', { className: 'actions' }, [choose]));
   }
 }
 
@@ -493,7 +566,7 @@ function unitRow(unit, isNext) {
     head.append(el('span', { className: 'status-sent', textContent: t('sentOn', { date: formatDate(sentDate(unit)) }) }));
   } else if (pending?.source === 'row' && pending.titles.includes(unit.title)) {
     actions.append(confirmBox(t('confirmQ')));
-  } else if (!choosing && unit.emails.length) {
+  } else if (!choosing && !queue && unit.emails.length) {
     head.append(sendLink(t('send'), [unit], 'row', { primary: true }));
     actions.append(sendLink(t('gmail'), [unit], 'row', { gmail: true }), copyButton([unit]));
   }
@@ -560,7 +633,7 @@ function applyStaticText() {
 }
 
 function render() {
-  const firstOpen = choosing ? null : remaining()[0];
+  const firstOpen = queue ? queueUnit(queue.i) : choosing ? null : remaining()[0];
   $('lists').replaceChildren(...UNITS.map(u => unitRow(u, u === firstOpen)));
   const total = UNITS.filter(u => u.emails.length).length;
   const sentCount = UNITS.filter(isSent).length;
