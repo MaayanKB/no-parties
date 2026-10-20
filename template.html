@@ -38,6 +38,8 @@
   p { margin: 0 0 8px; }
   a { color: var(--accent); }
   .muted { color: var(--muted); font-size: .875rem; }
+  .intro p { margin: 0; }
+  .intro .punch { font-size: 1.25rem; font-weight: 800; color: var(--accent); margin: 8px 0; }
 
   .topbar { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
   .langs { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
@@ -140,7 +142,13 @@
   </details>
 
   <h1 data-t="title"></h1>
-  <p data-t="intro"></p>
+  <div class="intro">
+    <p data-t="introQ"></p>
+    <p data-t="introMaybe"></p>
+    <p data-t="introNo"></p>
+    <p class="punch" data-t="introPunch"></p>
+    <p data-t="introBody"></p>
+  </div>
 
   <details class="panel" id="p-form">
     <summary><span class="ptitle" data-t="formTitle"></span><span class="psum" id="form-summary"></span></summary>

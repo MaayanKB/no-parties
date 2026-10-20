@@ -37,7 +37,6 @@
   "ui": {
     "he": {
       "title": "נמאס מהודעות מהמפלגות? גם לנו.",
-      "intro": "שלחתם \"הסר\" והמפלגות הפסיקו לשלוח? אולי. כנראה שלא, ובשביל זה אנחנו פה. לפי החוק אפשר לדרוש בכתב שימחקו אתכם מהמאגר: אנחנו כותבים את המכתב, אתם שולחים אותו במייל. שתי דקות, חינם.",
       "language": "שפה",
       "themeToDark": "מצב כהה",
       "themeToLight": "מצב בהיר",
@@ -119,11 +118,15 @@
       "cheersDone": "סיימת! כל הרשימות קיבלו ממך דרישת מחיקה. עכשיו הן צריכות לעבוד בשבילך 🎉",
       "gmailPrimary": "פתיחה ב-Gmail",
       "idTip": "המפלגות מחזיקות בפנקס הבוחרים, שבו אתם רשומים לפי מספר ת\"ז. כשהמספר במכתב, אין להן איך לטעון \"לא מצאנו אותך\". הוא יוצא רק במייל שאתם שולחים, ולא יישמר בשום מקום.",
-      "afterSendNote": "אחרי השליחה: תזכורת ביומן ל-30 יום, ותלונה מוכנה אם לא יענו."
+      "afterSendNote": "אחרי השליחה: תזכורת ביומן ל-30 יום, ותלונה מוכנה אם לא יענו.",
+      "introQ": "שלחתם \"הסר\" והמפלגות הפסיקו לשלוח?",
+      "introMaybe": "אולי.",
+      "introNo": "כנראה שלא.",
+      "introPunch": "בשביל זה אנחנו פה.",
+      "introBody": "לפי החוק אפשר לדרוש בכתב שימחקו אתכם מהמאגר: אנחנו כותבים את המכתב, אתם שולחים אותו במייל. שתי דקות, חינם."
     },
     "en": {
       "title": "Sick of texts from the parties? Us too.",
-      "intro": "Replied \"STOP\" and the parties stopped texting? Maybe. Probably not, and that's why we're here. By law you can demand in writing that they delete you from their database: we write the letter, you send it by email. Two minutes, free.",
       "language": "Language",
       "themeToDark": "Dark mode",
       "themeToLight": "Light mode",
@@ -205,11 +208,15 @@
       "cheersDone": "Done! Every list got your deletion demand. Now they have to do the work 🎉",
       "gmailPrimary": "Open in Gmail",
       "idTip": "The parties hold the voter registry, where you're listed by ID number. With the number in the letter, they can't claim \"we couldn't find you\". It only goes out in the email you send, and won't be saved anywhere.",
-      "afterSendNote": "After sending: a 30-day calendar reminder, and a ready complaint if they don't answer."
+      "afterSendNote": "After sending: a 30-day calendar reminder, and a ready complaint if they don't answer.",
+      "introQ": "Replied \"STOP\" and the parties stopped texting?",
+      "introMaybe": "Maybe.",
+      "introNo": "Probably not.",
+      "introPunch": "That's what we're here for.",
+      "introBody": "By law you can demand in writing that they delete you from their database: we write the letter, you send it by email. Two minutes, free."
     },
     "ar": {
       "title": "سئمت رسائل الأحزاب؟ ونحن أيضًا.",
-      "intro": "أرسلت \"إزالة\" وتوقفت الأحزاب عن مراسلتك؟ ربما. على الأرجح لا، ولهذا نحن هنا. بحسب القانون يمكنك أن تطالب كتابيًا بحذفك من قاعدة البيانات: نحن نكتب الرسالة وأنت ترسلها بالبريد الإلكتروني. دقيقتان، مجانًا.",
       "language": "اللغة",
       "themeToDark": "الوضع الداكن",
       "themeToLight": "الوضع الفاتح",
@@ -291,11 +298,15 @@
       "cheersDone": "انتهيت! كل القوائم تلقت مطالبتك بالحذف. الآن عليها أن تعمل من أجلك 🎉",
       "gmailPrimary": "فتح في Gmail",
       "idTip": "تملك الأحزاب سجل الناخبين، وأنت مسجل فيه برقم هويتك. عندما يظهر الرقم في الرسالة، لا يمكنها الادعاء بأنها \"لم تجدك\". يخرج الرقم فقط في البريد الذي ترسله، ولن يُحفظ في أي مكان.",
-      "afterSendNote": "بعد الإرسال: تذكير في التقويم بعد 30 يومًا، وشكوى جاهزة إذا لم يردوا."
+      "afterSendNote": "بعد الإرسال: تذكير في التقويم بعد 30 يومًا، وشكوى جاهزة إذا لم يردوا.",
+      "introQ": "أرسلت \"إزالة\" وتوقفت الأحزاب عن مراسلتك؟",
+      "introMaybe": "ربما.",
+      "introNo": "على الأرجح لا.",
+      "introPunch": "لهذا نحن هنا.",
+      "introBody": "بحسب القانون يمكنك أن تطالب كتابيًا بحذفك من قاعدة البيانات: نحن نكتب الرسالة وأنت ترسلها بالبريد الإلكتروني. دقيقتان، مجانًا."
     },
     "ru": {
       "title": "Надоели сообщения от партий? Нам тоже.",
-      "intro": "Ответили «стоп», и партии перестали писать? Может быть. Скорее всего нет, поэтому мы здесь. По закону можно письменно потребовать удалить вас из базы: мы пишем письмо, вы отправляете его по почте. Две минуты, бесплатно.",
       "language": "Язык",
       "themeToDark": "Тёмная тема",
       "themeToLight": "Светлая тема",
@@ -377,11 +388,15 @@
       "cheersDone": "Готово! Все списки получили ваше требование об удалении. Теперь пусть поработают они 🎉",
       "gmailPrimary": "Открыть в Gmail",
       "idTip": "У партий есть список избирателей, где вы записаны по номеру удостоверения. Если номер есть в письме, им не удастся заявить «мы вас не нашли». Номер уходит только в письме, которое вы отправляете, и нигде не сохранится.",
-      "afterSendNote": "После отправки: напоминание в календаре через 30 дней и готовая жалоба, если не ответят."
+      "afterSendNote": "После отправки: напоминание в календаре через 30 дней и готовая жалоба, если не ответят.",
+      "introQ": "Ответили «стоп», и партии перестали писать?",
+      "introMaybe": "Может быть.",
+      "introNo": "Скорее всего нет.",
+      "introPunch": "Для этого мы здесь.",
+      "introBody": "По закону можно письменно потребовать удалить вас из базы: мы пишем письмо, вы отправляете его по почте. Две минуты, бесплатно."
     },
     "am": {
       "title": "ከፓርቲዎች በሚመጡ መልእክቶች ሰልችቶዎታል? እኛም።",
-      "intro": "\"አስወግድ\" ብለው መልሰው ፓርቲዎቹ መላክ አቆሙ? ምናልባት። ምናልባትም አይደለም፤ ለዚህ ነው እዚህ ያለነው። በሕጉ መሠረት ከመረጃ ቋታቸው እንዲሰርዙዎት በጽሑፍ መጠየቅ ይችላሉ፦ እኛ ደብዳቤውን እንጽፋለን፣ እርስዎ በኢሜይል ይልካሉ። ሁለት ደቂቃ፣ በነጻ።",
       "language": "ቋንቋ",
       "themeToDark": "ጨለማ ገጽታ",
       "themeToLight": "ብሩህ ገጽታ",
@@ -463,7 +478,12 @@
       "cheersDone": "ጨርሰዋል! ሁሉም ዝርዝሮች የመሰረዝ ጥያቄዎን ተቀብለዋል። አሁን ለእርስዎ መሥራት አለባቸው 🎉",
       "gmailPrimary": "በGmail ክፈት",
       "idTip": "ፓርቲዎቹ የመራጮች መዝገብ አላቸው፤ በውስጡ በመታወቂያ ቁጥርዎ ተመዝግበዋል። ቁጥሩ በደብዳቤው ውስጥ ሲኖር \"አላገኘንዎትም\" ማለት አይችሉም። ቁጥሩ የሚወጣው በሚልኩት ኢሜይል ብቻ ነው፤ የትም አይቀመጥም።",
-      "afterSendNote": "ከላኩ በኋላ፦ የ30 ቀን የቀን መቁጠሪያ ማስታወሻ፣ ካልመለሱም የተዘጋጀ ቅሬታ።"
+      "afterSendNote": "ከላኩ በኋላ፦ የ30 ቀን የቀን መቁጠሪያ ማስታወሻ፣ ካልመለሱም የተዘጋጀ ቅሬታ።",
+      "introQ": "\"አስወግድ\" ብለው መልሰው ፓርቲዎቹ መላክ አቆሙ?",
+      "introMaybe": "ምናልባት።",
+      "introNo": "ምናልባትም አይደለም።",
+      "introPunch": "ለዚህ ነው እዚህ ያለነው።",
+      "introBody": "በሕጉ መሠረት ከመረጃ ቋታቸው እንዲሰርዙዎት በጽሑፍ መጠየቅ ይችላሉ፦ እኛ ደብዳቤውን እንጽፋለን፣ እርስዎ በኢሜይል ይልካሉ። ሁለት ደቂቃ፣ በነጻ።"
     }
   },
   "lists": {
