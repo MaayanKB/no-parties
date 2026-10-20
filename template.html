@@ -2,6 +2,13 @@
 <html lang="he" dir="rtl">
 <head>
 <meta charset="utf-8">
+<script>
+  try {
+    if (!localStorage.getItem('party-deletion-seen') && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      document.documentElement.classList.add('intro-anim');
+    }
+  } catch (e) { /* no storage: skip the sequence */ }
+</script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>מחיקה ממאגרי המפלגות</title>
 <meta name="description" content="דרישה מהמפלגות למחוק את הפרטים שלכם ממאגרי המידע. מייל מוכן לכל רשימה, בלי שרת.">
@@ -19,6 +26,7 @@
   /* Fonts are hosted with the page (no third-party requests): Rubik for text, Karantina for the title. */
   @font-face { font-family: "Rubik"; src: url("fonts/Rubik-Variable.ttf") format("truetype"); font-weight: 300 900; font-display: swap; }
   @font-face { font-family: "Karantina"; src: url("fonts/Karantina-Bold.ttf") format("truetype"); font-weight: 700; font-display: swap; }
+  @font-face { font-family: "Playpen"; src: url("fonts/PlaypenSansHebrew-Title.ttf") format("truetype"); font-weight: 500; font-display: swap; }
 
   /* Palette: Israeli flag blue and white, protest-marker yellow as the only accent.
      Every pair meets WCAG AA or better; nothing relies on color alone (icons and words carry state). */
@@ -44,8 +52,9 @@
   body { margin: 0; background: var(--bg); color: var(--ink);
          font: 16px/24px "Rubik", system-ui, -apple-system, "Segoe UI", "Noto Sans Ethiopic", Arial, sans-serif; }
   main { max-width: 720px; margin: 0 auto; padding: 16px 16px 64px; }
-  h1 { font-family: "Karantina", "Rubik", system-ui, sans-serif; font-weight: 700; font-size: 64px; line-height: 64px;
-       margin: 32px 0 24px; }
+  h1 { margin: 32px 0 24px; font-weight: 400; }
+  h1 .tq { display: block; font-family: "Playpen", "Rubik", system-ui, sans-serif; font-weight: 500; font-size: 48px; line-height: 56px; }
+  h1 .ta { display: block; font-family: "Karantina", "Rubik", system-ui, sans-serif; font-weight: 700; font-size: 112px; line-height: 104px; margin-top: 8px; }
   h2 { font-size: 20px; line-height: 28px; margin: 0; }
   h3 { font-size: 16px; margin: 16px 0 8px; }
   p { margin: 0 0 8px; }
@@ -64,7 +73,8 @@
      starting state from the first paint, so nothing flashes before the animation. */
   .intro .punch { position: relative; z-index: 0; display: inline-block; margin: 0 8px 32px; padding: 0 8px;
                   font-size: 40px; line-height: 48px; font-weight: 500; color: var(--on-marker);
-                  transform: rotate(-2deg); animation: stamp .9s .6s both; }
+                  transform: rotate(-2deg); }
+  .intro-anim .intro .punch { animation: stamp .9s both; }
   .intro .punch::before { content: ""; position: absolute; z-index: -1; inset: 4px -8px 0 -8px; background: var(--marker);
                           border-radius: 16px 4px 24px 8px / 8px 16px 8px 16px; transform: skewX(-8deg); }
   @keyframes stamp {
@@ -75,9 +85,20 @@
     100% { opacity: 1; transform: rotate(-2deg) scale(1); }
   }
   @media (prefers-reduced-motion: reduce) { .intro .punch { animation: none; } }
+  /* Opening sequence (first visit only, see <head>). --write is set by JS to the writing duration. */
+  .intro-anim h1 .tq:not(.written) { visibility: hidden; }
+  .intro-anim h1 .tq .ch { opacity: 0; animation: ink .28s ease-out forwards; }
+  @keyframes ink { to { opacity: 1; } }
+  .intro-anim h1 .ta { animation: pop .5s cubic-bezier(.3, 1.6, .5, 1) calc(var(--write, 1200ms) + 100ms) both; }
+  @keyframes pop { from { opacity: 0; transform: scale(.6); } }
+  .intro-anim .read, .intro-anim .intro .qs, .intro-anim .intro .body, .intro-anim details.panel {
+    animation: rise .5s ease-out calc(var(--write, 1200ms) + 500ms) both; }
+  @keyframes rise { from { opacity: 0; transform: translateY(8px); } }
+  .intro-anim .intro .punch { animation-delay: calc(var(--write, 1200ms) + 800ms); }
   .intro .body { color: var(--muted); }
   @media (min-width: 600px) {
-    h1 { font-size: 88px; line-height: 88px; }
+    h1 .tq { font-size: 64px; line-height: 72px; }
+    h1 .ta { font-size: 144px; line-height: 136px; }
     .intro .punch { font-size: 48px; line-height: 56px; }
   }
 
@@ -211,7 +232,7 @@
   </details>
 
   <div class="read"><button type="button" class="icon-btn" id="read" data-icon="speaker" hidden></button></div>
-  <h1 data-t="title"></h1>
+  <h1><span class="tq" data-t="titleQ"></span><span class="ta" data-t="titleA"></span></h1>
   <div class="intro">
     <div class="qs">
       <p class="q" data-t="introQ"></p>
@@ -850,6 +871,18 @@ $('p-form').open = !startValid;
 $('p-lists').open = startValid;
 applyStaticText();
 render();
+
+function runIntro() {
+  const tq = document.querySelector('h1 .tq');
+  const letters = Array.from(tq.textContent);
+  const step = 45;   // ms per letter
+  tq.replaceChildren(...letters.map((ch, i) =>
+    ch === ' ' ? document.createTextNode(' ') : el('span', { className: 'ch', textContent: ch, style: `animation-delay:${i * step}ms` })));
+  tq.classList.add('written');
+  document.documentElement.style.setProperty('--write', `${letters.length * step}ms`);
+  save('party-deletion-seen', true);
+}
+if (document.documentElement.classList.contains('intro-anim')) runIntro();
 
 </script>
 </body>

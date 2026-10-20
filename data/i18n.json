@@ -135,7 +135,9 @@
       "a11yContactLink": "דיווח בגיטהאב",
       "a11yUpdated": "עודכן לאחרונה: 20.10.2026",
       "readAloud": "הקראת הדף",
-      "stopReading": "עצירת ההקראה"
+      "stopReading": "עצירת ההקראה",
+      "titleQ": "נמאס לך מהודעות מהמפלגות?",
+      "titleA": "גם לנו."
     },
     "en": {
       "title": "Sick of texts from the parties? Us too.",
@@ -232,7 +234,9 @@
       "a11yContactLink": "report on GitHub",
       "a11yUpdated": "Last updated: 20.10.2026",
       "readAloud": "Read this page aloud",
-      "stopReading": "Stop reading"
+      "stopReading": "Stop reading",
+      "titleQ": "Sick of texts from the parties?",
+      "titleA": "Us too."
     },
     "ar": {
       "title": "سئمت رسائل الأحزاب؟ ونحن أيضًا.",
@@ -329,7 +333,9 @@
       "a11yContactLink": "إبلاغ عبر GitHub",
       "a11yUpdated": "آخر تحديث: 20.10.2026",
       "readAloud": "قراءة الصفحة بصوت عالٍ",
-      "stopReading": "إيقاف القراءة"
+      "stopReading": "إيقاف القراءة",
+      "titleQ": "سئمت رسائل الأحزاب؟",
+      "titleA": "ونحن أيضًا."
     },
     "ru": {
       "title": "Надоели сообщения от партий? Нам тоже.",
@@ -426,7 +432,9 @@
       "a11yContactLink": "сообщить на GitHub",
       "a11yUpdated": "Последнее обновление: 20.10.2026",
       "readAloud": "Прочитать страницу вслух",
-      "stopReading": "Остановить чтение"
+      "stopReading": "Остановить чтение",
+      "titleQ": "Надоели сообщения от партий?",
+      "titleA": "Нам тоже."
     },
     "am": {
       "title": "ከፓርቲዎች በሚመጡ መልእክቶች ሰልችቶዎታል? እኛም።",
@@ -523,7 +531,9 @@
       "a11yContactLink": "በGitHub ሪፖርት ያድርጉ",
       "a11yUpdated": "ለመጨረሻ ጊዜ የተሻሻለው፦ 20.10.2026",
       "readAloud": "ገጹን በድምፅ አንብብ",
-      "stopReading": "ማንበብ አቁም"
+      "stopReading": "ማንበብ አቁም",
+      "titleQ": "ከፓርቲዎች በሚመጡ መልእክቶች ሰልችቶዎታል?",
+      "titleA": "እኛም።"
     }
   },
   "lists": {

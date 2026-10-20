@@ -74,6 +74,17 @@ def check_i18n(i18n, list_order):
         sys.exit("i18n.json is incomplete:\n" + "\n".join(problems))
 
 
+def check_title_font(i18n):
+    """The handwriting font is subset to the title question's letters (fonts/*.chars.txt).
+    If the Hebrew or English question changes, the font must be re-subset, or letters would silently
+    fall back to another font."""
+    covered = set((ROOT / "fonts" / "PlaypenSansHebrew-Title.chars.txt").read_text(encoding="utf-8"))
+    missing = {c for lang in ("he", "en") for c in i18n["ui"][lang]["titleQ"]} - covered
+    if missing:
+        sys.exit(f"Title question uses letters missing from the Playpen subset: {sorted(missing)}. "
+                 "Re-subset fonts/PlaypenSansHebrew-Title.ttf and update its .chars.txt.")
+
+
 def main():
     parties = load("parties.json")
     polling_file = load("polling.json")
@@ -84,7 +95,8 @@ def main():
     contacts = load("contacts.json", default=[])
     i18n = load("i18n.json")
     check_i18n(i18n, list_order)
-    data = {"parties": build_parties(parties, polling, contacts), "list_order": list_order, "i18n": i18n}
+    check_title_font(i18n)
+    data ={"parties": build_parties(parties, polling, contacts), "list_order": list_order, "i18n": i18n}
     # Escape "</" so party text can never close the embedding <script> tag.
     payload = json.dumps(data, ensure_ascii=False).replace("</", "<\\/")
     validate_js = (ROOT / "src" / "validate.js").read_text(encoding="utf-8")
