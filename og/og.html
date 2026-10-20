@@ -1,0 +1,41 @@
+<!doctype html>
+<!-- Source of og.png (the WhatsApp/social preview image). Render with:
+     "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" --headless --hide-scrollbars \
+       --window-size=1200,630 --screenshot=og.png og/og.html
+     Senders are deliberately generic: no real party names or logos. -->
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<style>
+  * { box-sizing: border-box; margin: 0; }
+  body { width: 1200px; height: 630px; overflow: hidden; background: #1f5f8b; color: #fff;
+         font-family: "Arial Hebrew", "Noto Sans Hebrew", Arial, sans-serif;
+         display: flex; align-items: center; justify-content: space-between; padding: 0 80px; gap: 64px; }
+  .text { flex: 1; }
+  h1 { font-size: 72px; line-height: 1.1; font-weight: 800; }
+  h1 span { display: block; color: #ffd166; }
+  p { font-size: 32px; margin-top: 32px; opacity: .9; }
+  .phone { width: 360px; height: 560px; margin-top: 96px; background: #f7f6f2; border-radius: 48px 48px 0 0;
+           border: 12px solid #10202c; border-bottom: none; padding: 32px 24px; position: relative; color: #1d1d1b; }
+  .badge { position: absolute; top: -24px; left: -24px; background: #e5383b; color: #fff; font-weight: 800;
+           font-size: 32px; border-radius: 32px; padding: 8px 20px; border: 6px solid #1f5f8b; }
+  .msg { background: #fff; border-radius: 16px; padding: 16px; margin-bottom: 16px; box-shadow: 0 2px 8px rgb(0 0 0 / .08); }
+  .msg b { display: block; font-size: 20px; }
+  .msg span { font-size: 20px; color: #6b6a64; }
+</style>
+</head>
+<body>
+  <div class="text">
+    <h1>נמאס מהודעות מהמפלגות?<span>גם לנו.</span></h1>
+    <p>מוחקים אתכם מהמאגר. שתי דקות, חינם.</p>
+  </div>
+  <div class="phone">
+    <div class="badge" dir="ltr">99+</div>
+    <div class="msg"><b>מפלגה</b><span>הקול שלך קריטי!!! 🗳️</span></div>
+    <div class="msg"><b>מפלגה אחרת</b><span>רק אתה יכול להכריע...</span></div>
+    <div class="msg"><b>עוד מפלגה</b><span>סקר קצר, 30 שניות</span></div>
+    <div class="msg"><b>מפלגה (שוב)</b><span>זה הרגע! אל תפספס</span></div>
+    <div class="msg"><b>מפלגה</b><span>תזכורת: הקול שלך...</span></div>
+  </div>
+</body>
+</html>
