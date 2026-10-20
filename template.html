@@ -25,7 +25,7 @@
   :root {
     --bg: #F7F8FC; --card: #FFFFFF; --line: #DCE2EE; --ink: #0B1B3A; --muted: #4A5670;
     --accent: #0038B8; --on-accent: #FFFFFF; --marker: #FFC72C; --on-marker: #0B1B3A;
-    --highlight: #FFF4CC; --error: #B3261E; --error-bg: #FDECEA;
+    --highlight: #FFFBEA; --error: #B3261E; --error-bg: #FDECEA;
   }
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
@@ -122,13 +122,20 @@
                   text-decoration: none; display: inline-flex; align-items: center; justify-content: center; }
   button.primary, a.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); font-weight: 600; }
   a.btn.disabled { opacity: .5; pointer-events: none; }
-  .linkish { background: none; border: none; padding: 0 8px; min-height: 40px; color: var(--accent); text-decoration: underline; }
+  .linkish { background: none; border: none; padding: 0 8px; min-height: 40px; color: var(--accent); text-decoration: underline;
+             display: inline-flex; align-items: center; }
   .block { width: 100%; margin-top: 16px; }
 
   .progress { font-weight: 600; margin: 16px 0 8px; }
   .bulk { border: 2px solid var(--accent); border-radius: 8px; padding: 16px; margin: 8px 0 16px; }
   .bulk .btn.primary { width: 100%; }
   .actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 8px; }
+  .row-actions { flex-direction: column; align-items: flex-start; gap: 0; }
+  .who > summary { list-style: none; cursor: pointer; display: inline-flex; align-items: center; gap: 8px;
+                   min-height: 40px; padding: 0 8px; font-weight: 600; color: var(--accent); }
+  .who > summary::-webkit-details-marker { display: none; }
+  .who > summary::after { content: "▾"; }
+  .who[open] > summary::after { content: "▴"; }
   ul.lists { list-style: none; margin: 0; padding: 0; }
   ul.lists > li { padding: 16px 8px; border-top: 1px solid var(--line); }
   ul.lists > li.next { background: var(--highlight); border-radius: 8px; border-inline-start: 4px solid var(--marker); }
@@ -446,6 +453,7 @@ function withIcon(node, name) {
 function sendLink(text, units, source, { primary = false, gmail = false } = {}) {
   const a = el('a', { className: primary ? 'btn primary' : 'linkish', textContent: text, href: '#' });
   if (primary) withIcon(a, 'send');
+  else if (gmail) withIcon(a, 'mail');
   if (gmail) { a.target = '_blank'; a.rel = 'noopener'; }
   a.addEventListener('click', ev => openSend(ev, a, units, source, gmail));
   return a;
@@ -611,7 +619,7 @@ function unitRow(unit, isNext) {
   const li = el('li', { className: isNext ? 'next' : '' });
   const nameEl = el('span', { className: 'lname', textContent: listName(unit.title) });
   const head = el('div', { className: 'row' });
-  const actions = el('div', { className: 'actions' });
+  const actions = el('div', { className: 'actions row-actions' });
 
   if (choosing && !isSent(unit)) {
     const box = el('input', { type: 'checkbox', checked: chosen.has(unit.title) });
@@ -636,7 +644,7 @@ function unitRow(unit, isNext) {
       ? `${p.name}: ${p.emails.join(', ')}` + (p.note_key ? ` (${t(p.note_key)})` : '')
       : `${p.name}: ${t('regMail')}, ${p.address || t('noAddress')}`,
   })));
-  actions.append(el('details', {}, [el('summary', { className: 'linkish', textContent: t('whoGetsIt') }), recipients]));
+  actions.append(el('details', { className: 'who' }, [el('summary', { textContent: t('whoGetsIt') }), recipients]));
 
   li.append(head, actions);
   return li;
