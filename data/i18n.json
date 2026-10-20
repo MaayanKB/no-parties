@@ -115,7 +115,17 @@
       "queueYesDone": "כן, נשלח. סיימתי",
       "queueReopen": "לפתוח שוב",
       "queueSkip": "דילוג",
-      "queueStop": "עצירה"
+      "queueStop": "עצירה",
+      "cheers": [
+        "יש! עוד מפלגה קיבלה ממך מכתב רשמי.",
+        "אחת פחות. ככה מנקים מאגר.",
+        "מעולה. המומנטום אצלך, לא אצלם.",
+        "עוד מפלגה תצטרך להתעסק במחיקה שלך. איזה כיף.",
+        "זה הולך מהר, הא? עוד אחת."
+      ],
+      "cheersDone": "סיימת! כל הרשימות קיבלו ממך דרישת מחיקה. עכשיו הן צריכות לעבוד בשבילך 🎉",
+      "gmailPrimary": "פתיחה ב-Gmail",
+      "mailApp": "פתיחה בתוכנת הדואר"
     },
     "en": {
       "title": "Delete my details from party databases",
@@ -197,7 +207,17 @@
       "queueYesDone": "Yes, sent. Done",
       "queueReopen": "Open again",
       "queueSkip": "Skip",
-      "queueStop": "Stop"
+      "queueStop": "Stop",
+      "cheers": [
+        "Yes! Another party got an official letter from you.",
+        "One down. That's how you clean a database.",
+        "Great. The momentum is yours, not theirs.",
+        "Another party now has to deal with deleting you. Lovely.",
+        "Going fast, huh? Next one."
+      ],
+      "cheersDone": "Done! Every list got your deletion demand. Now they have to do the work 🎉",
+      "gmailPrimary": "Open in Gmail",
+      "mailApp": "Open in mail app"
     },
     "ar": {
       "title": "حذف بياناتي من قواعد بيانات الأحزاب",
@@ -279,7 +299,17 @@
       "queueYesDone": "نعم، أُرسل. انتهيت",
       "queueReopen": "فتح مرة أخرى",
       "queueSkip": "تخطٍّ",
-      "queueStop": "إيقاف"
+      "queueStop": "إيقاف",
+      "cheers": [
+        "رائع! حزب آخر تلقى منك رسالة رسمية.",
+        "واحد أقل. هكذا تُنظَّف قاعدة البيانات.",
+        "ممتاز. الزخم معك، لا معهم.",
+        "حزب آخر عليه الآن أن ينشغل بحذفك. جميل.",
+        "الأمر يسير بسرعة، صحيح؟ التالي."
+      ],
+      "cheersDone": "انتهيت! كل القوائم تلقت مطالبتك بالحذف. الآن عليها أن تعمل من أجلك 🎉",
+      "gmailPrimary": "فتح في Gmail",
+      "mailApp": "فتح في تطبيق البريد"
     },
     "ru": {
       "title": "Удалить мои данные из баз партий",
@@ -361,7 +391,17 @@
       "queueYesDone": "Да, отправлено. Готово",
       "queueReopen": "Открыть снова",
       "queueSkip": "Пропустить",
-      "queueStop": "Остановить"
+      "queueStop": "Остановить",
+      "cheers": [
+        "Есть! Ещё одна партия получила от вас официальное письмо.",
+        "Минус одна. Вот так чистят базу данных.",
+        "Отлично. Инициатива у вас, а не у них.",
+        "Ещё одной партии придётся заняться вашим удалением. Приятно.",
+        "Быстро идёт, правда? Следующая."
+      ],
+      "cheersDone": "Готово! Все списки получили ваше требование об удалении. Теперь пусть поработают они 🎉",
+      "gmailPrimary": "Открыть в Gmail",
+      "mailApp": "Открыть в почтовой программе"
     },
     "am": {
       "title": "መረጃዬን ከፓርቲዎች የመረጃ ቋት ማስወገድ",
@@ -443,7 +483,17 @@
       "queueYesDone": "አዎ፣ ተልኳል። ጨርሻለሁ",
       "queueReopen": "እንደገና ክፈት",
       "queueSkip": "ዝለል",
-      "queueStop": "አቁም"
+      "queueStop": "አቁም",
+      "cheers": [
+        "አሪፍ! ሌላ ፓርቲ ከእርስዎ ይፋዊ ደብዳቤ ደርሶታል።",
+        "አንድ ቀነሰ። የመረጃ ቋት የሚጸዳው እንዲህ ነው።",
+        "በጣም ጥሩ። ፍጥነቱ በእጅዎ ነው።",
+        "ሌላ ፓርቲ አሁን እርስዎን በመሰረዝ መጠመድ አለበት።",
+        "በፍጥነት እየሄደ ነው፣ አይደል? ቀጣዩ።"
+      ],
+      "cheersDone": "ጨርሰዋል! ሁሉም ዝርዝሮች የመሰረዝ ጥያቄዎን ተቀብለዋል። አሁን ለእርስዎ መሥራት አለባቸው 🎉",
+      "gmailPrimary": "በGmail ክፈት",
+      "mailApp": "በኢሜይል መተግበሪያ ክፈት"
     }
   },
   "lists": {

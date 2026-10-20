@@ -108,7 +108,16 @@
                     border: 1px solid var(--line); border-radius: 8px; padding: 8px; margin-bottom: 8px; }
   footer { margin-top: 24px; }
   .toast { position: fixed; inset: auto 16px 16px 16px; max-width: 688px; margin: 0 auto; padding: 16px;
-           border-radius: 8px; background: var(--ink); color: var(--bg); box-shadow: 0 8px 24px rgb(0 0 0 / .2); }
+           border-radius: 8px; background: var(--ink); color: var(--bg); box-shadow: 0 8px 24px rgb(0 0 0 / .2);
+           display: flex; flex-direction: column; gap: 4px; }
+  .toast.cheer { background: var(--ok); color: #fff; }
+  #toast-main:empty, #toast-sub:empty { display: none; }
+  #toast-sub { font-size: .875rem; }
+  .meter { height: 8px; border-radius: 8px; background: var(--line); overflow: hidden; margin-bottom: 16px; }
+  #meter-fill { display: block; height: 100%; width: 0; background: var(--ok); border-radius: 8px; transition: width .4s ease; }
+  .meter.pulse { animation: pulse .6s ease; }
+  @keyframes pulse { 50% { transform: scaleY(1.75); } }
+  @media (prefers-reduced-motion: reduce) { #meter-fill { transition: none; } .meter.pulse { animation: none; } }
 </style>
 </head>
 <body>
@@ -168,6 +177,7 @@
     <div class="pbody">
       <p class="muted" data-t="orderNote"></p>
       <p class="progress" id="progress"></p>
+      <div class="meter" aria-hidden="true"><span id="meter-fill"></span></div>
       <div class="bulk">
         <div id="bulk"></div>
         <p class="muted" data-t="hebrewNote" data-not-he></p>
@@ -203,7 +213,7 @@
   <footer class="muted" id="footer"></footer>
 </main>
 
-<div class="toast" id="toast" role="status" hidden></div>
+<div class="toast" id="toast" role="status" hidden><strong id="toast-main"></strong><span id="toast-sub"></span></div>
 
 <dialog id="paste-dialog" aria-labelledby="paste-title">
   <h2 id="paste-title" data-t="pasteTitle"></h2>
@@ -370,6 +380,7 @@ function confirmPending(didSend) {
   if (didSend) markSent(unitsByTitle(pending.titles));
   clearPending();
   render();
+  if (didSend) celebrate();
 }
 
 function el(tag, props = {}, children = []) {
@@ -401,6 +412,7 @@ function sendLink(text, units, source, { primary = false, gmail = false } = {}) 
 // user pastes the letter. Everywhere else the full letter goes in the link.
 const IS_WINDOWS = /Windows/i.test(navigator.userAgent);
 const SAFE_MAILTO_LENGTH = 2000;
+const PREFER_GMAIL = IS_WINDOWS;
 const mailtoTooLong = units => IS_WINDOWS && mailtoUrl(units).length > SAFE_MAILTO_LENGTH;
 const shortMailtoUrl = units => `mailto:${emailsOf(units).join(',')}?subject=${enc(SUBJECT)}`;
 
@@ -424,16 +436,33 @@ function openPasteDialog(units, source) {
 // email can be fixed with one paste. Silent when the clipboard is unavailable.
 function copySafetyNet(units) {
   navigator.clipboard?.writeText(letterText('he', partiesOf(units)))
-    .then(() => showToast(t('copiedSafety')))
+    .then(() => showToast(undefined, t('copiedSafety')))
     .catch(() => {});
 }
 
 let toastTimer;
-function showToast(text) {
-  $('toast').textContent = text;
+// main: the big line (a cheer); sub: a small note. Passing undefined keeps the line that is showing,
+// so a cheer and the clipboard note from the next email can share one toast.
+function showToast(main, sub, cheer = false) {
+  const visible = !$('toast').hidden;
+  if (main !== undefined || !visible) $('toast-main').textContent = main || '';
+  if (sub !== undefined || !visible) $('toast-sub').textContent = sub || '';
+  if (main !== undefined) $('toast').classList.toggle('cheer', cheer);
   $('toast').hidden = false;
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => { $('toast').hidden = true; }, 8000);
+}
+
+// Positive feedback after every confirmed email, and a bigger one when every list is done.
+function celebrate() {
+  const total = UNITS.filter(u => u.emails.length).length;
+  const count = UNITS.filter(isSent).length;
+  const cheers = I18N.ui[lang].cheers;
+  showToast(count >= total ? t('cheersDone') : `${cheers[(count - 1) % cheers.length]} (${count}/${total})`, '', true);
+  const meter = document.querySelector('.meter');
+  meter.classList.remove('pulse');
+  void meter.offsetWidth;   // restart the animation
+  meter.classList.add('pulse');
 }
 
 function copyButton(units) {
@@ -464,9 +493,16 @@ let queue = load('party-deletion-queue', null);   // {titles, i}
 function saveQueue() { save('party-deletion-queue', queue); }
 const queueUnit = i => UNITS.find(u => u.title === queue.titles[i]);
 
+// The main button of the sequence: mail app, or Gmail in a new tab on Windows.
+function primaryAnchor(text) {
+  const a = el('a', { className: 'btn primary', href: '#', textContent: text });
+  if (PREFER_GMAIL) { a.target = '_blank'; a.rel = 'noopener'; }
+  return a;
+}
+
 function startQueue(ev, a, units) {
   queue = { titles: units.map(u => u.title), i: 0 };
-  if (!openSend(ev, a, [units[0]], 'queue')) { queue = null; return; }
+  if (!openSend(ev, a, [units[0]], 'queue', PREFER_GMAIL)) { queue = null; return; }
   choosing = false;
   saveQueue();
 }
@@ -480,10 +516,10 @@ function endQueue() {
 
 function advanceQueue(ev, a, markCurrent) {
   const current = queueUnit(queue.i);
-  if (markCurrent) markSent([current]);
+  if (markCurrent) { markSent([current]); celebrate(); }
   queue.i += 1;
   saveQueue();
-  openSend(ev, a, [queueUnit(queue.i)], 'queue');
+  openSend(ev, a, [queueUnit(queue.i)], 'queue', PREFER_GMAIL);
 }
 
 function renderQueueStep(box) {
@@ -495,21 +531,21 @@ function renderQueueStep(box) {
     el('p', { className: 'progress', textContent: t('queueStep', { i: queue.i + 1, n, list: listName(current.title) }) }),
   ];
   if (!opened) {
-    parts.push(sendLink(t('queueOpen'), [current], 'queue', { primary: true }));
+    parts.push(sendLink(t('queueOpen'), [current], 'queue', { primary: true, gmail: PREFER_GMAIL }));
   } else {
     parts.push(el('p', { className: 'muted', textContent: t('queueHint') }));
     if (next) {
-      const yes = el('a', { className: 'btn primary', href: '#', textContent: t('queueYesNext', { list: listName(next.title) }) });
+      const yes = primaryAnchor(t('queueYesNext', { list: listName(next.title) }));
       yes.addEventListener('click', ev => advanceQueue(ev, yes, true));
       parts.push(yes);
     } else {
       const done = el('button', { type: 'button', className: 'primary block', textContent: t('queueYesDone') });
-      done.addEventListener('click', () => { markSent([current]); endQueue(); });
+      done.addEventListener('click', () => { markSent([current]); endQueue(); celebrate(); });
       parts.push(done);
     }
   }
-  const extra = [sendLink(t('gmail'), [current], 'queue', { gmail: true })];
-  if (opened) extra.push(sendLink(t('queueReopen'), [current], 'queue'));
+  const extra = [PREFER_GMAIL ? sendLink(t('mailApp'), [current], 'queue') : sendLink(t('gmail'), [current], 'queue', { gmail: true })];
+  if (opened) extra.push(sendLink(t('queueReopen'), [current], 'queue', { gmail: PREFER_GMAIL }));
   if (next) {
     const skip = el('a', { className: 'linkish', href: '#', textContent: t('queueSkip') });
     skip.addEventListener('click', ev => advanceQueue(ev, skip, false));
@@ -531,7 +567,7 @@ function renderBulk() {
     box.replaceChildren();
   } else if (choosing) {
     const picked = left.filter(u => chosen.has(u.title));
-    const start = el('a', { className: 'btn primary', href: '#', textContent: t('queueStartChosen', { n: picked.length }) });
+    const start = primaryAnchor(t('queueStartChosen', { n: picked.length }));
     if (!picked.length) start.classList.add('disabled');
     start.addEventListener('click', ev => startQueue(ev, start, picked));
     const cancel = el('button', { type: 'button', className: 'linkish', textContent: t('cancelChoose') });
@@ -539,8 +575,7 @@ function renderBulk() {
     box.replaceChildren(start, el('div', { className: 'actions' }, [cancel]));
   } else {
     const all = left.length === UNITS.filter(u => u.emails.length).length;
-    const start = el('a', { className: 'btn primary', href: '#',
-      textContent: all ? t('queueStart') : t('queueStartRemaining', { n: left.length }) });
+    const start = primaryAnchor(all ? t('queueStart') : t('queueStartRemaining', { n: left.length }));
     start.addEventListener('click', ev => startQueue(ev, start, left));
     const choose = el('button', { type: 'button', className: 'linkish', textContent: t('choose') });
     choose.addEventListener('click', () => { choosing = true; chosen = new Set(left.map(u => u.title)); render(); });
@@ -567,8 +602,9 @@ function unitRow(unit, isNext) {
   } else if (pending?.source === 'row' && pending.titles.includes(unit.title)) {
     actions.append(confirmBox(t('confirmQ')));
   } else if (!choosing && !queue && unit.emails.length) {
-    head.append(sendLink(t('send'), [unit], 'row', { primary: true }));
-    actions.append(sendLink(t('gmail'), [unit], 'row', { gmail: true }), copyButton([unit]));
+    head.append(sendLink(PREFER_GMAIL ? t('gmailPrimary') : t('send'), [unit], 'row', { primary: true, gmail: PREFER_GMAIL }));
+    actions.append(PREFER_GMAIL ? sendLink(t('mailApp'), [unit], 'row') : sendLink(t('gmail'), [unit], 'row', { gmail: true }),
+                   copyButton([unit]));
   }
 
   const recipients = el('ul', { className: 'recipients' }, unit.parties.map(p => el('li', {
@@ -639,6 +675,7 @@ function render() {
   const sentCount = UNITS.filter(isSent).length;
   $('progress').textContent = t('progress', { sent: sentCount, total });
   $('lists-summary').textContent = t('progress', { sent: sentCount, total });
+  $('meter-fill').style.width = `${total ? (100 * sentCount) / total : 0}%`;
   renderBulk();
 
   const errors = validateForm(formValues());
