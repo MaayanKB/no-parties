@@ -104,7 +104,8 @@
   .motion .intro .punch::after { content: attr(data-text); position: absolute; inset: 0; padding: 0 8px; color: var(--on-marker); }
   .motion .intro .punch::before, .motion .intro .punch::after {
     clip-path: inset(0 100% 0 0); transition: clip-path .9s cubic-bezier(.6, 0, .2, 1) calc(var(--d, 0ms) + 700ms); }
-  [dir="rtl"] .motion .intro .punch::before, [dir="rtl"] .motion .intro .punch::after { clip-path: inset(0 0 0 100%); }
+  /* dir and .motion are both on <html>, so this is a compound selector ([dir].motion), not a descendant one. */
+  [dir="rtl"].motion .intro .punch::before, [dir="rtl"].motion .intro .punch::after { clip-path: inset(0 0 0 100%); }
   .motion .intro .punch.in::before, .motion .intro .punch.in::after { clip-path: inset(-8px -16px -8px -16px); }
 
   /* Reveals: things arrive one after another (--d is set per element by JS), and below the fold as you scroll. */
@@ -116,7 +117,7 @@
   .intro-anim h1 .tq:not(.written) { visibility: hidden; }
   .intro-anim h1 .tq .ch { opacity: 0; animation: ink .28s ease-out forwards; }
   @keyframes ink { to { opacity: 1; } }
-  .intro-anim h1 .ta { animation: pop .5s cubic-bezier(.3, 1.6, .5, 1) calc(var(--write, 1200ms) + 600ms) both; }
+  .intro-anim h1 .ta { animation: pop .5s cubic-bezier(.3, 1.6, .5, 1) calc(var(--write, 1200ms) + 1600ms) both; }
   @keyframes pop { from { opacity: 0; transform: scale(.6); } }
   .intro .body { color: var(--muted); }
   @media (min-width: 600px) {
@@ -1018,7 +1019,7 @@ function runIntro() {
   const write = letters.length * step;
   document.documentElement.style.setProperty('--write', `${write}ms`);
   save('party-deletion-seen', true);
-  return write + 600 + 500;   // writing, then a half-second pause, then the 0.5s answer pop
+  return write + 1600 + 500;   // writing, then a 1.6s pause, then the 0.5s answer pop
 }
 const titleTime = document.documentElement.classList.contains('intro-anim') ? runIntro() : 0;
 
