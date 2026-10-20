@@ -52,14 +52,26 @@
   a { color: var(--accent); }
   .muted { color: var(--muted); }
   .read { margin: -8px 0 16px; }
+  .intro { margin-bottom: 48px; }
   .intro p { margin: 0; }
   .intro .q { font-size: 20px; line-height: 28px; font-weight: 500; margin-bottom: 8px; }
-  .intro .punch { display: inline-block; margin: 16px 0 24px; padding: 0 8px; font-size: 32px; line-height: 48px; font-weight: 500;
-                  background: var(--marker); color: var(--on-marker); }
+  /* The punch line sits on a hand-drawn-looking marker stroke that "draws" itself when it comes into view. */
+  .intro .punch { position: relative; z-index: 0; display: inline-block; margin: 24px 0 32px; padding: 0 8px;
+                  font-size: 32px; line-height: 40px; font-weight: 400; color: var(--ink); transition: color .3s ease .3s; }
+  .intro .punch::before { content: ""; position: absolute; z-index: -1; inset: 4px -8px 0 -8px; background: var(--marker);
+                          border-radius: 16px 4px 24px 8px / 8px 16px 8px 16px;
+                          transform: rotate(-1.5deg) skewX(-8deg) scaleX(0); transform-origin: left center;
+                          transition: transform .6s cubic-bezier(.2, .8, .2, 1); }
+  [dir="rtl"] .intro .punch::before { transform-origin: right center; }
+  .intro .punch.drawn { color: var(--on-marker); }
+  .intro .punch.drawn::before { transform: rotate(-1.5deg) skewX(-8deg) scaleX(1); }
+  @media (prefers-reduced-motion: reduce) {
+    .intro .punch, .intro .punch::before { transition: none; }
+  }
   .intro .body { color: var(--muted); }
   @media (min-width: 600px) {
     h1 { font-size: 88px; line-height: 88px; }
-    .intro .punch { font-size: 40px; line-height: 56px; }
+    .intro .punch { font-size: 40px; line-height: 48px; }
   }
 
   /* Icons: inline SVG masks, so they take the text color and survive text changes. */
@@ -92,7 +104,7 @@
   .icon-btn { min-height: 40px; min-width: 40px; padding: 8px; border-radius: 24px; background: var(--card); color: var(--ink); }
   .icon-btn::before { margin: 0; }
 
-  details.panel { background: var(--card); border: 1px solid var(--line); border-radius: 8px; margin-top: 16px; }
+  details.panel { background: var(--card); border: 1px solid var(--line); border-radius: 8px; margin-top: 24px; }
   details.panel > summary { list-style: none; cursor: pointer; padding: 16px; display: flex;
                             justify-content: space-between; align-items: center; gap: 16px; min-height: 56px; }
   details.panel > summary::-webkit-details-marker { display: none; }
@@ -826,6 +838,16 @@ $('p-form').open = !startValid;
 $('p-lists').open = startValid;
 applyStaticText();
 render();
+
+// Draw the marker under the punch line once it scrolls into view.
+const punch = document.querySelector('.punch');
+if ('IntersectionObserver' in window) {
+  new IntersectionObserver((entries, observer) => {
+    if (entries.some(e => e.isIntersecting)) { punch.classList.add('drawn'); observer.disconnect(); }
+  }, { threshold: 0.6 }).observe(punch);
+} else {
+  punch.classList.add('drawn');
+}
 </script>
 </body>
 </html>
