@@ -51,6 +51,7 @@
   p { margin: 0 0 8px; }
   a { color: var(--accent); }
   .muted { color: var(--muted); }
+  .read { margin: -8px 0 16px; }
   .intro p { margin: 0; }
   .intro .q { font-size: 20px; line-height: 28px; font-weight: 500; margin-bottom: 8px; }
   .intro .punch { display: inline-block; margin: 16px 0 24px; padding: 0 8px; font-size: 32px; line-height: 40px; font-weight: 600;
@@ -75,6 +76,7 @@
   [data-icon="chat"] { --icon: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M3 21l1.6-4.7A8.5 8.5 0 1 1 8 19.6z'/><path d='M9.5 8.5c0 3.3 2.7 6 6 6l.5-2-2-.8-.8.8a4 4 0 0 1-1.7-1.7l.8-.8-.8-2z'/></svg>"); }
   [data-icon="mail"] { --icon: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><rect x='3' y='5' width='18' height='14' rx='2'/><path d='m3 7 9 6 9-6'/></svg>"); }
   [data-icon="skip"] { --icon: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='m5 5 9 7-9 7z'/><path d='M19 5v14'/></svg>"); }
+  [data-icon="speaker"] { --icon: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M11 5 6 9H3v6h3l5 4z'/><path d='M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13'/></svg>"); }
   [data-icon="stop"] { --icon: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><rect x='6' y='6' width='12' height='12' rx='1'/></svg>"); }
   [data-icon="megaphone"] { --icon: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M3 11v2a1 1 0 0 0 1 1h3l8 5V5L7 10H4a1 1 0 0 0-1 1z'/><path d='M19 9a4 4 0 0 1 0 6'/></svg>"); }
   [data-icon="sun"] { --icon: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='4'/><path d='M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5 19 19M5 19l1.5-1.5M17.5 6.5 19 5'/></svg>"); }
@@ -181,7 +183,7 @@
   </div>
 
   <details class="panel banner" id="p-overdue" open hidden>
-    <summary><span class="ptitle" data-t="overdueTitle"></span></summary>
+    <summary><h2 class="ptitle" data-t="overdueTitle"></h2></summary>
     <div class="pbody">
       <p id="overdue-text"></p>
       <p class="muted" data-t="overdueAttach"></p>
@@ -190,6 +192,7 @@
   </details>
 
   <h1 data-t="title"></h1>
+  <button type="button" class="linkish read" id="read" data-icon="speaker" hidden></button>
   <div class="intro">
     <p class="q" data-t="introQ"></p>
     <p class="q" data-t="introMaybe"></p>
@@ -199,7 +202,7 @@
   </div>
 
   <details class="panel" id="p-form">
-    <summary><span class="ptitle" data-t="formTitle"></span><span class="psum" id="form-summary"></span></summary>
+    <summary><h2 class="ptitle" data-t="formTitle"></h2><span class="psum" id="form-summary"></span></summary>
     <div class="pbody">
       <p class="form-alert" id="form-alert" role="alert" data-icon="alert" hidden></p>
       <div class="field" id="fld-name">
@@ -231,14 +234,14 @@
   </details>
 
   <details class="panel" id="p-lists">
-    <summary><span class="ptitle" data-t="listsTitle"></span><span class="psum" id="lists-summary"></span></summary>
+    <summary><h2 class="ptitle" data-t="listsTitle"></h2><span class="psum" id="lists-summary"></span></summary>
     <div class="pbody">
       <p class="muted" data-t="orderNote"></p>
       <p class="muted" data-t="afterSendNote"></p>
-      <p class="progress" id="progress"></p>
+      <p class="progress" id="progress" aria-live="polite"></p>
       <div class="meter" aria-hidden="true"><span id="meter-fill"></span></div>
       <div class="bulk">
-        <div id="bulk"></div>
+        <div id="bulk" aria-live="polite"></div>
         <p class="muted" data-t="hebrewNote" data-not-he></p>
       </div>
       <ul class="lists" id="lists"></ul>
@@ -246,7 +249,7 @@
   </details>
 
   <details class="panel" id="p-done" hidden>
-    <summary><span class="ptitle" data-t="doneTitle"></span></summary>
+    <summary><h2 class="ptitle" data-t="doneTitle"></h2></summary>
     <div class="pbody">
       <p data-t="doneProof"></p>
       <p><span data-t="done30"></span>
@@ -259,13 +262,22 @@
   </details>
 
   <details class="panel" id="p-letter">
-    <summary><span class="ptitle" data-t="letterTitle"></span></summary>
+    <summary><h2 class="ptitle" data-t="letterTitle"></h2></summary>
     <div class="pbody">
       <p class="muted" data-t="hebrewNote" data-not-he></p>
       <h3 data-t="letterHebrew" data-not-he></h3>
       <pre class="letter" id="letter-he" dir="rtl" lang="he"></pre>
       <h3 data-t="letterTranslation" data-not-he></h3>
       <pre class="letter" id="letter-tr" data-not-he></pre>
+    </div>
+  </details>
+
+  <details class="panel" id="p-a11y">
+    <summary><h2 class="ptitle" data-t="a11yTitle"></h2></summary>
+    <div class="pbody">
+      <p data-t="a11yBody"></p>
+      <p><span data-t="a11yContact"></span> <a href="https://github.com/nadavbh12/party-spam/issues" target="_blank" rel="noopener" data-t="a11yContactLink"></a></p>
+      <p class="muted" data-t="a11yUpdated"></p>
     </div>
   </details>
 
@@ -696,6 +708,8 @@ function applyStaticText() {
     after.replace('{date}', '{{SCRAPED_DATE}}'), ' ',
     el('a', { href: SOURCE_URL, target: '_blank', rel: 'noopener', textContent: t('source') }));
   $('share').href = `https://wa.me/?text=${enc(`${t('shareText')} ${SITE_URL}`)}`;
+  speech?.cancel();
+  updateReadButton();
   applyTheme();
 }
 
@@ -725,6 +739,34 @@ function render() {
   $('p-overdue').hidden = !overdue.length;
   if (overdue.length) $('overdue-text').textContent = t('overdueText', { lists: overdue.map(u => listName(u.title)).join(', ') });
 }
+
+// ---- Read aloud: the browser's built-in speech, no server. Hidden when the device has no voice for the language. ----
+const speech = window.speechSynthesis;
+function voiceFor(code) {
+  if (!speech) return null;
+  const prefixes = code === 'he' ? ['he', 'iw'] : [code];   // some Android voices still report Hebrew as "iw"
+  return speech.getVoices().find(v => prefixes.some(p => v.lang.toLowerCase().startsWith(p))) || null;
+}
+function readAloudText() {
+  const parts = ['title', 'introQ', 'introMaybe', 'introNo', 'introPunch', 'introBody'].map(k => t(k));
+  parts.push(queue ? $('bulk').innerText : t('afterSendNote'));
+  return parts.join('\n');
+}
+function updateReadButton() {
+  $('read').hidden = !voiceFor(lang);
+  $('read').textContent = speech?.speaking ? t('stopReading') : t('readAloud');
+}
+$('read').addEventListener('click', () => {
+  if (speech.speaking) { speech.cancel(); updateReadButton(); return; }
+  const utterance = new SpeechSynthesisUtterance(readAloudText());
+  utterance.voice = voiceFor(lang);
+  utterance.lang = utterance.voice.lang;
+  utterance.onend = updateReadButton;
+  utterance.onerror = updateReadButton;
+  speech.speak(utterance);
+  updateReadButton();
+});
+speech?.addEventListener?.('voiceschanged', updateReadButton);
 
 // ---- Wiring ----
 // Each language button is written in its own script, so a reader finds theirs without reading Hebrew.
@@ -763,6 +805,7 @@ $('continue').addEventListener('click', () => {
   $('p-form').open = false;
   $('p-lists').open = true;
   $('p-lists').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  $('bulk').querySelector('a, button')?.focus({ preventScroll: true });
 });
 $('id-why').addEventListener('click', () => {
   const open = $('id-tip').classList.toggle('open');

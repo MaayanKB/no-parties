@@ -128,7 +128,14 @@
       "introMaybe": "אולי.",
       "introNo": "כנראה שלא.",
       "introPunch": "בשביל זה אנחנו פה.",
-      "introBody": "לפי החוק אפשר לדרוש בכתב שימחקו אתכם מהמאגר: אנחנו כותבים את המכתב, אתם שולחים אותו במייל. שתי דקות, חינם."
+      "introBody": "לפי החוק אפשר לדרוש בכתב שימחקו אתכם מהמאגר: אנחנו כותבים את המכתב, אתם שולחים אותו במייל. שתי דקות, חינם.",
+      "a11yTitle": "הצהרת נגישות",
+      "a11yBody": "השתדלנו שהדף יעמוד בהנחיות WCAG 2.1 ברמה AA ובתקן הישראלי 5568: ניגודיות צבעים גבוהה, תמיכה בקוראי מסך (VoiceOver, TalkBack, NVDA), ניווט מלא במקלדת, טקסט שאפשר להגדיל, מצב כהה, כפתור הקראה, ומידע שלא מועבר בצבע בלבד. הדף לא עבר בדיקת נגישות רשמית.",
+      "a11yContact": "נתקלתם בבעיית נגישות? ספרו לנו:",
+      "a11yContactLink": "דיווח בגיטהאב",
+      "a11yUpdated": "עודכן לאחרונה: 20.10.2026",
+      "readAloud": "הקראת הדף",
+      "stopReading": "עצירת ההקראה"
     },
     "en": {
       "title": "Sick of texts from the parties? Us too.",
@@ -218,7 +225,14 @@
       "introMaybe": "Maybe.",
       "introNo": "Probably not.",
       "introPunch": "That's what we're here for.",
-      "introBody": "By law you can demand in writing that they delete you from their database: we write the letter, you send it by email. Two minutes, free."
+      "introBody": "By law you can demand in writing that they delete you from their database: we write the letter, you send it by email. Two minutes, free.",
+      "a11yTitle": "Accessibility statement",
+      "a11yBody": "We tried to meet WCAG 2.1 level AA and Israeli Standard 5568: high color contrast, screen reader support (VoiceOver, TalkBack, NVDA), full keyboard navigation, resizable text, dark mode, a read-aloud button, and no information conveyed by color alone. The page has not had a formal accessibility audit.",
+      "a11yContact": "Ran into an accessibility problem? Tell us:",
+      "a11yContactLink": "report on GitHub",
+      "a11yUpdated": "Last updated: 20.10.2026",
+      "readAloud": "Read this page aloud",
+      "stopReading": "Stop reading"
     },
     "ar": {
       "title": "سئمت رسائل الأحزاب؟ ونحن أيضًا.",
@@ -308,7 +322,14 @@
       "introMaybe": "ربما.",
       "introNo": "على الأرجح لا.",
       "introPunch": "لهذا نحن هنا.",
-      "introBody": "بحسب القانون يمكنك أن تطالب كتابيًا بحذفك من قاعدة البيانات: نحن نكتب الرسالة وأنت ترسلها بالبريد الإلكتروني. دقيقتان، مجانًا."
+      "introBody": "بحسب القانون يمكنك أن تطالب كتابيًا بحذفك من قاعدة البيانات: نحن نكتب الرسالة وأنت ترسلها بالبريد الإلكتروني. دقيقتان، مجانًا.",
+      "a11yTitle": "بيان إمكانية الوصول",
+      "a11yBody": "حرصنا على أن تستوفي الصفحة إرشادات WCAG 2.1 بمستوى AA والمعيار الإسرائيلي 5568: تباين ألوان عالٍ، دعم قارئات الشاشة (VoiceOver وTalkBack وNVDA)، تنقل كامل بلوحة المفاتيح، نص قابل للتكبير، وضع داكن، زر قراءة بصوت عالٍ، ومعلومات لا تُنقل بالألوان وحدها. لم تخضع الصفحة لفحص رسمي لإمكانية الوصول.",
+      "a11yContact": "واجهت مشكلة في إمكانية الوصول؟ أخبرنا:",
+      "a11yContactLink": "إبلاغ عبر GitHub",
+      "a11yUpdated": "آخر تحديث: 20.10.2026",
+      "readAloud": "قراءة الصفحة بصوت عالٍ",
+      "stopReading": "إيقاف القراءة"
     },
     "ru": {
       "title": "Надоели сообщения от партий? Нам тоже.",
@@ -398,7 +419,14 @@
       "introMaybe": "Может быть.",
       "introNo": "Скорее всего нет.",
       "introPunch": "Для этого мы здесь.",
-      "introBody": "По закону можно письменно потребовать удалить вас из базы: мы пишем письмо, вы отправляете его по почте. Две минуты, бесплатно."
+      "introBody": "По закону можно письменно потребовать удалить вас из базы: мы пишем письмо, вы отправляете его по почте. Две минуты, бесплатно.",
+      "a11yTitle": "Заявление о доступности",
+      "a11yBody": "Мы постарались, чтобы страница соответствовала WCAG 2.1 уровня AA и израильскому стандарту 5568: высокая контрастность, поддержка экранных чтецов (VoiceOver, TalkBack, NVDA), полная навигация с клавиатуры, масштабируемый текст, тёмная тема, кнопка чтения вслух, и никакая информация не передаётся только цветом. Официальный аудит доступности не проводился.",
+      "a11yContact": "Столкнулись с проблемой доступности? Сообщите нам:",
+      "a11yContactLink": "сообщить на GitHub",
+      "a11yUpdated": "Последнее обновление: 20.10.2026",
+      "readAloud": "Прочитать страницу вслух",
+      "stopReading": "Остановить чтение"
     },
     "am": {
       "title": "ከፓርቲዎች በሚመጡ መልእክቶች ሰልችቶዎታል? እኛም።",
@@ -488,7 +516,14 @@
       "introMaybe": "ምናልባት።",
       "introNo": "ምናልባትም አይደለም።",
       "introPunch": "ለዚህ ነው እዚህ ያለነው።",
-      "introBody": "በሕጉ መሠረት ከመረጃ ቋታቸው እንዲሰርዙዎት በጽሑፍ መጠየቅ ይችላሉ፦ እኛ ደብዳቤውን እንጽፋለን፣ እርስዎ በኢሜይል ይልካሉ። ሁለት ደቂቃ፣ በነጻ።"
+      "introBody": "በሕጉ መሠረት ከመረጃ ቋታቸው እንዲሰርዙዎት በጽሑፍ መጠየቅ ይችላሉ፦ እኛ ደብዳቤውን እንጽፋለን፣ እርስዎ በኢሜይል ይልካሉ። ሁለት ደቂቃ፣ በነጻ።",
+      "a11yTitle": "የተደራሽነት መግለጫ",
+      "a11yBody": "ገጹ የWCAG 2.1 ደረጃ AA መመሪያዎችንና የእስራኤል ደረጃ 5568ን እንዲያሟላ ጥረት አድርገናል፦ ከፍተኛ የቀለም ንፅፅር፣ የስክሪን አንባቢዎች ድጋፍ (VoiceOver፣ TalkBack፣ NVDA)፣ ሙሉ በሙሉ በቁልፍ ሰሌዳ መንቀሳቀስ፣ ሊሰፋ የሚችል ጽሑፍ፣ ጨለማ ገጽታ፣ የማንበቢያ ቁልፍ፣ እንዲሁም በቀለም ብቻ የማይተላለፍ መረጃ። ገጹ ይፋዊ የተደራሽነት ምርመራ አላለፈም።",
+      "a11yContact": "የተደራሽነት ችግር አጋጥሞዎታል? ይንገሩን፦",
+      "a11yContactLink": "በGitHub ሪፖርት ያድርጉ",
+      "a11yUpdated": "ለመጨረሻ ጊዜ የተሻሻለው፦ 20.10.2026",
+      "readAloud": "ገጹን በድምፅ አንብብ",
+      "stopReading": "ማንበብ አቁም"
     }
   },
   "lists": {
