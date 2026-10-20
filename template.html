@@ -230,6 +230,7 @@
   .tip.open { display: block; }
   @media (hover: hover) { .tip-btn:hover ~ .tip, .tip-btn:focus-visible ~ .tip { display: block; } }
   footer { margin-top: 24px; }
+  .contact { margin-top: 24px; }
   footer .fine { margin-top: 24px; color: var(--fine); }
   .toast { position: fixed; inset: auto 16px 16px 16px; max-width: 688px; margin: 0 auto; padding: 16px;
            border-radius: 8px; background: var(--ink); color: var(--bg); box-shadow: 0 8px 24px rgb(0 0 0 / .2);
@@ -356,6 +357,17 @@
     </div>
   </details>
 
+  <details class="panel" id="p-legal">
+    <summary><h2 class="ptitle" data-t="legalTitle"></h2></summary>
+    <div class="pbody">
+      <p data-t="legalP1"></p>
+      <p data-t="legalP2"></p>
+      <p data-t="legalP3"></p>
+    </div>
+  </details>
+
+  <p class="contact" id="contact" hidden><span data-t="contactPrompt"></span> <a id="contact-link" target="_blank" rel="noopener" data-t="contactLink"></a></p>
+
   <footer class="muted" id="footer"></footer>
 </main>
 
@@ -373,6 +385,8 @@ const I18N = DATA.i18n;
 const SITE_URL = 'https://nadavbh12.github.io/party-spam/';
 const SOURCE_URL = 'https://github.com/nadavbh12/party-spam';
 const REGISTRY_URL = 'https://www.gov.il/he/departments/dynamiccollectors/parties-db';
+// Google Form for suggestions and help requests. Empty = the contact line stays hidden.
+const CONTACT_FORM_URL = '';
 const PPA_EMAIL = 'ppa@justice.gov.il';
 const DAY_MS = 24 * 60 * 60 * 1000;
 const $ = id => document.getElementById(id);
@@ -795,6 +809,10 @@ function applyStaticText() {
     after.replace('{date}', '{{SCRAPED_DATE}}'), ' ',
     el('a', { href: SOURCE_URL, target: '_blank', rel: 'noopener', textContent: t('source') }),
     el('p', { className: 'fine', textContent: t('logoNote') }));
+  if (CONTACT_FORM_URL) {
+    $('contact-link').href = CONTACT_FORM_URL;
+    $('contact').hidden = false;
+  }
   $('share').href = `https://wa.me/?text=${enc(`${t('shareText')} ${SITE_URL}`)}`;
   speech?.cancel();
   updateReadButton();
