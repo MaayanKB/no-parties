@@ -98,10 +98,13 @@
   pre.letter[dir="rtl"] { text-align: right; }
   .banner { border-color: var(--error); }
 
-  dialog { max-width: 480px; border: 1px solid var(--line); border-radius: 8px; padding: 24px;
-           background: var(--card); color: var(--ink); }
-  dialog::backdrop { background: rgb(0 0 0 / .5); }
-  dialog form { margin-top: 16px; }
+  .label-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; position: relative; }
+  .tip-btn { min-height: 24px; width: 24px; padding: 0; border-radius: 24px; font-size: .875rem; font-weight: 700;
+             border-color: var(--accent); color: var(--accent); background: var(--card); }
+  .tip { display: none; flex-basis: 100%; margin: 8px 0 0; padding: 8px 16px; border-radius: 8px;
+         background: var(--ink); color: var(--bg); font-size: .875rem; }
+  .tip.open { display: block; }
+  @media (hover: hover) { .tip-btn:hover ~ .tip, .tip-btn:focus-visible ~ .tip { display: block; } }
   footer { margin-top: 24px; }
   .toast { position: fixed; inset: auto 16px 16px 16px; max-width: 688px; margin: 0 auto; padding: 16px;
            border-radius: 8px; background: var(--ink); color: var(--bg); box-shadow: 0 8px 24px rgb(0 0 0 / .2);
@@ -149,9 +152,12 @@
         <p class="field-error" id="err-name"></p>
       </div>
       <div class="field" id="fld-id">
-        <label for="f-id" data-t="idLabel"></label>
+        <div class="label-row">
+          <label for="f-id" data-t="idLabel"></label>
+          <button type="button" class="tip-btn" id="id-why" aria-expanded="false" aria-controls="id-tip">?</button>
+          <p class="tip" id="id-tip" role="tooltip" data-t="idTip"></p>
+        </div>
         <input type="text" id="f-id" inputmode="numeric" autocomplete="off" aria-describedby="err-id">
-        <button type="button" class="linkish" id="id-why" data-t="idWhy"></button>
         <p class="field-error" id="err-id"></p>
       </div>
       <div class="field" id="fld-phone">
@@ -172,6 +178,7 @@
     <summary><span class="ptitle" data-t="listsTitle"></span><span class="psum" id="lists-summary"></span></summary>
     <div class="pbody">
       <p class="muted" data-t="orderNote"></p>
+      <p class="muted" data-t="afterSendNote"></p>
       <p class="progress" id="progress"></p>
       <div class="meter" aria-hidden="true"><span id="meter-fill"></span></div>
       <div class="bulk">
@@ -212,11 +219,6 @@
 <div class="toast" id="toast" role="status" hidden><strong id="toast-main"></strong><span id="toast-sub"></span></div>
 
 
-<dialog id="id-dialog" aria-labelledby="id-dialog-title">
-  <h2 id="id-dialog-title" data-t="idDialogTitle"></h2>
-  <p style="margin-top:16px" data-t="idDialogBody"></p>
-  <div class="actions"><button type="button" class="primary" id="id-close" data-t="close"></button></div>
-</dialog>
 
 <script id="data" type="application/json">{{DATA}}</script>
 <script>
@@ -396,10 +398,6 @@ function sendLink(text, units, source, { primary = false, gmail = false } = {}) 
 // limit and cuts the rest silently. The letter is longer than that, so on Windows the page offers
 // Gmail and copy only, never the desktop mail app. Phones and Macs have no such limit.
 const PREFER_GMAIL = /Windows/i.test(navigator.userAgent);
-
-// <dialog>.showModal is missing on older iOS Safari (< 15.4); fall back to a plain open dialog.
-function showDialog(d) { if (d.showModal) d.showModal(); else d.setAttribute('open', ''); }
-function closeDialog(d) { if (d.close) d.close(); else d.removeAttribute('open'); }
 
 // Some mail clients cut long mailto links. Copy the full letter on every send, so a cut or empty
 // email can be fixed with one paste. Silent when the clipboard is unavailable.
@@ -627,6 +625,7 @@ function applyStaticText() {
   document.title = t('title');
   document.querySelectorAll('[data-t]').forEach(node => { node.textContent = t(node.dataset.t); });
   document.querySelectorAll('[data-not-he]').forEach(node => { node.hidden = lang === 'he'; });
+  $('id-why').setAttribute('aria-label', t('idWhy'));
   document.querySelectorAll('#langs button').forEach(b => b.setAttribute('aria-pressed', String(b.lang === lang)));
   const [before, after] = t('footer', { date: '{date}', registry: '\u0000' }).split('\u0000');
   $('footer').replaceChildren(
@@ -701,8 +700,10 @@ $('continue').addEventListener('click', () => {
   $('p-lists').open = true;
   $('p-lists').scrollIntoView({ behavior: 'smooth', block: 'start' });
 });
-$('id-why').addEventListener('click', () => showDialog($('id-dialog')));
-$('id-close').addEventListener('click', () => closeDialog($('id-dialog')));
+$('id-why').addEventListener('click', () => {
+  const open = $('id-tip').classList.toggle('open');
+  $('id-why').setAttribute('aria-expanded', String(open));
+});
 $('calendar').addEventListener('click', () => el('a', { href: calendarFile(), download: 'party-spam-reminder.ics' }).click());
 $('complaint-mail').addEventListener('click', ev => {
   if (!requireValidForm()) { ev.preventDefault(); return; }
