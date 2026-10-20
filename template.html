@@ -4,7 +4,10 @@
 <meta charset="utf-8">
 <script>
   try {
-    if (!localStorage.getItem('party-deletion-seen') && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    var nav = performance.getEntriesByType && performance.getEntriesByType('navigation')[0];
+    var type = nav ? nav.type : 'navigate';
+    var wanted = type === 'reload' || (type === 'navigate' && !localStorage.getItem('party-deletion-seen'));
+    if (wanted && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
       document.documentElement.classList.add('intro-anim');
     }
   } catch (e) { /* no storage: skip the sequence */ }
@@ -26,7 +29,7 @@
   /* Fonts are hosted with the page (no third-party requests): Rubik for text, Karantina for the title. */
   @font-face { font-family: "Rubik"; src: url("fonts/Rubik-Variable.ttf") format("truetype"); font-weight: 300 900; font-display: swap; }
   @font-face { font-family: "Karantina"; src: url("fonts/Karantina-Bold.ttf") format("truetype"); font-weight: 700; font-display: swap; }
-  @font-face { font-family: "Playpen"; src: url("fonts/PlaypenSansHebrew-Title.ttf") format("truetype"); font-weight: 500; font-display: swap; }
+  @font-face { font-family: "Playpen"; src: url("fonts/PlaypenSansHebrew-Title.ttf") format("truetype"); font-weight: 300; font-display: swap; }
 
   /* Palette: Israeli flag blue and white, protest-marker yellow as the only accent.
      Every pair meets WCAG AA or better; nothing relies on color alone (icons and words carry state). */
@@ -53,15 +56,13 @@
          font: 16px/24px "Rubik", system-ui, -apple-system, "Segoe UI", "Noto Sans Ethiopic", Arial, sans-serif; }
   main { max-width: 720px; margin: 0 auto; padding: 16px 16px 64px; }
   h1 { margin: 32px 0 24px; font-weight: 400; }
-  h1 .tq { display: block; font-family: "Playpen", "Rubik", system-ui, sans-serif; font-weight: 500; font-size: 48px; line-height: 56px; }
+  h1 .tq { display: block; font-family: "Playpen", "Rubik", system-ui, sans-serif; font-weight: 300; font-size: 40px; line-height: 48px; }
   h1 .ta { display: block; font-family: "Karantina", "Rubik", system-ui, sans-serif; font-weight: 700; font-size: 112px; line-height: 104px; margin-top: 8px; }
   h2 { font-size: 20px; line-height: 28px; margin: 0; }
   h3 { font-size: 16px; margin: 16px 0 8px; }
   p { margin: 0 0 8px; }
   a { color: var(--accent); }
   .muted { color: var(--muted); }
-  .read { display: flex; margin: 24px 0 32px; }
-  .read:has(> [hidden]) { display: none; }   /* no voice for this language: no empty gap */
   .intro { margin-bottom: 48px; }
   .intro p { margin: 0; }
   /* The three opening lines: tight 1.1 inside a wrapped line, 8px between the lines themselves,
@@ -91,13 +92,13 @@
   @keyframes ink { to { opacity: 1; } }
   .intro-anim h1 .ta { animation: pop .5s cubic-bezier(.3, 1.6, .5, 1) calc(var(--write, 1200ms) + 100ms) both; }
   @keyframes pop { from { opacity: 0; transform: scale(.6); } }
-  .intro-anim .read, .intro-anim .intro .qs, .intro-anim .intro .body, .intro-anim details.panel {
+  .intro-anim .intro .qs, .intro-anim .intro .body, .intro-anim details.panel {
     animation: rise .5s ease-out calc(var(--write, 1200ms) + 500ms) both; }
   @keyframes rise { from { opacity: 0; transform: translateY(8px); } }
   .intro-anim .intro .punch { animation-delay: calc(var(--write, 1200ms) + 800ms); }
   .intro .body { color: var(--muted); }
   @media (min-width: 600px) {
-    h1 .tq { font-size: 64px; line-height: 72px; }
+    h1 .tq { font-size: 56px; line-height: 64px; }
     h1 .ta { font-size: 144px; line-height: 136px; }
     .intro .punch { font-size: 48px; line-height: 56px; }
   }
@@ -117,6 +118,7 @@
   [data-icon="mail"] { --icon: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><rect x='3' y='5' width='18' height='14' rx='2'/><path d='m3 7 9 6 9-6'/></svg>"); }
   [data-icon="skip"] { --icon: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='m5 5 9 7-9 7z'/><path d='M19 5v14'/></svg>"); }
   [data-icon="speaker"] { --icon: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M11 5 6 9H3v6h3l5 4z'/><path d='M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13'/></svg>"); }
+  [data-icon="globe"] { --icon: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='9'/><path d='M3 12h18M12 3c2.5 2.7 3.8 5.7 3.8 9s-1.3 6.3-3.8 9c-2.5-2.7-3.8-5.7-3.8-9S9.5 5.7 12 3z'/></svg>"); }
   [data-icon="stop"] { --icon: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><rect x='6' y='6' width='12' height='12' rx='1'/></svg>"); }
   [data-icon="megaphone"] { --icon: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M3 11v2a1 1 0 0 0 1 1h3l8 5V5L7 10H4a1 1 0 0 0-1 1z'/><path d='M19 9a4 4 0 0 1 0 6'/></svg>"); }
   [data-icon="sun"] { --icon: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='4'/><path d='M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5 19 19M5 19l1.5-1.5M17.5 6.5 19 5'/></svg>"); }
@@ -124,11 +126,14 @@
   :root { --alert-icon: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M12 3 2 21h20z'/><path d='M12 10v5M12 18h.01'/></svg>"); }
 
   .topbar { display: flex; justify-content: space-between; align-items: center; gap: 24px; }
-  .langs { display: flex; align-items: center; gap: 8px; }
-  .langs .globe { color: var(--accent); flex: none; margin-inline-end: 4px; }
-  .langs button { min-height: 40px; min-width: 40px; padding: 8px; border-radius: 24px; background: var(--card);
-                  border-color: var(--accent); color: var(--accent); font-weight: 600; }
-  .langs button[aria-pressed="true"] { background: var(--accent); color: var(--on-accent); font-weight: 600; }
+  .langs { position: relative; }
+  #lang-btn { color: var(--accent); border-color: var(--accent); }
+  .lang-menu { position: absolute; top: 48px; inset-inline-start: 0; z-index: 10; min-width: 160px; margin: 0; padding: 8px;
+               list-style: none; background: var(--card); border: 1px solid var(--line); border-radius: 8px;
+               box-shadow: 0 8px 24px rgb(0 0 0 / .2); }
+  .lang-menu button { width: 100%; min-height: 40px; justify-content: flex-start; border: none; background: none; }
+  .lang-menu button[aria-current="true"] { color: var(--accent); font-weight: 600; }
+  .tools { display: flex; gap: 8px; }
   .icon-btn { min-height: 40px; min-width: 40px; padding: 8px; border-radius: 24px; background: var(--card); color: var(--ink); }
   .icon-btn::before { margin: 0; }
 
@@ -214,12 +219,14 @@
 <body>
 <main>
   <div class="topbar">
-    <nav class="langs" id="langs" aria-label="שפה / Language">
-      <svg class="globe" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.75">
-        <circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.7 3.8 5.7 3.8 9s-1.3 6.3-3.8 9c-2.5-2.7-3.8-5.7-3.8-9S9.5 5.7 12 3z"/>
-      </svg>
-    </nav>
-    <button type="button" class="icon-btn" id="theme"></button>
+    <div class="langs">
+      <button type="button" class="icon-btn" id="lang-btn" data-icon="globe" aria-expanded="false" aria-controls="lang-menu"></button>
+      <ul class="lang-menu" id="lang-menu" hidden></ul>
+    </div>
+    <div class="tools">
+      <button type="button" class="icon-btn" id="read" data-icon="speaker" hidden></button>
+      <button type="button" class="icon-btn" id="theme"></button>
+    </div>
   </div>
 
   <details class="panel banner" id="p-overdue" open hidden>
@@ -231,7 +238,6 @@
     </div>
   </details>
 
-  <div class="read"><button type="button" class="icon-btn" id="read" data-icon="speaker" hidden></button></div>
   <h1><span class="tq" data-t="titleQ"></span><span class="ta" data-t="titleA"></span></h1>
   <div class="intro">
     <div class="qs">
@@ -746,7 +752,10 @@ function applyStaticText() {
   document.querySelectorAll('[data-t]').forEach(node => { node.textContent = t(node.dataset.t); });
   document.querySelectorAll('[data-not-he]').forEach(node => { node.hidden = lang === 'he'; });
   $('id-why').setAttribute('aria-label', t('idWhy'));
-  document.querySelectorAll('#langs button').forEach(b => b.setAttribute('aria-pressed', String(b.lang === lang)));
+  document.querySelectorAll('#lang-menu button').forEach(b => b.setAttribute('aria-current', String(b.lang === lang)));
+  const langLabel = `${t('language')} / Language: ${I18N.languages[lang].name}`;
+  $('lang-btn').setAttribute('aria-label', langLabel);
+  $('lang-btn').title = langLabel;
   const [before, after] = t('footer', { date: '{date}', registry: '\u0000' }).split('\u0000');
   $('footer').replaceChildren(
     before, el('a', { href: REGISTRY_URL, target: '_blank', rel: 'noopener', textContent: t('registry') }),
@@ -817,18 +826,30 @@ $('read').addEventListener('click', () => {
 speech?.addEventListener?.('voiceschanged', updateReadButton);
 
 // ---- Wiring ----
-// Each language button is written in its own script, so a reader finds theirs without reading Hebrew.
+// Language menu behind the globe. Each language is written in its own script, so a reader finds theirs
+// without reading Hebrew. Closes on choice, outside click or Escape.
+function setLangMenu(open) {
+  $('lang-menu').hidden = !open;
+  $('lang-btn').setAttribute('aria-expanded', String(open));
+  if (open) $('lang-menu').querySelector('[aria-current="true"]')?.focus();
+}
 Object.entries(I18N.languages).forEach(([code, meta]) => {
-  const b = el('button', { type: 'button', lang: code, textContent: meta.short, title: meta.name });
-  b.setAttribute('aria-label', meta.name);
+  const b = el('button', { type: 'button', lang: code, textContent: meta.name });
   b.addEventListener('click', () => {
     lang = code;
     save('party-deletion-lang', lang);
     applyStaticText();
     renderErrors(false);
     render();
+    setLangMenu(false);
+    $('lang-btn').focus();
   });
-  $('langs').append(b);
+  $('lang-menu').append(el('li', {}, [b]));
+});
+$('lang-btn').addEventListener('click', () => setLangMenu($('lang-menu').hidden));
+document.addEventListener('click', ev => { if (!ev.target.closest('.langs')) setLangMenu(false); });
+document.addEventListener('keydown', ev => {
+  if (ev.key === 'Escape' && !$('lang-menu').hidden) { setLangMenu(false); $('lang-btn').focus(); }
 });
 $('theme').addEventListener('click', () => {
   save('party-deletion-theme', effectiveTheme() === 'dark' ? 'light' : 'dark');
