@@ -46,7 +46,6 @@
   main { max-width: 720px; margin: 0 auto; padding: 16px 16px 64px; }
   h1 { font-family: "Karantina", "Rubik", system-ui, sans-serif; font-weight: 700; font-size: 64px; line-height: 64px;
        margin: 32px 0 24px; }
-  h1[data-icon]::before { width: 48px; height: 48px; vertical-align: -4px; color: var(--accent); }
   h2 { font-size: 20px; line-height: 28px; margin: 0; }
   h3 { font-size: 16px; margin: 16px 0 8px; }
   p { margin: 0 0 8px; }
@@ -59,7 +58,6 @@
   .intro .body { color: var(--muted); }
   @media (min-width: 600px) {
     h1 { font-size: 88px; line-height: 88px; }
-    h1[data-icon]::before { width: 64px; height: 64px; }
     .intro .punch { font-size: 40px; line-height: 48px; }
   }
 
@@ -191,7 +189,7 @@
     </div>
   </details>
 
-  <h1 data-t="title" data-icon="megaphone"></h1>
+  <h1 data-t="title"></h1>
   <div class="intro">
     <p class="q" data-t="introQ"></p>
     <p class="q" data-t="introMaybe"></p>
