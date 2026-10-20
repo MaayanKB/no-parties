@@ -103,6 +103,8 @@
   dialog::backdrop { background: rgb(0 0 0 / .5); }
   dialog form { margin-top: 16px; }
   footer { margin-top: 24px; }
+  .toast { position: fixed; inset: auto 16px 16px 16px; max-width: 688px; margin: 0 auto; padding: 16px;
+           border-radius: 8px; background: var(--ink); color: var(--bg); box-shadow: 0 8px 24px rgb(0 0 0 / .2); }
 </style>
 </head>
 <body>
@@ -197,6 +199,8 @@
 
   <footer class="muted" id="footer"></footer>
 </main>
+
+<div class="toast" id="toast" role="status" hidden></div>
 
 <dialog id="id-dialog" aria-labelledby="id-dialog-title">
   <h2 id="id-dialog-title" data-t="idDialogTitle"></h2>
@@ -311,9 +315,11 @@ function letterText(letterLang, parties) {
   const L = I18N.letter[letterLang];
   const fill = (s, vars) => s.replace(/\{(\w+)\}/g, (_, k) => vars[k]);
   const name = value('f-name') || L.placeholderName;
+  // Short party name plus registration number, on one line: the number is the legal identifier
+  // and keeps the mailto link short enough for mail clients that truncate long links.
   const lines = [
     L.to,
-    ...parties.map(p => fill(L.partyLine, { name: p.name, number: p.number })),
+    parties.map(p => fill(L.partyLine, { name: p.short_name, number: p.number })).join(', '),
     '', L.re, '',
     fill(L.intro, { name, idPart: value('f-id') ? fill(L.idPart, { id: value('f-id') }) : '' }),
     L.demand, ...L.items, '', L.also, L.ask, '', L.identify,
@@ -361,9 +367,26 @@ function sendLink(text, units, source, { primary = false, gmail = false } = {}) 
   a.addEventListener('click', ev => {
     if (!units.length || !requireValidForm()) { ev.preventDefault(); return; }
     a.href = gmail ? gmailUrl(units) : mailtoUrl(units);
+    copySafetyNet(units);
     setTimeout(() => setPending(units, source), 0);
   });
   return a;
+}
+
+// Some mail clients cut long mailto links. Copy the full letter on every send, so a cut or empty
+// email can be fixed with one paste. Silent when the clipboard is unavailable.
+function copySafetyNet(units) {
+  navigator.clipboard?.writeText(letterText('he', partiesOf(units)))
+    .then(() => showToast(t('copiedSafety')))
+    .catch(() => {});
+}
+
+let toastTimer;
+function showToast(text) {
+  $('toast').textContent = text;
+  $('toast').hidden = false;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { $('toast').hidden = true; }, 8000);
 }
 
 function copyButton(units) {

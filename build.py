@@ -30,6 +30,9 @@ def build_parties(parties, polling, contacts):
     if unknown:
         sys.exit(f"Unknown party numbers in polling/contacts: {unknown}")
 
+    no_short = [x["number"] for x in polling if not x.get("short_name")]
+    if no_short:
+        sys.exit(f"Missing short_name in polling.json for: {no_short}")
     likely = {x["number"]: x for x in polling}
     extra = {x["number"]: x for x in contacts}
     result = []
@@ -52,6 +55,7 @@ def build_parties(parties, polling, contacts):
             "note_key": contact.get("note_key", "noteSite") if privacy_email else None,
             "likely": p["number"] in likely,
             "list": likely.get(p["number"], {}).get("list"),
+            "short_name": likely.get(p["number"], {}).get("short_name"),
         })
     return result
 
