@@ -102,6 +102,10 @@
            background: var(--card); color: var(--ink); }
   dialog::backdrop { background: rgb(0 0 0 / .5); }
   dialog form { margin-top: 16px; }
+  dialog ol { padding-inline-start: 24px; margin: 16px 0; }
+  dialog ol li { margin-bottom: 8px; }
+  dialog textarea { width: 100%; font: inherit; font-size: .875rem; color: inherit; background: var(--bg);
+                    border: 1px solid var(--line); border-radius: 8px; padding: 8px; margin-bottom: 8px; }
   footer { margin-top: 24px; }
   .toast { position: fixed; inset: auto 16px 16px 16px; max-width: 688px; margin: 0 auto; padding: 16px;
            border-radius: 8px; background: var(--ink); color: var(--bg); box-shadow: 0 8px 24px rgb(0 0 0 / .2); }
@@ -202,10 +206,21 @@
 
 <div class="toast" id="toast" role="status" hidden></div>
 
+<dialog id="paste-dialog" aria-labelledby="paste-title">
+  <h2 id="paste-title" data-t="pasteTitle"></h2>
+  <ol id="paste-steps"></ol>
+  <p class="muted" data-t="pasteWhy"></p>
+  <textarea id="paste-text" readonly rows="6"></textarea>
+  <div class="actions">
+    <a class="btn primary" id="paste-open" href="#" data-t="pasteOpen"></a>
+    <button type="button" id="paste-close" data-t="close"></button>
+  </div>
+</dialog>
+
 <dialog id="id-dialog" aria-labelledby="id-dialog-title">
   <h2 id="id-dialog-title" data-t="idDialogTitle"></h2>
   <p style="margin-top:16px" data-t="idDialogBody"></p>
-  <form method="dialog"><button type="submit" class="primary" data-t="close"></button></form>
+  <div class="actions"><button type="button" class="primary" id="id-close" data-t="close"></button></div>
 </dialog>
 
 <script id="data" type="application/json">{{DATA}}</script>
@@ -366,11 +381,36 @@ function sendLink(text, units, source, { primary = false, gmail = false } = {}) 
   if (!units.length) a.classList.add('disabled');
   a.addEventListener('click', ev => {
     if (!units.length || !requireValidForm()) { ev.preventDefault(); return; }
+    if (!gmail && mailtoTooLong(units)) { ev.preventDefault(); openPasteDialog(units, source); return; }
     a.href = gmail ? gmailUrl(units) : mailtoUrl(units);
     copySafetyNet(units);
     setTimeout(() => setPending(units, source), 0);
   });
   return a;
+}
+
+// Windows hands mailto links to desktop mail apps through a ~2,000-character limit and cuts the
+// rest silently. There, a long email opens with recipients and subject only (always short) and the
+// user pastes the letter. Everywhere else the full letter goes in the link.
+const IS_WINDOWS = /Windows/i.test(navigator.userAgent);
+const SAFE_MAILTO_LENGTH = 2000;
+const mailtoTooLong = units => IS_WINDOWS && mailtoUrl(units).length > SAFE_MAILTO_LENGTH;
+const shortMailtoUrl = units => `mailto:${emailsOf(units).join(',')}?subject=${enc(SUBJECT)}`;
+
+// <dialog>.showModal is missing on older iOS Safari (< 15.4); fall back to a plain open dialog.
+function showDialog(d) { if (d.showModal) d.showModal(); else d.setAttribute('open', ''); }
+function closeDialog(d) { if (d.close) d.close(); else d.removeAttribute('open'); }
+
+function openPasteDialog(units, source) {
+  const letter = letterText('he', partiesOf(units));
+  navigator.clipboard?.writeText(letter).catch(() => {});
+  $('paste-steps').replaceChildren(...t('pasteSteps').split('\n').map(s => el('li', { textContent: s })));
+  $('paste-text').value = letter;
+  $('paste-open').href = shortMailtoUrl(units);
+  $('paste-open').onclick = () => {
+    setTimeout(() => { closeDialog($('paste-dialog')); setPending(units, source); }, 0);
+  };
+  showDialog($('paste-dialog'));
 }
 
 // Some mail clients cut long mailto links. Copy the full letter on every send, so a cut or empty
@@ -582,7 +622,10 @@ $('continue').addEventListener('click', () => {
   $('p-lists').open = true;
   $('p-lists').scrollIntoView({ behavior: 'smooth', block: 'start' });
 });
-$('id-why').addEventListener('click', () => $('id-dialog').showModal());
+$('id-why').addEventListener('click', () => showDialog($('id-dialog')));
+$('paste-close').addEventListener('click', () => closeDialog($('paste-dialog')));
+$('id-close').addEventListener('click', () => closeDialog($('id-dialog')));
+$('paste-text').addEventListener('focus', ev => ev.target.select());
 $('calendar').addEventListener('click', () => el('a', { href: calendarFile(), download: 'party-spam-reminder.ics' }).click());
 $('complaint-mail').addEventListener('click', ev => {
   if (!requireValidForm()) { ev.preventDefault(); return; }
