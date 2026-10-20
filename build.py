@@ -96,7 +96,12 @@ def main():
     i18n = load("i18n.json")
     check_i18n(i18n, list_order)
     check_title_font(i18n)
-    data ={"parties": build_parties(parties, polling, contacts), "list_order": list_order, "i18n": i18n}
+    list_logos = polling_file.get("list_logos", {})
+    bad_logos = [f"{name}: {f}" for name, f in list_logos.items() if name not in list_order or not (ROOT / f).is_file()]
+    if bad_logos:
+        sys.exit(f"list_logos in polling.json points to unknown lists or missing files: {bad_logos}")
+    data = {"parties": build_parties(parties, polling, contacts), "list_order": list_order,
+            "list_logos": list_logos, "i18n": i18n}
     # Escape "</" so party text can never close the embedding <script> tag.
     payload = json.dumps(data, ensure_ascii=False).replace("</", "<\\/")
     validate_js = (ROOT / "src" / "validate.js").read_text(encoding="utf-8")

@@ -135,5 +135,14 @@
       "list": "המילואימניקים-הכלכלית",
       "short_name": "הכלכלית החדשה"
     }
-  ]
+  ],
+  "list_logos": {
+    "הליכוד": "logos/likud.svg",
+    "ישר! (איזנקוט)": "logos/yashar.png",
+    "ביחד (בנט + יש עתיד)": "logos/beyahad.svg",
+    "הדמוקרטים": "logos/democrats.svg",
+    "הרשימה המשותפת": "logos/joint-list.svg",
+    "הציונות הדתית-זהות": "logos/religious-zionism.png",
+    "עמך ישראל (וינטר)": "logos/amcha.svg"
+  }
 }

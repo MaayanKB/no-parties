@@ -137,7 +137,8 @@
       "readAloud": "הקראת הדף",
       "stopReading": "עצירת ההקראה",
       "titleQ": "נמאס לך מהודעות מהמפלגות?",
-      "titleA": "גם לנו."
+      "titleA": "גם לנו.",
+      "logoNote": "הלוגואים מוצגים לצורך זיהוי בלבד. אין קשר בין הדף למפלגות, והן לא אישרו אותו."
     },
     "en": {
       "title": "Sick of texts from the parties? Us too.",
@@ -236,7 +237,8 @@
       "readAloud": "Read this page aloud",
       "stopReading": "Stop reading",
       "titleQ": "Sick of texts from the parties?",
-      "titleA": "Us too."
+      "titleA": "Us too.",
+      "logoNote": "Logos are shown for identification only. This page is not affiliated with or endorsed by any party."
     },
     "ar": {
       "title": "سئمت رسائل الأحزاب؟ ونحن أيضًا.",
@@ -335,7 +337,8 @@
       "readAloud": "قراءة الصفحة بصوت عالٍ",
       "stopReading": "إيقاف القراءة",
       "titleQ": "سئمت رسائل الأحزاب؟",
-      "titleA": "ونحن أيضًا."
+      "titleA": "ونحن أيضًا.",
+      "logoNote": "تُعرض الشعارات لغرض التعريف فقط. لا علاقة لهذه الصفحة بالأحزاب، ولم تصادق عليها."
     },
     "ru": {
       "title": "Надоели сообщения от партий? Нам тоже.",
@@ -434,7 +437,8 @@
       "readAloud": "Прочитать страницу вслух",
       "stopReading": "Остановить чтение",
       "titleQ": "Надоели сообщения от партий?",
-      "titleA": "Нам тоже."
+      "titleA": "Нам тоже.",
+      "logoNote": "Логотипы показаны только для опознания. Страница не связана с партиями и не одобрена ими."
     },
     "am": {
       "title": "ከፓርቲዎች በሚመጡ መልእክቶች ሰልችቶዎታል? እኛም።",
@@ -533,7 +537,8 @@
       "readAloud": "ገጹን በድምፅ አንብብ",
       "stopReading": "ማንበብ አቁም",
       "titleQ": "ከፓርቲዎች በሚመጡ መልእክቶች ሰልችቶዎታል?",
-      "titleA": "እኛም።"
+      "titleA": "እኛም።",
+      "logoNote": "አርማዎቹ የሚታዩት ለመለያ ብቻ ነው። ገጹ ከፓርቲዎቹ ጋር ግንኙነት የለውም፤ እነሱም አላጸደቁትም።"
     }
   },
   "lists": {

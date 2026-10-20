@@ -52,6 +52,19 @@
   /* Type scale on the 8px grid: 48/48 title, 24/32 punch line, 20/28 section titles, 16/24 everything else. */
   * { box-sizing: border-box; }
   [hidden] { display: none !important; }   /* components below set display; hidden must still win */
+  /* Smooth motion everywhere; everything instant for people who ask their device for less motion. */
+  @media (prefers-reduced-motion: no-preference) {
+    html { scroll-behavior: smooth; }
+    .lang-menu:not([hidden]) { animation: drop .2s cubic-bezier(.2, .8, .2, 1); }
+    .toast:not([hidden]) { animation: slide-up .3s cubic-bezier(.2, .8, .2, 1); }
+    button, a.btn, .linkish, input[type=text], .logo { transition: background-color .2s ease, border-color .2s ease, color .2s ease, transform .15s ease; }
+    button:active, a.btn:active { transform: scale(.97); }
+  }
+  @keyframes drop { from { opacity: 0; transform: translateY(-8px); } }
+  @keyframes slide-up { from { opacity: 0; transform: translateY(16px); } }
+  /* The stamp animation briefly scales the sticker past the screen edge; never let that scroll the page sideways. */
+  html, body { overflow-x: hidden; }
+  @supports (overflow: clip) { html, body { overflow-x: clip; } }
   body { margin: 0; background: var(--bg); color: var(--ink);
          font: 16px/24px "Rubik", system-ui, -apple-system, "Segoe UI", "Noto Sans Ethiopic", Arial, sans-serif; }
   main { max-width: 720px; margin: 0 auto; padding: 16px 16px 64px; }
@@ -187,7 +200,10 @@
   .row { display: flex; justify-content: space-between; align-items: center; gap: 16px; }
   .row label { display: flex; align-items: center; gap: 8px; }
   .row input[type=checkbox] { width: 24px; height: 24px; accent-color: var(--accent); }
-  .lname { font-weight: 600; }
+  .lname { font-weight: 600; display: inline-flex; flex-direction: column; align-items: flex-start; gap: 8px; }
+  .logo { flex: none; display: inline-flex; align-items: center; height: 40px; padding: 4px 8px; border-radius: 8px;
+          background: #FFFFFF; border: 1px solid var(--line); }
+  .logo img { height: 32px; width: auto; max-width: 96px; object-fit: contain; }
   .status-sent { color: var(--accent); font-weight: 600; display: inline-flex; align-items: center; }
   .recipients { color: var(--muted); margin: 8px 0 0; padding: 0; list-style: none; word-break: break-word; }
   .recipients li { padding: 4px 0; }
@@ -678,7 +694,12 @@ function renderBulk() {
 
 function unitRow(unit, isNext) {
   const li = el('li', { className: isNext ? 'next' : '' });
-  const nameEl = el('span', { className: 'lname', textContent: listName(unit.title) });
+  // Logo on a white tile (logos are drawn for light backgrounds), only for lists with a free text logo.
+  const logo = DATA.list_logos[unit.title];
+  const nameEl = el('span', { className: 'lname' }, [
+    ...(logo ? [el('span', { className: 'logo' }, [el('img', { src: logo, alt: '', loading: 'lazy' })])] : []),
+    el('span', { textContent: listName(unit.title) }),
+  ]);
   const head = el('div', { className: 'row' });
   const actions = el('div', { className: 'actions row-actions' });
 
@@ -760,7 +781,8 @@ function applyStaticText() {
   $('footer').replaceChildren(
     before, el('a', { href: REGISTRY_URL, target: '_blank', rel: 'noopener', textContent: t('registry') }),
     after.replace('{date}', '{{SCRAPED_DATE}}'), ' ',
-    el('a', { href: SOURCE_URL, target: '_blank', rel: 'noopener', textContent: t('source') }));
+    el('a', { href: SOURCE_URL, target: '_blank', rel: 'noopener', textContent: t('source') }),
+    el('p', { textContent: t('logoNote'), style: 'margin-top:8px' }));
   $('share').href = `https://wa.me/?text=${enc(`${t('shareText')} ${SITE_URL}`)}`;
   speech?.cancel();
   updateReadButton();
@@ -892,6 +914,37 @@ $('p-form').open = !startValid;
 $('p-lists').open = startValid;
 applyStaticText();
 render();
+
+// Smooth open/close for every collapsible (sections and "who gets it"). Delegated, so it also covers rows
+// that render() rebuilds. Animates the height of the element; the content below moves with it.
+const REDUCED_MOTION = matchMedia('(prefers-reduced-motion: reduce)');
+document.addEventListener('click', ev => {
+  const summary = ev.target.closest('summary');
+  const details = summary?.parentElement;
+  if (!details || details.tagName !== 'DETAILS' || REDUCED_MOTION.matches || details.dataset.animating) return;
+  ev.preventDefault();
+  details.dataset.animating = '1';
+  const wasOpen = details.open;
+  const borders = details.offsetHeight - details.clientHeight;
+  const closed = summary.offsetHeight + borders;
+  if (!wasOpen) details.open = true;   // open first, so the full height can be measured
+  const full = details.offsetHeight;
+  details.style.overflow = 'hidden';
+  const anim = details.animate({ height: wasOpen ? [`${full}px`, `${closed}px`] : [`${closed}px`, `${full}px`] },
+                               { duration: 280, easing: 'cubic-bezier(.2, .8, .2, 1)' });
+  let done = false;
+  const finish = () => {
+    if (done) return;
+    done = true;
+    anim.cancel();
+    if (wasOpen) details.open = false;
+    details.style.overflow = '';
+    delete details.dataset.animating;
+  };
+  anim.onfinish = finish;
+  // Animations (and their finish events) pause in background tabs; never leave a section stuck half-open.
+  setTimeout(finish, 400);
+});
 
 function runIntro() {
   const tq = document.querySelector('h1 .tq');
