@@ -44,17 +44,24 @@
   body { margin: 0; background: var(--bg); color: var(--ink);
          font: 16px/24px "Rubik", system-ui, -apple-system, "Segoe UI", "Noto Sans Ethiopic", Arial, sans-serif; }
   main { max-width: 720px; margin: 0 auto; padding: 16px 16px 64px; }
-  h1 { font-family: "Karantina", "Rubik", system-ui, sans-serif; font-weight: 700; font-size: 48px; line-height: 48px;
-       margin: 24px 0 16px; }
-  h1[data-icon]::before { width: 40px; height: 40px; vertical-align: -4px; color: var(--accent); }
+  h1 { font-family: "Karantina", "Rubik", system-ui, sans-serif; font-weight: 700; font-size: 64px; line-height: 64px;
+       margin: 32px 0 24px; }
+  h1[data-icon]::before { width: 48px; height: 48px; vertical-align: -4px; color: var(--accent); }
   h2 { font-size: 20px; line-height: 28px; margin: 0; }
   h3 { font-size: 16px; margin: 16px 0 8px; }
   p { margin: 0 0 8px; }
   a { color: var(--accent); }
   .muted { color: var(--muted); }
   .intro p { margin: 0; }
-  .intro .punch { display: inline-block; margin: 8px 0; padding: 0 8px; font-size: 24px; line-height: 32px; font-weight: 600;
+  .intro .q { font-size: 20px; line-height: 28px; font-weight: 500; margin-bottom: 8px; }
+  .intro .punch { display: inline-block; margin: 16px 0 24px; padding: 0 8px; font-size: 32px; line-height: 40px; font-weight: 600;
                   background: var(--marker); color: var(--on-marker); }
+  .intro .body { color: var(--muted); }
+  @media (min-width: 600px) {
+    h1 { font-size: 88px; line-height: 88px; }
+    h1[data-icon]::before { width: 64px; height: 64px; }
+    .intro .punch { font-size: 40px; line-height: 48px; }
+  }
 
   /* Icons: inline SVG masks, so they take the text color and survive text changes. */
   [data-icon]::before { content: ""; display: inline-block; flex: none; width: 20px; height: 20px; vertical-align: -4px;
@@ -76,11 +83,11 @@
   [data-icon="moon"] { --icon: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z'/></svg>"); }
   :root { --alert-icon: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M12 3 2 21h20z'/><path d='M12 10v5M12 18h.01'/></svg>"); }
 
-  .topbar { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
-  .langs { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
-  .langs .globe { color: var(--accent); flex: none; }
-  .langs button { min-height: 40px; padding: 8px 16px; border-radius: 24px; background: var(--card);
-                  border-color: var(--accent); color: var(--accent); }
+  .topbar { display: flex; justify-content: space-between; align-items: center; gap: 24px; }
+  .langs { display: flex; align-items: center; gap: 8px; }
+  .langs .globe { color: var(--accent); flex: none; margin-inline-end: 4px; }
+  .langs button { min-height: 40px; min-width: 40px; padding: 8px; border-radius: 24px; background: var(--card);
+                  border-color: var(--accent); color: var(--accent); font-weight: 600; }
   .langs button[aria-pressed="true"] { background: var(--accent); color: var(--on-accent); font-weight: 600; }
   .icon-btn { min-height: 40px; min-width: 40px; padding: 8px; border-radius: 24px; background: var(--card); color: var(--ink); }
   .icon-btn::before { margin: 0; }
@@ -179,11 +186,11 @@
 
   <h1 data-t="title" data-icon="megaphone"></h1>
   <div class="intro">
-    <p data-t="introQ"></p>
-    <p data-t="introMaybe"></p>
-    <p data-t="introNo"></p>
+    <p class="q" data-t="introQ"></p>
+    <p class="q" data-t="introMaybe"></p>
+    <p class="q" data-t="introNo"></p>
     <p class="punch" data-t="introPunch"></p>
-    <p data-t="introBody"></p>
+    <p class="body" data-t="introBody"></p>
   </div>
 
   <details class="panel" id="p-form">
@@ -716,7 +723,8 @@ function render() {
 // ---- Wiring ----
 // Each language button is written in its own script, so a reader finds theirs without reading Hebrew.
 Object.entries(I18N.languages).forEach(([code, meta]) => {
-  const b = el('button', { type: 'button', lang: code, textContent: meta.name });
+  const b = el('button', { type: 'button', lang: code, textContent: meta.short, title: meta.name });
+  b.setAttribute('aria-label', meta.name);
   b.addEventListener('click', () => {
     lang = code;
     save('party-deletion-lang', lang);

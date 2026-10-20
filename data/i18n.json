@@ -11,27 +11,32 @@
     "he": {
       "name": "עברית",
       "dir": "rtl",
-      "locale": "he-IL"
+      "locale": "he-IL",
+      "short": "עב"
     },
     "ar": {
       "name": "العربية",
       "dir": "rtl",
-      "locale": "ar"
+      "locale": "ar",
+      "short": "عر"
     },
     "en": {
       "name": "English",
       "dir": "ltr",
-      "locale": "en-GB"
+      "locale": "en-GB",
+      "short": "EN"
     },
     "ru": {
       "name": "Русский",
       "dir": "ltr",
-      "locale": "ru-RU"
+      "locale": "ru-RU",
+      "short": "РУ"
     },
     "am": {
       "name": "አማርኛ",
       "dir": "ltr",
-      "locale": "am-ET"
+      "locale": "am-ET",
+      "short": "አማ"
     }
   },
   "ui": {
