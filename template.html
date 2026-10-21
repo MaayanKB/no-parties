@@ -164,6 +164,9 @@
   .lang-menu button[aria-current="true"] { color: var(--accent); font-weight: 600; }
   .tools { display: flex; gap: 8px; }
   .logo-mark { display: block; height: 48px; width: auto; color: var(--ink); }
+  /* With motion, the pen loop is drawn on from nothing first; the rest of the page follows (see runIntro). */
+  .motion .logo-mark .loop { stroke-dasharray: 1; stroke-dashoffset: 1; animation: draw-loop .9s cubic-bezier(.6, 0, .2, 1) forwards; }
+  @keyframes draw-loop { to { stroke-dashoffset: 0; } }
   .icon-btn { min-height: 40px; min-width: 40px; padding: 8px; border-radius: 24px; background: var(--card); color: var(--ink); }
   .icon-btn::before { margin: 0; }
 
@@ -259,7 +262,7 @@
       <button type="button" class="icon-btn" id="lang-btn" data-icon="globe" aria-expanded="false" aria-controls="lang-menu"></button>
       <ul class="lang-menu" id="lang-menu" hidden></ul>
     </div>
-    <svg class="logo-mark" viewBox="104 112 646 290" role="img" aria-label="סעיף 17"><g transform="translate(16 30)"><g fill="currentColor"><path transform="translate(181.8 300) scale(0.2 -0.2)" d="M24 0V133H55V467H20L42 600H191V133H223V0Z"/><path transform="translate(230.4 300) scale(0.2 -0.2)" d="M309 372V239H256L219 0H93L126 239H42V372H144L157 467H10V600H179Q238 600 269.0 563.5Q300 527 291 467L276 372Z"/></g><path d="M 150 118 C 210 92, 330 96, 372 160 C 410 222, 360 330, 252 344 C 150 356, 92 300, 96 228 C 100 160, 160 112, 250 108 C 300 106, 330 116, 352 132" fill="none" stroke="var(--logo-loop)" stroke-width="16" stroke-linecap="round" transform="translate(4 4)"/></g><g fill="currentColor"><path transform="translate(454.0 330) scale(0.2 -0.2)" d="M47 210V467H20L42 600H382V-100H246V467H183V343H222L214 210Z"/><path transform="translate(534.4 330) scale(0.2 -0.2)" d="M61 220V467H20L42 600H197V220Z"/><path transform="translate(577.8 330) scale(0.2 -0.2)" d="M397 93Q397 51 371.0 25.5Q345 0 303 0H20V133H70V467H36L58 600H206V133H256Q261 133 261 138V467H224L246 600H397Z"/><path transform="translate(661.2 330) scale(0.2 -0.2)" d="M384 600V93Q384 51 358.0 25.5Q332 0 290 0H47V467H20L42 600ZM248 138V467H183V133H243Q248 133 248 138Z"/></g></svg>
+    <svg class="logo-mark" viewBox="104 112 646 290" role="img" aria-label="סעיף 17"><g transform="translate(16 30)"><g fill="currentColor"><path transform="translate(181.8 300) scale(0.2 -0.2)" d="M24 0V133H55V467H20L42 600H191V133H223V0Z"/><path transform="translate(230.4 300) scale(0.2 -0.2)" d="M309 372V239H256L219 0H93L126 239H42V372H144L157 467H10V600H179Q238 600 269.0 563.5Q300 527 291 467L276 372Z"/></g><path class="loop" pathLength="1" d="M 150 118 C 210 92, 330 96, 372 160 C 410 222, 360 330, 252 344 C 150 356, 92 300, 96 228 C 100 160, 160 112, 250 108 C 300 106, 330 116, 352 132" fill="none" stroke="var(--logo-loop)" stroke-width="16" stroke-linecap="round" transform="translate(4 4)"/></g><g fill="currentColor"><path transform="translate(454.0 330) scale(0.2 -0.2)" d="M47 210V467H20L42 600H382V-100H246V467H183V343H222L214 210Z"/><path transform="translate(534.4 330) scale(0.2 -0.2)" d="M61 220V467H20L42 600H197V220Z"/><path transform="translate(577.8 330) scale(0.2 -0.2)" d="M397 93Q397 51 371.0 25.5Q345 0 303 0H20V133H70V467H36L58 600H206V133H256Q261 133 261 138V467H224L246 600H397Z"/><path transform="translate(661.2 330) scale(0.2 -0.2)" d="M384 600V93Q384 51 358.0 25.5Q332 0 290 0H47V467H20L42 600ZM248 138V467H183V133H243Q248 133 248 138Z"/></g></svg>
     <div class="tools">
       <button type="button" class="icon-btn" id="read" data-icon="speaker" hidden></button>
       <button type="button" class="icon-btn" id="theme"></button>
@@ -375,7 +378,7 @@
     </div>
   </details>
 
-  <p class="contact" id="contact" hidden><span data-t="contactPrompt"></span> <a id="contact-link" target="_blank" rel="noopener" data-t="contactLink"></a></p>
+  <p class="contact" id="contact" hidden><span data-t="contactPrompt"></span> <a id="contact-link" target="_blank" rel="noopener" data-t="contactLink" hidden></a> <button type="button" class="linkish" id="contact-mail" data-t="contactLink" hidden></button></p>
 
   <footer class="muted" id="footer"></footer>
 </main>
@@ -396,6 +399,10 @@ const SOURCE_URL = 'https://github.com/nadavbh12/party-spam';
 const REGISTRY_URL = 'https://www.gov.il/he/departments/dynamiccollectors/parties-db';
 // Google Form for suggestions and help requests. Empty = the contact line stays hidden.
 const CONTACT_FORM_URL = '';
+// Email for "write to us". Kept reversed, so it isn't a plain string in the page source. This keeps it out of casual
+// scraping only: anyone who reads the script can still reverse it. Empty = no email button.
+const CONTACT_MAIL_REVERSED = 'moc.liamg@1medeknayaaM';
+const contactMail = () => [...CONTACT_MAIL_REVERSED].reverse().join('');
 const PPA_EMAIL = 'ppa@justice.gov.il';
 const DAY_MS = 24 * 60 * 60 * 1000;
 const $ = id => document.getElementById(id);
@@ -799,6 +806,8 @@ function calendarFile() {
 }
 
 // ---- Rendering ----
+$('contact-mail').addEventListener('click', () => { location.href = `mailto:${contactMail()}`; });
+
 function applyStaticText() {
   const meta = I18N.languages[lang];
   document.documentElement.lang = lang;
@@ -820,8 +829,10 @@ function applyStaticText() {
     el('p', { className: 'fine', textContent: t('logoNote') }));
   if (CONTACT_FORM_URL) {
     $('contact-link').href = CONTACT_FORM_URL;
-    $('contact').hidden = false;
+    $('contact-link').hidden = false;
   }
+  if (CONTACT_MAIL_REVERSED) $('contact-mail').hidden = false;
+  $('contact').hidden = !(CONTACT_FORM_URL || CONTACT_MAIL_REVERSED);
   $('share').href = `https://wa.me/?text=${enc(`${t('shareText')} ${SITE_URL}`)}`;
   speech?.cancel();
   updateReadButton();
@@ -1029,13 +1040,14 @@ function runIntro() {
   const tq = document.querySelector('h1 .tq');
   const letters = Array.from(tq.textContent);
   const step = 55;   // ms per letter
+  const lead = 1000; // the pen loop draws around the logo first
   tq.replaceChildren(...letters.map((ch, i) =>
-    ch === ' ' ? document.createTextNode(' ') : el('span', { className: 'ch', textContent: ch, style: `animation-delay:${i * step}ms` })));
+    ch === ' ' ? document.createTextNode(' ') : el('span', { className: 'ch', textContent: ch, style: `animation-delay:${lead + i * step}ms` })));
   tq.classList.add('written');
-  const write = letters.length * step;
+  const write = lead + letters.length * step;
   document.documentElement.style.setProperty('--write', `${write}ms`);
   save('party-deletion-seen', true);
-  return write + 1600 + 500;   // writing, then a 1.6s pause, then the 0.5s answer pop
+  return write + 1600 + 500;   // lead-in and writing, then a 1.6s pause, then the 0.5s answer pop
 }
 const titleTime = document.documentElement.classList.contains('intro-anim') ? runIntro() : 0;
 
