@@ -182,22 +182,13 @@
   .motion .logo-mark .loop { stroke-dasharray: 1; stroke-dashoffset: 1; animation: draw-loop .9s cubic-bezier(.6, 0, .2, 1) forwards; }
   @keyframes draw-loop { to { stroke-dashoffset: 0; } }
   /* Opening illustration: a voter at the booth, buried in party messages. The bubbles pop in one after another. */
-  .hero-art { display: block; width: 100%; max-width: 360px; height: auto; margin: 16px auto -24px; overflow: visible; }
+  .hero-art { display: block; width: calc(100% - 32px); max-width: 304px; height: auto; margin: 40px auto -16px; overflow: visible; }
   .intro-anim .hero-art .art-img { animation: art-in .5s ease-out .6s both; }
   @keyframes art-in { from { opacity: 0; transform: translateY(12px); } }
   .intro-anim .hero-art .bubble { transform-box: fill-box; transform-origin: center;
     animation: bubble-pop .45s cubic-bezier(.3, 1.6, .5, 1) calc(1000ms + var(--i) * 90ms) both; }
   @keyframes bubble-pop { from { opacity: 0; transform: scale(.4); } }
 
-  /* Floating bits from the illustration (ballot slips, message bubbles, a notification, a phone), scattered at the
-     page edges. Decorative only; with motion on they drift a little. */
-  body { position: relative; }
-  .decor { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
-  .decor svg { position: absolute; width: var(--s, 28px); height: var(--s, 28px); rotate: var(--r, 0deg); }
-  .decor .l { left: calc(max(2px, 50% - 440px) + var(--x, 0px)); }
-  .decor .r { right: calc(max(2px, 50% - 440px) + var(--x, 0px)); }
-  .motion .decor svg { animation: drift var(--dur, 7s) ease-in-out var(--delay, 0s) infinite alternate; }
-  @keyframes drift { to { translate: 0 -8px; } }
   .icon-btn { min-height: 40px; min-width: 40px; padding: 8px; border-radius: 24px; background: var(--card); color: var(--ink); }
   .icon-btn::before { margin: 0; }
 
@@ -310,7 +301,7 @@
     </div>
   </details>
 
-  <svg class="hero-art" viewBox="0 0 360 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="מצביעה עומדת ליד הפרגוד בקלפי, והטלפון שלה מציף אותה בהודעות של מפלגות">
+  <svg class="hero-art" id="hero-art" viewBox="0 0 360 300" xmlns="http://www.w3.org/2000/svg" role="img">
     <defs>
       <filter id="bubble-shadow" x="-20%" y="-20%" width="140%" height="160%">
         <feDropShadow dx="0" dy="3" stdDeviation="3" flood-color="#0B1B3A" flood-opacity=".14"/>
@@ -321,31 +312,31 @@
     <g filter="url(#bubble-shadow)" font-family="Rubik, sans-serif" font-weight="600">
       <g class="bubble" style="--i:0">
         <rect x="6" y="18" width="112" height="30" rx="15" fill="#0B63D9"/><path d="M96 46 104 58 86 47Z" fill="#0B63D9"/>
-        <text x="62" y="38" font-size="13" fill="#FFFFFF" text-anchor="middle" direction="rtl">הצביעו לנו!!</text>
+        <text x="62" y="38" font-size="13" fill="#FFFFFF" text-anchor="middle" data-t="bubbleVote"></text>
       </g>
       <g class="bubble" style="--i:1">
         <rect x="208" y="8" width="128" height="30" rx="15" fill="#E9E9EB"/><path d="M226 36 218 48 236 37Z" fill="#E9E9EB"/>
-        <text x="272" y="28" font-size="13" fill="#0B1B3A" text-anchor="middle" direction="rtl">רק עוד יום אחד!</text>
+        <text x="272" y="28" font-size="13" fill="#0B1B3A" text-anchor="middle" data-t="bubbleOneDay"></text>
       </g>
       <g class="bubble" style="--i:2">
         <rect x="4" y="84" width="76" height="30" rx="15" fill="#0038B8"/><path d="M70 112 78 122 62 113Z" fill="#0038B8"/>
-        <text x="42" y="104" font-size="13" fill="#FFFFFF" text-anchor="middle" direction="rtl">דחוף!!</text>
+        <text x="42" y="104" font-size="13" fill="#FFFFFF" text-anchor="middle" data-t="bubbleUrgent"></text>
       </g>
       <g class="bubble" style="--i:3">
         <rect x="224" y="58" width="106" height="30" rx="15" fill="#DCEEFB"/><path d="M234 86 226 98 244 87Z" fill="#DCEEFB"/>
-        <text x="277" y="78" font-size="13" fill="#0B1B3A" text-anchor="middle" direction="rtl">לחצו כאן ←</text>
+        <text x="277" y="78" font-size="13" fill="#0B1B3A" text-anchor="middle" data-t="bubbleDontMiss"></text>
       </g>
       <g class="bubble" style="--i:4">
         <rect x="250" y="112" width="104" height="30" rx="15" fill="#E9E9EB"/>
-        <text x="302" y="132" font-size="13" fill="#0B1B3A" text-anchor="middle" direction="rtl">נבחרת לסקר!</text>
+        <text x="302" y="132" font-size="13" fill="#0B1B3A" text-anchor="middle" data-t="bubblePoll"></text>
       </g>
       <g class="bubble" style="--i:5">
         <rect x="0" y="150" width="122" height="30" rx="15" fill="#0B63D9"/>
-        <text x="61" y="170" font-size="12" fill="#FFFFFF" text-anchor="middle" direction="rtl">עוד שבוע לבחירות!</text>
+        <text x="61" y="170" font-size="12" fill="#FFFFFF" text-anchor="middle" data-t="bubbleWeek"></text>
       </g>
       <g class="bubble" style="--i:6">
         <rect x="254" y="168" width="100" height="30" rx="15" fill="#FFFFFF"/>
-        <text x="304" y="188" font-size="13" fill="#0B1B3A" text-anchor="middle" direction="rtl">רק אתם יכולים!</text>
+        <text x="304" y="188" font-size="13" fill="#0B1B3A" text-anchor="middle" data-t="bubbleOnlyYou"></text>
       </g>
     </g>
   </svg>
@@ -456,26 +447,6 @@
 
   <footer class="muted" id="footer"></footer>
 </main>
-<svg width="0" height="0" style="position:absolute" aria-hidden="true">
-  <symbol id="d-slip" viewBox="0 0 24 30"><rect x=".5" y=".5" width="23" height="29" rx="3" fill="#FFFFFF" stroke="#DCE2EE"/><rect x="5" y="8" width="14" height="2.5" rx="1.25" fill="#B9C4D9"/><rect x="5" y="13" width="9" height="2.5" rx="1.25" fill="#B9C4D9"/></symbol>
-  <symbol id="d-bubble" viewBox="0 0 36 28"><rect width="36" height="22" rx="11" fill="#0B63D9"/><path d="M8 20 6 28 15 21Z" fill="#0B63D9"/><rect x="8" y="8" width="20" height="2.5" rx="1.25" fill="#FFFFFF" opacity=".75"/><rect x="8" y="13" width="12" height="2.5" rx="1.25" fill="#FFFFFF" opacity=".75"/></symbol>
-  <symbol id="d-bubble-grey" viewBox="0 0 36 28"><rect width="36" height="22" rx="11" fill="#E9E9EB"/><path d="M28 20 30 28 21 21Z" fill="#E9E9EB"/><rect x="8" y="8" width="20" height="2.5" rx="1.25" fill="#9AA3B5"/><rect x="8" y="13" width="12" height="2.5" rx="1.25" fill="#9AA3B5"/></symbol>
-  <symbol id="d-ping" viewBox="0 0 28 28"><circle cx="13" cy="17" r="7" fill="#E5484D"/><path d="M13 3v5M22 6l-3 4M4 6l3 4" stroke="#E5484D" stroke-width="2.2" stroke-linecap="round"/></symbol>
-  <symbol id="d-phone" viewBox="0 0 20 32"><rect width="20" height="32" rx="4" fill="#0B1B3A"/><rect x="3" y="4" width="14" height="22" rx="2" fill="#8FB0FF"/><circle cx="17" cy="4" r="4" fill="#E5484D"/></symbol>
-</svg>
-<div class="decor" aria-hidden="true">
-  <svg class="l" style="top:3%; --x:8px; --s:26px; --r:-14deg; --dur:7s; --delay:0s"><use href="#d-slip"/></svg>
-  <svg class="r" style="top:6%; --x:4px; --s:34px; --r:8deg; --dur:8s; --delay:-2s"><use href="#d-bubble"/></svg>
-  <svg class="l" style="top:16%; --x:0px; --s:22px; --r:0deg; --dur:6s; --delay:-1s"><use href="#d-ping"/></svg>
-  <svg class="r" style="top:24%; --x:0px; --s:24px; --r:12deg; --dur:9s; --delay:0s"><use href="#d-slip"/></svg>
-  <svg class="l" style="top:33%; --x:-2px; --s:32px; --r:-6deg; --dur:7.5s; --delay:-3s"><use href="#d-bubble-grey"/></svg>
-  <svg class="r" style="top:42%; --x:0px; --s:22px; --r:10deg; --dur:8s; --delay:-1.5s"><use href="#d-phone"/></svg>
-  <svg class="l" style="top:52%; --x:0px; --s:24px; --r:18deg; --dur:6.5s; --delay:0s"><use href="#d-slip"/></svg>
-  <svg class="r" style="top:61%; --x:0px; --s:30px; --r:-8deg; --dur:7s; --delay:-2.5s"><use href="#d-bubble"/></svg>
-  <svg class="l" style="top:72%; --x:0px; --s:20px; --r:0deg; --dur:6s; --delay:-0.5s"><use href="#d-ping"/></svg>
-  <svg class="r" style="top:82%; --x:0px; --s:26px; --r:-16deg; --dur:8.5s; --delay:0s"><use href="#d-slip"/></svg>
-  <svg class="l" style="top:91%; --x:0px; --s:30px; --r:6deg; --dur:7s; --delay:-4s"><use href="#d-bubble-grey"/></svg>
-</div>
 
 <div class="toast" id="toast" role="status" hidden><strong id="toast-main"></strong><span id="toast-sub"></span></div>
 
@@ -900,6 +871,21 @@ function calendarFile() {
 // ---- Rendering ----
 $('contact-mail').addEventListener('click', () => { location.href = `mailto:${contactMail()}`; });
 
+// A translated bubble may be longer than the Hebrew one: widen its bubble around the text, kept inside the picture.
+function fitBubbles() {
+  document.querySelectorAll('.hero-art .bubble').forEach(bubble => {
+    const text = bubble.querySelector('text');
+    const rect = bubble.querySelector('rect');
+    if (!rect.dataset.w) Object.assign(rect.dataset, { x: rect.getAttribute('x'), w: rect.getAttribute('width'), cx: text.getAttribute('x') });
+    const cx = Number(rect.dataset.cx);
+    const width = Math.max(Number(rect.dataset.w), text.getComputedTextLength() + 24);
+    const x = Math.min(Math.max(cx - width / 2, 0), 360 - width);
+    rect.setAttribute('width', width);
+    rect.setAttribute('x', x);
+    text.setAttribute('x', x + width / 2);
+  });
+}
+
 function applyStaticText() {
   const meta = I18N.languages[lang];
   document.documentElement.lang = lang;
@@ -909,6 +895,8 @@ function applyStaticText() {
   document.querySelector('.punch').dataset.text = t('introPunch');
   document.querySelectorAll('[data-not-he]').forEach(node => { node.hidden = lang === 'he'; });
   $('id-why').setAttribute('aria-label', t('idWhy'));
+  $('hero-art').setAttribute('aria-label', t('artLabel'));
+  fitBubbles();
   document.querySelectorAll('#lang-menu button').forEach(b => b.setAttribute('aria-current', String(b.lang === lang)));
   const langLabel = `${t('language')} / Language: ${I18N.languages[lang].name}`;
   $('lang-btn').setAttribute('aria-label', langLabel);
@@ -1136,7 +1124,7 @@ function fitTitle() {
   fitOneLine(document.querySelector('.intro .punch'), 20);
 }
 fitTitle();
-document.fonts?.ready.then(fitTitle);
+document.fonts?.ready.then(() => { fitTitle(); fitBubbles(); });
 addEventListener('resize', fitTitle);
 
 // Returns how long the title sequence takes (writing, pause, answer pop), so reveals can start after it.
