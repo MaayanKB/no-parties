@@ -46,20 +46,20 @@
   :root {
     --bg: #F7F8FC; --card: #FFFFFF; --line: #DCE2EE; --ink: #0B1B3A; --muted: #4A5670;
     --accent: #0038B8; --on-accent: #FFFFFF; --marker: #FFC72C; --on-marker: #0B1B3A;
-    --highlight: #FFFBEA; --error: #B3261E; --error-bg: #FDECEA; --fine: #646D83; --logo-loop: #0038B8; --sky: #DCEEFB; --dots: #0038B8; --band: #DCEEFB;
+    --highlight: #FFFBEA; --error: #B3261E; --error-bg: #FDECEA; --fine: #646D83; --logo-loop: #0038B8; --sky: #DCEEFB; --dots: #0038B8; --band: linear-gradient(180deg, #DCEEFB 0%, #DCEEFB 50%, #F7F8FC 100%);
   }
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
       --bg: #0B1630; --card: #13224A; --line: #2A3B66; --ink: #EEF2FF; --muted: #AAB4CC;
-      --accent: #8FB0FF; --on-accent: #0B1630; --highlight: #2E2A12; --error: #FF9A8F; --error-bg: #3A1A24; --fine: #77829E; --sky: #1B3358; --dots: #FFC72C; --band: linear-gradient(180deg, #24427A 0%, #13224A 100%); --logo-loop: #FFC72C;
+      --accent: #8FB0FF; --on-accent: #0B1630; --highlight: #2E2A12; --error: #FF9A8F; --error-bg: #3A1A24; --fine: #77829E; --sky: #1B3358; --dots: #FFC72C; --band: linear-gradient(180deg, #24427A 0%, #13224A 50%, #0B1630 100%); --logo-loop: #FFC72C;
     }
   }
   :root[data-theme="dark"] {
     --bg: #0B1630; --card: #13224A; --line: #2A3B66; --ink: #EEF2FF; --muted: #AAB4CC;
-    --accent: #8FB0FF; --on-accent: #0B1630; --highlight: #2E2A12; --error: #FF9A8F; --error-bg: #3A1A24; --fine: #77829E; --sky: #1B3358; --dots: #FFC72C; --band: linear-gradient(180deg, #24427A 0%, #13224A 100%); --logo-loop: #FFC72C;
+    --accent: #8FB0FF; --on-accent: #0B1630; --highlight: #2E2A12; --error: #FF9A8F; --error-bg: #3A1A24; --fine: #77829E; --sky: #1B3358; --dots: #FFC72C; --band: linear-gradient(180deg, #24427A 0%, #13224A 50%, #0B1630 100%); --logo-loop: #FFC72C;
   }
 
-  /* Type scale on the 8px grid: 48/48 title, 24/32 punch line, 20/28 section titles, 16/24 everything else. */
+  /* Type scale on the 8px grid: the title, 18/28 opening text, 20/28 section titles, 16/24 everything else. */
   * { box-sizing: border-box; }
   [hidden] { display: none !important; }   /* components below set display; hidden must still win */
   /* Smooth motion everywhere; everything instant for people who ask their device for less motion. */
@@ -77,17 +77,17 @@
   @supports (overflow: clip) { html, body { overflow-x: clip; } }
   /* The header sits on a sky-blue band (the polling-booth colour) that scrolls with the page, with faint
      marker-yellow print dots in its top corner. The explanation card overlaps the band's lower edge. */
-  .hero { position: relative; isolation: isolate; padding-bottom: 32px; }
+  .hero { position: relative; isolation: isolate; padding-bottom: 16px; }
   .hero::before, .hero::after { content: ""; position: absolute; z-index: -1; top: -16px; bottom: 0; left: 50%;
                                 width: 100vw; transform: translateX(-50%); pointer-events: none; }
-  .hero::before { background: var(--band); border-radius: 0 0 50% 50% / 0 0 48px 48px; }
+  .hero::before { background: var(--band); bottom: -96px; }
   .hero::after { opacity: .35; background-image: radial-gradient(circle, var(--dots) 1.2px, transparent 1.6px); background-size: 16px 16px;
                  -webkit-mask-image: radial-gradient(70% 45% at 100% 0%, #000, transparent 70%);
                  mask-image: radial-gradient(70% 45% at 100% 0%, #000, transparent 70%); }
   body { margin: 0; background: var(--bg); color: var(--ink);
          font: 16px/24px "Rubik", system-ui, -apple-system, "Segoe UI", "Noto Sans Ethiopic", Arial, sans-serif; }
   main { max-width: 720px; margin: 0 auto; padding: 16px 16px 64px; }
-  h1 { margin: 64px 0 56px; font-weight: 400; }
+  h1 { margin: 64px 0 24px; font-weight: 400; }
   h1 .tq { display: block; font-family: "Playpen", "Rubik", system-ui, sans-serif; font-weight: 300; font-size: 40px; line-height: 48px; color: var(--accent); }
   h1 .ta { display: block; font-family: "Karantina", "Rubik", system-ui, sans-serif; font-weight: 700; font-size: 112px; line-height: 104px; margin-top: 24px; white-space: nowrap; }
   h2 { font-size: 20px; line-height: 28px; margin: 0; }
@@ -95,33 +95,17 @@
   p { margin: 0 0 8px; }
   a { color: var(--accent); }
   .muted { color: var(--muted); }
-  .intro { margin-bottom: 56px; }
+  .intro { position: relative; margin-bottom: 56px; }   /* above the header's colour fade, which runs under it */
   .intro p { margin: 0; }
-  /* The three opening lines: tight 1.1 inside a wrapped line, 8px between the lines themselves,
-     and plenty of air above (from the title) and below (to the sticker). */
-  .intro .qs { margin: 0 0 16px; font-size: 16px; line-height: 24px; }
-  .intro .q { font-size: 16px; line-height: 24px; font-weight: 300; margin: 0; }
-  /* The punch line: a tilted marker "sticker". Without motion it simply sits there, dark text on yellow. */
-  .intro .punch { position: relative; z-index: 0; display: inline-block; margin: 0 8px 40px; padding: 0 8px; white-space: nowrap;
-                  font-size: 40px; line-height: 48px; font-weight: 500; color: var(--on-marker); transform: rotate(-2deg); }
-  .intro .punch::before { content: ""; position: absolute; z-index: -1; inset: 4px -8px 0 -8px; background: var(--marker);
-                          border-radius: 16px 4px 24px 8px / 8px 16px 8px 16px; transform: skewX(-8deg); }
-
-  /* With motion: the text arrives first in the page's own color, then a brush stroke paints the marker from the
-     start of the line to its end. A dark copy of the text (::after) is revealed by the same stroke, so the text
-     turns dark exactly where the yellow arrives: no flash. */
-  .motion .intro .punch { color: var(--ink); }
-  .motion .intro .punch::after { content: attr(data-text); position: absolute; inset: 0; padding: 0 8px; color: var(--on-marker); }
-  .motion .intro .punch::before, .motion .intro .punch::after {
-    clip-path: inset(0 100% 0 0); transition: clip-path .9s cubic-bezier(.6, 0, .2, 1) calc(var(--d, 0ms) + 700ms); }
-  /* dir and .motion are both on <html>, so this is a compound selector ([dir].motion), not a descendant one. */
-  [dir="rtl"].motion .intro .punch::before, [dir="rtl"].motion .intro .punch::after { clip-path: inset(0 0 0 100%); }
-  .motion .intro .punch.in::before, .motion .intro .punch.in::after { clip-path: inset(-8px -16px -8px -16px); }
+  /* The opening text under the title: one font, size, weight, line height and colour throughout, with 16px
+     between the three short lines and the explanation. */
+  .intro .qs { margin: 0 0 16px; }
+  .intro .q, .intro .body { font-size: 18px; line-height: 24px; font-weight: 400; color: var(--ink); margin: 0; }
 
   /* Reveals: things arrive one after another (--d is set per element by JS), and below the fold as you scroll. */
-  .motion .intro .explain, .motion .intro .punch, .motion main > details.panel, .motion footer {
+  .motion .intro .explain, .motion main > details.panel, .motion footer {
     transition: opacity .7s ease var(--d, 0ms), translate .8s cubic-bezier(.2, .8, .2, 1) var(--d, 0ms); }
-  .motion .intro .explain:not(.in), .motion .intro .punch:not(.in),
+  .motion .intro .explain:not(.in),
   .motion main > details.panel:not(.in), .motion footer:not(.in) { opacity: 0; translate: 0 12px; }
   .motion .in { opacity: 1; translate: 0 0; }
 
@@ -131,9 +115,7 @@
   @keyframes ink { to { opacity: 1; } }
   .intro-anim h1 .ta { animation: pop .5s cubic-bezier(.3, 1.6, .5, 1) calc(var(--write, 1200ms) + 800ms) both; }
   @keyframes pop { from { opacity: 0; transform: scale(.6); } }
-  .intro .explain { position: relative; margin: -40px 0 40px; padding: 16px; border-radius: 8px; background: var(--card);
-                    border: 1px solid var(--sky); box-shadow: 0 8px 24px rgb(11 27 58 / .08); }
-  .intro .body { color: var(--muted); }
+  .intro .explain { margin: 0 0 40px; }
   /* The title fonts only have Hebrew and Latin letters. Arabic, Russian and Amharic fall back to wider, taller
      fonts: they need more line height (Arabic marks would touch the line above), and fitLine() steps them down. */
   :lang(ar) h1 .ta, :lang(ru) h1 .ta, :lang(am) h1 .ta { line-height: 136px; margin-top: 0; }
@@ -142,7 +124,6 @@
     h1, .intro { text-align: center; }
     h1 .tq { font-size: 56px; line-height: 64px; }
     h1 .ta { font-size: 144px; line-height: 136px; }
-    .intro .punch { font-size: 48px; line-height: 56px; }
     :lang(ar) h1 .ta, :lang(ru) h1 .ta, :lang(am) h1 .ta { line-height: 176px; }
   }
 
@@ -351,7 +332,6 @@
       </div>
       <p class="body" data-t="introBody"></p>
     </div>
-    <p class="punch" data-t="introPunch"></p>
   </div>
 
   <details class="panel" id="p-form">
@@ -892,7 +872,6 @@ function applyStaticText() {
   document.documentElement.dir = meta.dir;
   document.title = t('title');
   document.querySelectorAll('[data-t]').forEach(node => { node.textContent = t(node.dataset.t); });
-  document.querySelector('.punch').dataset.text = t('introPunch');
   document.querySelectorAll('[data-not-he]').forEach(node => { node.hidden = lang === 'he'; });
   $('id-why').setAttribute('aria-label', t('idWhy'));
   $('hero-art').setAttribute('aria-label', t('artLabel'));
@@ -954,7 +933,7 @@ function voiceFor(code) {
   return speech.getVoices().find(v => prefixes.some(p => v.lang.toLowerCase().startsWith(p))) || null;
 }
 function readAloudText() {
-  const parts = ['title', 'introQ', 'introMaybe', 'introNo', 'introBody', 'introPunch'].map(k => t(k));
+  const parts = ['title', 'introQ', 'introMaybe', 'introNo', 'introBody'].map(k => t(k));
   parts.push(queue ? $('bulk').innerText : t('afterSendNote'));
   return parts.join('\n');
 }
@@ -1078,7 +1057,7 @@ document.addEventListener('click', ev => {
   setTimeout(finish, 400);
 });
 
-// The title and the punch line are designed as one line (two for the question). Where a language's words are
+// The title answer is designed as one line (two for the question). Where a language's words are
 // longer, step the size down by 4px, keeping the line-height ratio, until it fits or reaches `min`.
 // Returns whether it fits.
 function fitLine(node, min, maxLines = 1) {
@@ -1121,7 +1100,6 @@ function fitOneLine(node, min) {
 function fitTitle() {
   fitLine(document.querySelector('h1 .tq'), 32, 2);
   fitOneLine(document.querySelector('h1 .ta'), 48);
-  fitOneLine(document.querySelector('.intro .punch'), 20);
 }
 fitTitle();
 document.fonts?.ready.then(() => { fitTitle(); fitBubbles(); });
@@ -1145,7 +1123,7 @@ const titleTime = document.documentElement.classList.contains('intro-anim') ? ru
 
 // After the title, everything arrives one after another, each part when it scrolls into view. What is already
 // on screen waits for the title sequence to finish; the rest waits for the scroll.
-const revealTargets = document.querySelectorAll('.intro .explain, .intro .punch, main > details.panel, footer');
+const revealTargets = document.querySelectorAll('.intro .explain, main > details.panel, footer');
 if (document.documentElement.classList.contains('motion') && 'IntersectionObserver' in window) {
   let base = titleTime;
   const io = new IntersectionObserver(entries => {

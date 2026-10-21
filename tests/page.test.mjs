@@ -25,7 +25,6 @@ test('no template placeholders left unfilled', () => {
 // never matches and Hebrew/Arabic got the left-to-right marker stroke.
 test('right-to-left motion rules use a compound selector on <html>', () => {
   assert.equal(html.match(/\[dir="rtl"\] \.motion/), null, 'use [dir="rtl"].motion, not [dir="rtl"] .motion');
-  assert.match(html, /\[dir="rtl"\]\.motion \.intro \.punch::before/);
 });
 
 // Regression: the read-aloud text read the punch line before the explanation after the opening was reordered.
@@ -48,4 +47,11 @@ test('reveal hidden states give way to .in', () => {
 // Regression: a language picked from the menu was saved, so the page reopened in it for whoever used that browser next.
 test('the language choice is not saved between visits', () => {
   assert.equal(html.match(/save\('party-deletion-lang'/), null);
+});
+
+// Regression: the header's colour fade runs below the header, and since the header is positioned it painted over
+// the opening lines. The opening block must be positioned too, so it stays above the fade.
+test('the opening text sits above the header fade', () => {
+  assert.match(html, /\.hero::before \{[^}]*bottom: -\d+px/, 'the fade is expected to run below the header');
+  assert.match(html, /\.intro \{ position: relative;/);
 });
