@@ -111,15 +111,16 @@
 
   /* Reveals: things arrive one after another (--d is set per element by JS), and below the fold as you scroll. */
   .motion .intro .body, .motion .intro .q, .motion .intro .punch, .motion main > details.panel, .motion footer {
-    opacity: 0; translate: 0 12px;
     transition: opacity .7s ease var(--d, 0ms), translate .8s cubic-bezier(.2, .8, .2, 1) var(--d, 0ms); }
+  .motion .intro .body:not(.in), .motion .intro .q:not(.in), .motion .intro .punch:not(.in),
+  .motion main > details.panel:not(.in), .motion footer:not(.in) { opacity: 0; translate: 0 12px; }
   .motion .in { opacity: 1; translate: 0 0; }
 
   /* Opening sequence (see <head>). --write is set by JS to the writing duration. */
   .intro-anim h1 .tq:not(.written) { visibility: hidden; }
   .intro-anim h1 .tq .ch { opacity: 0; animation: ink .28s ease-out forwards; }
   @keyframes ink { to { opacity: 1; } }
-  .intro-anim h1 .ta { animation: pop .5s cubic-bezier(.3, 1.6, .5, 1) calc(var(--write, 1200ms) + 1600ms) both; }
+  .intro-anim h1 .ta { animation: pop .5s cubic-bezier(.3, 1.6, .5, 1) calc(var(--write, 1200ms) + 800ms) both; }
   @keyframes pop { from { opacity: 0; transform: scale(.6); } }
   .intro .body { color: var(--muted); margin: 0 0 40px; padding: 16px; border-radius: 8px; background: var(--sky); }
   /* The title fonts only have Hebrew and Latin letters. Arabic, Russian and Amharic fall back to wider, taller
@@ -1101,15 +1102,15 @@ addEventListener('resize', fitTitle);
 function runIntro() {
   const tq = document.querySelector('h1 .tq');
   const letters = Array.from(tq.textContent);
-  const step = 55;   // ms per letter
-  const lead = 1000; // the pen loop draws around the logo first
+  const step = 40;   // ms per letter
+  const lead = 900;  // the pen loop draws around the logo first (0.9s)
   tq.replaceChildren(...letters.map((ch, i) =>
     ch === ' ' ? document.createTextNode(' ') : el('span', { className: 'ch', textContent: ch, style: `animation-delay:${lead + i * step}ms` })));
   tq.classList.add('written');
   const write = lead + letters.length * step;
   document.documentElement.style.setProperty('--write', `${write}ms`);
   save('party-deletion-seen', true);
-  return write + 1600 + 500;   // lead-in and writing, then a 1.6s pause, then the 0.5s answer pop
+  return write + 800 + 500;   // lead-in and writing, then a 0.8s pause, then the 0.5s answer pop
 }
 const titleTime = document.documentElement.classList.contains('intro-anim') ? runIntro() : 0;
 
@@ -1117,7 +1118,7 @@ const titleTime = document.documentElement.classList.contains('intro-anim') ? ru
 // when the title sequence ends and do not wait for scrolling.
 if (document.documentElement.classList.contains('motion')) {
   document.querySelectorAll('.intro .body, .intro .q, .intro .punch').forEach((node, i) => {
-    node.style.setProperty('--d', `${titleTime + i * 280}ms`);
+    node.style.setProperty('--d', `${titleTime + i * 160}ms`);
     setTimeout(() => node.classList.add('in'), 50);
   });
 }
