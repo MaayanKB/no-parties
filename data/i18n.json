@@ -17,7 +17,7 @@
     "ar": {
       "name": "العربية",
       "dir": "rtl",
-      "locale": "ar", "hidden": true,
+      "locale": "ar",
       "short": "عر"
     },
     "en": {
@@ -35,7 +35,7 @@
     "am": {
       "name": "አማርኛ",
       "dir": "ltr",
-      "locale": "am-ET",
+      "locale": "am-ET", "hidden": true,
       "short": "አማ"
     }
   },
