@@ -75,6 +75,15 @@
   /* The stamp animation briefly scales the sticker past the screen edge; never let that scroll the page sideways. */
   html, body { overflow-x: hidden; }
   @supports (overflow: clip) { html, body { overflow-x: clip; } }
+  /* The header sits on a sky-blue band (the polling-booth colour) that scrolls with the page, with faint
+     marker-yellow print dots in its top corner. The explanation card overlaps the band's lower edge. */
+  .hero { position: relative; isolation: isolate; padding-bottom: 32px; }
+  .hero::before, .hero::after { content: ""; position: absolute; z-index: -1; top: -16px; bottom: 0; left: 50%;
+                                width: 100vw; transform: translateX(-50%); pointer-events: none; }
+  .hero::before { background: var(--sky); border-radius: 0 0 50% 50% / 0 0 48px 48px; }
+  .hero::after { opacity: .35; background-image: radial-gradient(circle, var(--marker) 1.2px, transparent 1.6px); background-size: 16px 16px;
+                 -webkit-mask-image: radial-gradient(70% 45% at 100% 0%, #000, transparent 70%);
+                 mask-image: radial-gradient(70% 45% at 100% 0%, #000, transparent 70%); }
   body { margin: 0; background: var(--bg); color: var(--ink);
          font: 16px/24px "Rubik", system-ui, -apple-system, "Segoe UI", "Noto Sans Ethiopic", Arial, sans-serif; }
   main { max-width: 720px; margin: 0 auto; padding: 16px 16px 64px; }
@@ -90,8 +99,8 @@
   .intro p { margin: 0; }
   /* The three opening lines: tight 1.1 inside a wrapped line, 8px between the lines themselves,
      and plenty of air above (from the title) and below (to the sticker). */
-  .intro .qs { margin: 0 0 40px; }
-  .intro .q { font-size: 20px; line-height: 28px; font-weight: 300; margin: 0 0 8px; }
+  .intro .qs { margin: 0 0 16px; font-size: 16px; line-height: 24px; }
+  .intro .q { font-size: 16px; line-height: 24px; font-weight: 300; margin: 0; }
   /* The punch line: a tilted marker "sticker". Without motion it simply sits there, dark text on yellow. */
   .intro .punch { position: relative; z-index: 0; display: inline-block; margin: 0 8px 40px; padding: 0 8px; white-space: nowrap;
                   font-size: 40px; line-height: 48px; font-weight: 500; color: var(--on-marker); transform: rotate(-2deg); }
@@ -110,9 +119,9 @@
   .motion .intro .punch.in::before, .motion .intro .punch.in::after { clip-path: inset(-8px -16px -8px -16px); }
 
   /* Reveals: things arrive one after another (--d is set per element by JS), and below the fold as you scroll. */
-  .motion .intro .body, .motion .intro .q, .motion .intro .punch, .motion main > details.panel, .motion footer {
+  .motion .intro .explain, .motion .intro .punch, .motion main > details.panel, .motion footer {
     transition: opacity .7s ease var(--d, 0ms), translate .8s cubic-bezier(.2, .8, .2, 1) var(--d, 0ms); }
-  .motion .intro .body:not(.in), .motion .intro .q:not(.in), .motion .intro .punch:not(.in),
+  .motion .intro .explain:not(.in), .motion .intro .punch:not(.in),
   .motion main > details.panel:not(.in), .motion footer:not(.in) { opacity: 0; translate: 0 12px; }
   .motion .in { opacity: 1; translate: 0 0; }
 
@@ -122,7 +131,9 @@
   @keyframes ink { to { opacity: 1; } }
   .intro-anim h1 .ta { animation: pop .5s cubic-bezier(.3, 1.6, .5, 1) calc(var(--write, 1200ms) + 800ms) both; }
   @keyframes pop { from { opacity: 0; transform: scale(.6); } }
-  .intro .body { color: var(--muted); margin: 0 0 40px; padding: 16px; border-radius: 8px; background: var(--sky); }
+  .intro .explain { position: relative; margin: -40px 0 40px; padding: 16px; border-radius: 8px; background: var(--card);
+                    border: 1px solid var(--sky); box-shadow: 0 8px 24px rgb(11 27 58 / .08); }
+  .intro .body { color: var(--muted); }
   /* The title fonts only have Hebrew and Latin letters. Arabic, Russian and Amharic fall back to wider, taller
      fonts: they need more line height (Arabic marks would touch the line above), and fitLine() steps them down. */
   :lang(ar) h1 .ta, :lang(ru) h1 .ta, :lang(am) h1 .ta { line-height: 136px; margin-top: 0; }
@@ -170,6 +181,11 @@
   /* With motion, the pen loop is drawn on from nothing first; the rest of the page follows (see runIntro). */
   .motion .logo-mark .loop { stroke-dasharray: 1; stroke-dashoffset: 1; animation: draw-loop .9s cubic-bezier(.6, 0, .2, 1) forwards; }
   @keyframes draw-loop { to { stroke-dashoffset: 0; } }
+  /* Opening illustration: a voter at the booth, buried in party messages. The bubbles pop in one after another. */
+  .hero-art { display: block; width: 100%; max-width: 360px; height: auto; margin: 24px auto -24px; }
+  .motion .hero-art .bubble { transform-box: fill-box; transform-origin: center;
+    animation: bubble-pop .45s cubic-bezier(.3, 1.6, .5, 1) calc(200ms + var(--i) * 140ms) both; }
+  @keyframes bubble-pop { from { opacity: 0; transform: scale(.4); } }
   .icon-btn { min-height: 40px; min-width: 40px; padding: 8px; border-radius: 24px; background: var(--card); color: var(--ink); }
   .icon-btn::before { margin: 0; }
 
@@ -260,6 +276,7 @@
 </head>
 <body>
 <main>
+  <header class="hero">
   <div class="topbar">
     <div class="langs">
       <button type="button" class="icon-btn" id="lang-btn" data-icon="globe" aria-expanded="false" aria-controls="lang-menu"></button>
@@ -281,13 +298,89 @@
     </div>
   </details>
 
+  <svg class="hero-art" viewBox="0 0 360 280" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="מצביע עומד ליד הפרגוד בקלפי, והטלפון שלו מציף אותו בהודעות של מפלגות">
+    <defs>
+      <filter id="bubble-shadow" x="-20%" y="-20%" width="140%" height="160%">
+        <feDropShadow dx="0" dy="3" stdDeviation="3" flood-color="#0B1B3A" flood-opacity=".14"/>
+      </filter>
+    </defs>
+    <!-- The scene (placeholder drawing; can be swapped for an illustration image without touching the bubbles). -->
+    <g class="scene">
+      <rect x="64" y="204" width="232" height="10" rx="4" fill="#0B1B3A"/>
+      <rect x="80" y="214" width="8" height="46" rx="3" fill="#0B1B3A"/>
+      <rect x="272" y="214" width="8" height="46" rx="3" fill="#0B1B3A"/>
+      <path d="M72 116 104 100V204H72Z" fill="#2F5FD0"/>
+      <path d="M288 116 256 100V204H288Z" fill="#2F5FD0"/>
+      <rect x="104" y="100" width="152" height="104" fill="#0038B8"/>
+      <g fill="#FFFFFF">
+        <rect x="114" y="148" width="20" height="24" rx="2"/><rect x="140" y="148" width="20" height="24" rx="2"/>
+        <rect x="166" y="148" width="20" height="24" rx="2"/><rect x="192" y="148" width="20" height="24" rx="2"/>
+        <rect x="218" y="148" width="20" height="24" rx="2"/>
+        <rect x="114" y="176" width="20" height="24" rx="2"/><rect x="140" y="176" width="20" height="24" rx="2"/>
+        <rect x="166" y="176" width="20" height="24" rx="2"/><rect x="192" y="176" width="20" height="24" rx="2"/>
+      </g>
+      <g fill="#B9C4D9">
+        <rect x="118" y="156" width="12" height="3" rx="1.5"/><rect x="144" y="156" width="12" height="3" rx="1.5"/>
+        <rect x="170" y="156" width="12" height="3" rx="1.5"/><rect x="196" y="156" width="12" height="3" rx="1.5"/>
+        <rect x="222" y="156" width="12" height="3" rx="1.5"/>
+        <rect x="118" y="184" width="12" height="3" rx="1.5"/><rect x="144" y="184" width="12" height="3" rx="1.5"/>
+        <rect x="170" y="184" width="12" height="3" rx="1.5"/><rect x="196" y="184" width="12" height="3" rx="1.5"/>
+      </g>
+      <rect x="214" y="190" width="12" height="58" rx="5" fill="#0B1B3A"/>
+      <rect x="232" y="190" width="12" height="58" rx="5" fill="#0B1B3A"/>
+      <rect x="208" y="244" width="20" height="8" rx="4" fill="#0B1B3A"/>
+      <rect x="230" y="244" width="20" height="8" rx="4" fill="#0B1B3A"/>
+      <rect x="206" y="132" width="46" height="66" rx="18" fill="#FFC72C"/>
+      <path d="M246 146c10-4 16-12 18-22" stroke="#FFC72C" stroke-width="11" stroke-linecap="round" fill="none"/>
+      <circle cx="229" cy="114" r="17" fill="#E8B48F"/>
+      <path d="M212 112c0-12 8-20 18-20s18 7 18 17c-6-5-14-6-22-4-6 1-10 4-14 7Z" fill="#0B1B3A"/>
+      <rect x="256" y="96" width="18" height="30" rx="4" fill="#0B1B3A"/>
+      <rect x="259" y="100" width="12" height="20" rx="2" fill="#8FB0FF"/>
+      <circle cx="276" cy="96" r="9" fill="#E5484D"/>
+      <text x="276" y="99.5" font-size="8" font-weight="700" fill="#FFFFFF" text-anchor="middle" direction="ltr" unicode-bidi="isolate" font-family="Rubik, sans-serif">99+</text>
+    </g>
+    <!-- The spam: message bubbles in phone-message tints, popping in one after another (see .bubble in CSS). -->
+    <g filter="url(#bubble-shadow)" font-family="Rubik, sans-serif" font-weight="600">
+      <g class="bubble" style="--i:0">
+        <rect x="20" y="22" width="124" height="34" rx="16" fill="#0B63D9"/><path d="M40 54 34 66 52 55Z" fill="#0B63D9"/>
+        <text x="82" y="44" font-size="14" fill="#FFFFFF" text-anchor="middle" direction="rtl">הצביעו לנו!!</text>
+      </g>
+      <g class="bubble" style="--i:1">
+        <rect x="198" y="14" width="138" height="34" rx="16" fill="#E9E9EB"/><path d="M310 46 318 58 300 47Z" fill="#E9E9EB"/>
+        <text x="267" y="36" font-size="14" fill="#0B1B3A" text-anchor="middle" direction="rtl">רק עוד יום אחד!</text>
+      </g>
+      <g class="bubble" style="--i:2">
+        <rect x="8" y="88" width="84" height="32" rx="16" fill="#0038B8"/><path d="M80 118 88 128 72 119Z" fill="#0038B8"/>
+        <text x="50" y="109" font-size="14" fill="#FFFFFF" text-anchor="middle" direction="rtl">דחוף!!</text>
+      </g>
+      <g class="bubble" style="--i:3">
+        <rect x="124" y="64" width="100" height="30" rx="15" fill="#DCEEFB"/><path d="M200 92 208 102 192 93Z" fill="#DCEEFB"/>
+        <text x="174" y="84" font-size="13" fill="#0B1B3A" text-anchor="middle" direction="rtl">לחצו כאן ←</text>
+      </g>
+      <g class="bubble" style="--i:4">
+        <rect x="292" y="70" width="60" height="28" rx="14" fill="#E9E9EB"/>
+        <rect x="304" y="80" width="36" height="3" rx="1.5" fill="#9AA3B5"/><rect x="304" y="87" width="24" height="3" rx="1.5" fill="#9AA3B5"/>
+      </g>
+      <g class="bubble" style="--i:5">
+        <rect x="296" y="128" width="58" height="28" rx="14" fill="#0B63D9"/>
+        <rect x="306" y="138" width="38" height="3" rx="1.5" fill="#FFFFFF" opacity=".7"/><rect x="306" y="145" width="20" height="3" rx="1.5" fill="#FFFFFF" opacity=".7"/>
+      </g>
+      <g class="bubble" style="--i:6">
+        <rect x="14" y="146" width="72" height="28" rx="14" fill="#FFFFFF"/>
+        <text x="50" y="165" font-size="12" fill="#0B1B3A" text-anchor="middle" direction="rtl">סקר!</text>
+      </g>
+    </g>
+  </svg>
   <h1><span class="tq" data-t="titleQ"></span><span class="ta" data-t="titleA"></span></h1>
+  </header>
   <div class="intro">
-    <p class="body" data-t="introBody"></p>
-    <div class="qs">
-      <p class="q" data-t="introQ"></p>
-      <p class="q" data-t="introMaybe"></p>
-      <p class="q" data-t="introNo"></p>
+    <div class="explain">
+      <div class="qs">
+        <p class="q" data-t="introQ"></p>
+        <p class="q" data-t="introMaybe"></p>
+        <p class="q" data-t="introNo"></p>
+      </div>
+      <p class="body" data-t="introBody"></p>
     </div>
     <p class="punch" data-t="introPunch"></p>
   </div>
@@ -875,7 +968,7 @@ function voiceFor(code) {
   return speech.getVoices().find(v => prefixes.some(p => v.lang.toLowerCase().startsWith(p))) || null;
 }
 function readAloudText() {
-  const parts = ['title', 'introQ', 'introMaybe', 'introNo', 'introPunch', 'introBody'].map(k => t(k));
+  const parts = ['title', 'introQ', 'introMaybe', 'introNo', 'introBody', 'introPunch'].map(k => t(k));
   parts.push(queue ? $('bulk').innerText : t('afterSendNote'));
   return parts.join('\n');
 }
@@ -1067,7 +1160,7 @@ const titleTime = document.documentElement.classList.contains('intro-anim') ? ru
 // The opening, in reading order, one after another: explanation, the three lines, the punch line. They start
 // when the title sequence ends and do not wait for scrolling.
 if (document.documentElement.classList.contains('motion')) {
-  document.querySelectorAll('.intro .body, .intro .q, .intro .punch').forEach((node, i) => {
+  document.querySelectorAll('.intro .explain, .intro .punch').forEach((node, i) => {
     node.style.setProperty('--d', `${titleTime + i * 160}ms`);
     setTimeout(() => node.classList.add('in'), 50);
   });
