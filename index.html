@@ -46,17 +46,17 @@
   :root {
     --bg: #F7F8FC; --card: #FFFFFF; --line: #DCE2EE; --ink: #0B1B3A; --muted: #4A5670;
     --accent: #0038B8; --on-accent: #FFFFFF; --marker: #FFC72C; --on-marker: #0B1B3A;
-    --highlight: #FFFBEA; --error: #B3261E; --error-bg: #FDECEA; --fine: #646D83; --logo-loop: #0038B8; --sky: #DCEEFB;
+    --highlight: #FFFBEA; --error: #B3261E; --error-bg: #FDECEA; --fine: #646D83; --logo-loop: #0038B8; --sky: #DCEEFB; --dots: #0038B8; --band: #DCEEFB;
   }
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
       --bg: #0B1630; --card: #13224A; --line: #2A3B66; --ink: #EEF2FF; --muted: #AAB4CC;
-      --accent: #8FB0FF; --on-accent: #0B1630; --highlight: #2E2A12; --error: #FF9A8F; --error-bg: #3A1A24; --fine: #77829E; --sky: #1B3358; --logo-loop: #FFC72C;
+      --accent: #8FB0FF; --on-accent: #0B1630; --highlight: #2E2A12; --error: #FF9A8F; --error-bg: #3A1A24; --fine: #77829E; --sky: #1B3358; --dots: #FFC72C; --band: linear-gradient(180deg, #24427A 0%, #13224A 100%); --logo-loop: #FFC72C;
     }
   }
   :root[data-theme="dark"] {
     --bg: #0B1630; --card: #13224A; --line: #2A3B66; --ink: #EEF2FF; --muted: #AAB4CC;
-    --accent: #8FB0FF; --on-accent: #0B1630; --highlight: #2E2A12; --error: #FF9A8F; --error-bg: #3A1A24; --fine: #77829E; --sky: #1B3358; --logo-loop: #FFC72C;
+    --accent: #8FB0FF; --on-accent: #0B1630; --highlight: #2E2A12; --error: #FF9A8F; --error-bg: #3A1A24; --fine: #77829E; --sky: #1B3358; --dots: #FFC72C; --band: linear-gradient(180deg, #24427A 0%, #13224A 100%); --logo-loop: #FFC72C;
   }
 
   /* Type scale on the 8px grid: 48/48 title, 24/32 punch line, 20/28 section titles, 16/24 everything else. */
@@ -80,8 +80,8 @@
   .hero { position: relative; isolation: isolate; padding-bottom: 32px; }
   .hero::before, .hero::after { content: ""; position: absolute; z-index: -1; top: -16px; bottom: 0; left: 50%;
                                 width: 100vw; transform: translateX(-50%); pointer-events: none; }
-  .hero::before { background: var(--sky); border-radius: 0 0 50% 50% / 0 0 48px 48px; }
-  .hero::after { opacity: .35; background-image: radial-gradient(circle, var(--marker) 1.2px, transparent 1.6px); background-size: 16px 16px;
+  .hero::before { background: var(--band); border-radius: 0 0 50% 50% / 0 0 48px 48px; }
+  .hero::after { opacity: .35; background-image: radial-gradient(circle, var(--dots) 1.2px, transparent 1.6px); background-size: 16px 16px;
                  -webkit-mask-image: radial-gradient(70% 45% at 100% 0%, #000, transparent 70%);
                  mask-image: radial-gradient(70% 45% at 100% 0%, #000, transparent 70%); }
   body { margin: 0; background: var(--bg); color: var(--ink);
@@ -182,10 +182,22 @@
   .motion .logo-mark .loop { stroke-dasharray: 1; stroke-dashoffset: 1; animation: draw-loop .9s cubic-bezier(.6, 0, .2, 1) forwards; }
   @keyframes draw-loop { to { stroke-dashoffset: 0; } }
   /* Opening illustration: a voter at the booth, buried in party messages. The bubbles pop in one after another. */
-  .hero-art { display: block; width: 100%; max-width: 360px; height: auto; margin: 24px auto -24px; }
-  .motion .hero-art .bubble { transform-box: fill-box; transform-origin: center;
-    animation: bubble-pop .45s cubic-bezier(.3, 1.6, .5, 1) calc(200ms + var(--i) * 140ms) both; }
+  .hero-art { display: block; width: 100%; max-width: 360px; height: auto; margin: 16px auto -24px; overflow: visible; }
+  .intro-anim .hero-art .art-img { animation: art-in .5s ease-out .6s both; }
+  @keyframes art-in { from { opacity: 0; transform: translateY(12px); } }
+  .intro-anim .hero-art .bubble { transform-box: fill-box; transform-origin: center;
+    animation: bubble-pop .45s cubic-bezier(.3, 1.6, .5, 1) calc(1000ms + var(--i) * 90ms) both; }
   @keyframes bubble-pop { from { opacity: 0; transform: scale(.4); } }
+
+  /* Floating bits from the illustration (ballot slips, message bubbles, a notification, a phone), scattered at the
+     page edges. Decorative only; with motion on they drift a little. */
+  body { position: relative; }
+  .decor { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+  .decor svg { position: absolute; width: var(--s, 28px); height: var(--s, 28px); rotate: var(--r, 0deg); }
+  .decor .l { left: calc(max(2px, 50% - 440px) + var(--x, 0px)); }
+  .decor .r { right: calc(max(2px, 50% - 440px) + var(--x, 0px)); }
+  .motion .decor svg { animation: drift var(--dur, 7s) ease-in-out var(--delay, 0s) infinite alternate; }
+  @keyframes drift { to { translate: 0 -8px; } }
   .icon-btn { min-height: 40px; min-width: 40px; padding: 8px; border-radius: 24px; background: var(--card); color: var(--ink); }
   .icon-btn::before { margin: 0; }
 
@@ -298,76 +310,42 @@
     </div>
   </details>
 
-  <svg class="hero-art" viewBox="0 0 360 280" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="מצביע עומד ליד הפרגוד בקלפי, והטלפון שלו מציף אותו בהודעות של מפלגות">
+  <svg class="hero-art" viewBox="0 0 360 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="מצביעה עומדת ליד הפרגוד בקלפי, והטלפון שלה מציף אותה בהודעות של מפלגות">
     <defs>
       <filter id="bubble-shadow" x="-20%" y="-20%" width="140%" height="160%">
         <feDropShadow dx="0" dy="3" stdDeviation="3" flood-color="#0B1B3A" flood-opacity=".14"/>
       </filter>
     </defs>
-    <!-- The scene (placeholder drawing; can be swapped for an illustration image without touching the bubbles). -->
-    <g class="scene">
-      <rect x="64" y="204" width="232" height="10" rx="4" fill="#0B1B3A"/>
-      <rect x="80" y="214" width="8" height="46" rx="3" fill="#0B1B3A"/>
-      <rect x="272" y="214" width="8" height="46" rx="3" fill="#0B1B3A"/>
-      <path d="M72 116 104 100V204H72Z" fill="#2F5FD0"/>
-      <path d="M288 116 256 100V204H288Z" fill="#2F5FD0"/>
-      <rect x="104" y="100" width="152" height="104" fill="#0038B8"/>
-      <g fill="#FFFFFF">
-        <rect x="114" y="148" width="20" height="24" rx="2"/><rect x="140" y="148" width="20" height="24" rx="2"/>
-        <rect x="166" y="148" width="20" height="24" rx="2"/><rect x="192" y="148" width="20" height="24" rx="2"/>
-        <rect x="218" y="148" width="20" height="24" rx="2"/>
-        <rect x="114" y="176" width="20" height="24" rx="2"/><rect x="140" y="176" width="20" height="24" rx="2"/>
-        <rect x="166" y="176" width="20" height="24" rx="2"/><rect x="192" y="176" width="20" height="24" rx="2"/>
-      </g>
-      <g fill="#B9C4D9">
-        <rect x="118" y="156" width="12" height="3" rx="1.5"/><rect x="144" y="156" width="12" height="3" rx="1.5"/>
-        <rect x="170" y="156" width="12" height="3" rx="1.5"/><rect x="196" y="156" width="12" height="3" rx="1.5"/>
-        <rect x="222" y="156" width="12" height="3" rx="1.5"/>
-        <rect x="118" y="184" width="12" height="3" rx="1.5"/><rect x="144" y="184" width="12" height="3" rx="1.5"/>
-        <rect x="170" y="184" width="12" height="3" rx="1.5"/><rect x="196" y="184" width="12" height="3" rx="1.5"/>
-      </g>
-      <rect x="214" y="190" width="12" height="58" rx="5" fill="#0B1B3A"/>
-      <rect x="232" y="190" width="12" height="58" rx="5" fill="#0B1B3A"/>
-      <rect x="208" y="244" width="20" height="8" rx="4" fill="#0B1B3A"/>
-      <rect x="230" y="244" width="20" height="8" rx="4" fill="#0B1B3A"/>
-      <rect x="206" y="132" width="46" height="66" rx="18" fill="#FFC72C"/>
-      <path d="M246 146c10-4 16-12 18-22" stroke="#FFC72C" stroke-width="11" stroke-linecap="round" fill="none"/>
-      <circle cx="229" cy="114" r="17" fill="#E8B48F"/>
-      <path d="M212 112c0-12 8-20 18-20s18 7 18 17c-6-5-14-6-22-4-6 1-10 4-14 7Z" fill="#0B1B3A"/>
-      <rect x="256" y="96" width="18" height="30" rx="4" fill="#0B1B3A"/>
-      <rect x="259" y="100" width="12" height="20" rx="2" fill="#8FB0FF"/>
-      <circle cx="276" cy="96" r="9" fill="#E5484D"/>
-      <text x="276" y="99.5" font-size="8" font-weight="700" fill="#FFFFFF" text-anchor="middle" direction="ltr" unicode-bidi="isolate" font-family="Rubik, sans-serif">99+</text>
-    </g>
+    <image class="art-img" href="art/voter.webp" x="66" y="46" width="230" height="247"/>
     <!-- The spam: message bubbles in phone-message tints, popping in one after another (see .bubble in CSS). -->
     <g filter="url(#bubble-shadow)" font-family="Rubik, sans-serif" font-weight="600">
       <g class="bubble" style="--i:0">
-        <rect x="20" y="22" width="124" height="34" rx="16" fill="#0B63D9"/><path d="M40 54 34 66 52 55Z" fill="#0B63D9"/>
-        <text x="82" y="44" font-size="14" fill="#FFFFFF" text-anchor="middle" direction="rtl">הצביעו לנו!!</text>
+        <rect x="6" y="18" width="112" height="30" rx="15" fill="#0B63D9"/><path d="M96 46 104 58 86 47Z" fill="#0B63D9"/>
+        <text x="62" y="38" font-size="13" fill="#FFFFFF" text-anchor="middle" direction="rtl">הצביעו לנו!!</text>
       </g>
       <g class="bubble" style="--i:1">
-        <rect x="198" y="14" width="138" height="34" rx="16" fill="#E9E9EB"/><path d="M310 46 318 58 300 47Z" fill="#E9E9EB"/>
-        <text x="267" y="36" font-size="14" fill="#0B1B3A" text-anchor="middle" direction="rtl">רק עוד יום אחד!</text>
+        <rect x="208" y="8" width="128" height="30" rx="15" fill="#E9E9EB"/><path d="M226 36 218 48 236 37Z" fill="#E9E9EB"/>
+        <text x="272" y="28" font-size="13" fill="#0B1B3A" text-anchor="middle" direction="rtl">רק עוד יום אחד!</text>
       </g>
       <g class="bubble" style="--i:2">
-        <rect x="8" y="88" width="84" height="32" rx="16" fill="#0038B8"/><path d="M80 118 88 128 72 119Z" fill="#0038B8"/>
-        <text x="50" y="109" font-size="14" fill="#FFFFFF" text-anchor="middle" direction="rtl">דחוף!!</text>
+        <rect x="4" y="84" width="76" height="30" rx="15" fill="#0038B8"/><path d="M70 112 78 122 62 113Z" fill="#0038B8"/>
+        <text x="42" y="104" font-size="13" fill="#FFFFFF" text-anchor="middle" direction="rtl">דחוף!!</text>
       </g>
       <g class="bubble" style="--i:3">
-        <rect x="124" y="64" width="100" height="30" rx="15" fill="#DCEEFB"/><path d="M200 92 208 102 192 93Z" fill="#DCEEFB"/>
-        <text x="174" y="84" font-size="13" fill="#0B1B3A" text-anchor="middle" direction="rtl">לחצו כאן ←</text>
+        <rect x="224" y="58" width="106" height="30" rx="15" fill="#DCEEFB"/><path d="M234 86 226 98 244 87Z" fill="#DCEEFB"/>
+        <text x="277" y="78" font-size="13" fill="#0B1B3A" text-anchor="middle" direction="rtl">לחצו כאן ←</text>
       </g>
       <g class="bubble" style="--i:4">
-        <rect x="292" y="70" width="60" height="28" rx="14" fill="#E9E9EB"/>
-        <rect x="304" y="80" width="36" height="3" rx="1.5" fill="#9AA3B5"/><rect x="304" y="87" width="24" height="3" rx="1.5" fill="#9AA3B5"/>
+        <rect x="250" y="112" width="104" height="30" rx="15" fill="#E9E9EB"/>
+        <text x="302" y="132" font-size="13" fill="#0B1B3A" text-anchor="middle" direction="rtl">נבחרת לסקר!</text>
       </g>
       <g class="bubble" style="--i:5">
-        <rect x="296" y="128" width="58" height="28" rx="14" fill="#0B63D9"/>
-        <rect x="306" y="138" width="38" height="3" rx="1.5" fill="#FFFFFF" opacity=".7"/><rect x="306" y="145" width="20" height="3" rx="1.5" fill="#FFFFFF" opacity=".7"/>
+        <rect x="0" y="150" width="122" height="30" rx="15" fill="#0B63D9"/>
+        <text x="61" y="170" font-size="12" fill="#FFFFFF" text-anchor="middle" direction="rtl">עוד שבוע לבחירות!</text>
       </g>
       <g class="bubble" style="--i:6">
-        <rect x="14" y="146" width="72" height="28" rx="14" fill="#FFFFFF"/>
-        <text x="50" y="165" font-size="12" fill="#0B1B3A" text-anchor="middle" direction="rtl">סקר!</text>
+        <rect x="254" y="168" width="100" height="30" rx="15" fill="#FFFFFF"/>
+        <text x="304" y="188" font-size="13" fill="#0B1B3A" text-anchor="middle" direction="rtl">רק אתם יכולים!</text>
       </g>
     </g>
   </svg>
@@ -478,6 +456,26 @@
 
   <footer class="muted" id="footer"></footer>
 </main>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="d-slip" viewBox="0 0 24 30"><rect x=".5" y=".5" width="23" height="29" rx="3" fill="#FFFFFF" stroke="#DCE2EE"/><rect x="5" y="8" width="14" height="2.5" rx="1.25" fill="#B9C4D9"/><rect x="5" y="13" width="9" height="2.5" rx="1.25" fill="#B9C4D9"/></symbol>
+  <symbol id="d-bubble" viewBox="0 0 36 28"><rect width="36" height="22" rx="11" fill="#0B63D9"/><path d="M8 20 6 28 15 21Z" fill="#0B63D9"/><rect x="8" y="8" width="20" height="2.5" rx="1.25" fill="#FFFFFF" opacity=".75"/><rect x="8" y="13" width="12" height="2.5" rx="1.25" fill="#FFFFFF" opacity=".75"/></symbol>
+  <symbol id="d-bubble-grey" viewBox="0 0 36 28"><rect width="36" height="22" rx="11" fill="#E9E9EB"/><path d="M28 20 30 28 21 21Z" fill="#E9E9EB"/><rect x="8" y="8" width="20" height="2.5" rx="1.25" fill="#9AA3B5"/><rect x="8" y="13" width="12" height="2.5" rx="1.25" fill="#9AA3B5"/></symbol>
+  <symbol id="d-ping" viewBox="0 0 28 28"><circle cx="13" cy="17" r="7" fill="#E5484D"/><path d="M13 3v5M22 6l-3 4M4 6l3 4" stroke="#E5484D" stroke-width="2.2" stroke-linecap="round"/></symbol>
+  <symbol id="d-phone" viewBox="0 0 20 32"><rect width="20" height="32" rx="4" fill="#0B1B3A"/><rect x="3" y="4" width="14" height="22" rx="2" fill="#8FB0FF"/><circle cx="17" cy="4" r="4" fill="#E5484D"/></symbol>
+</svg>
+<div class="decor" aria-hidden="true">
+  <svg class="l" style="top:3%; --x:8px; --s:26px; --r:-14deg; --dur:7s; --delay:0s"><use href="#d-slip"/></svg>
+  <svg class="r" style="top:6%; --x:4px; --s:34px; --r:8deg; --dur:8s; --delay:-2s"><use href="#d-bubble"/></svg>
+  <svg class="l" style="top:16%; --x:0px; --s:22px; --r:0deg; --dur:6s; --delay:-1s"><use href="#d-ping"/></svg>
+  <svg class="r" style="top:24%; --x:0px; --s:24px; --r:12deg; --dur:9s; --delay:0s"><use href="#d-slip"/></svg>
+  <svg class="l" style="top:33%; --x:-2px; --s:32px; --r:-6deg; --dur:7.5s; --delay:-3s"><use href="#d-bubble-grey"/></svg>
+  <svg class="r" style="top:42%; --x:0px; --s:22px; --r:10deg; --dur:8s; --delay:-1.5s"><use href="#d-phone"/></svg>
+  <svg class="l" style="top:52%; --x:0px; --s:24px; --r:18deg; --dur:6.5s; --delay:0s"><use href="#d-slip"/></svg>
+  <svg class="r" style="top:61%; --x:0px; --s:30px; --r:-8deg; --dur:7s; --delay:-2.5s"><use href="#d-bubble"/></svg>
+  <svg class="l" style="top:72%; --x:0px; --s:20px; --r:0deg; --dur:6s; --delay:-0.5s"><use href="#d-ping"/></svg>
+  <svg class="r" style="top:82%; --x:0px; --s:26px; --r:-16deg; --dur:8.5s; --delay:0s"><use href="#d-slip"/></svg>
+  <svg class="l" style="top:91%; --x:0px; --s:30px; --r:6deg; --dur:7s; --delay:-4s"><use href="#d-bubble-grey"/></svg>
+</div>
 
 <div class="toast" id="toast" role="status" hidden><strong id="toast-main"></strong><span id="toast-sub"></span></div>
 
@@ -1196,7 +1194,7 @@ function runIntro() {
   const tq = document.querySelector('h1 .tq');
   const letters = Array.from(tq.textContent);
   const step = 40;   // ms per letter
-  const lead = 900;  // the pen loop draws around the logo first (0.9s)
+  const lead = 1900; // first the logo loop, the illustration and the bubbles
   tq.replaceChildren(...letters.map((ch, i) =>
     ch === ' ' ? document.createTextNode(' ') : el('span', { className: 'ch', textContent: ch, style: `animation-delay:${lead + i * step}ms` })));
   tq.classList.add('written');
@@ -1207,27 +1205,22 @@ function runIntro() {
 }
 const titleTime = document.documentElement.classList.contains('intro-anim') ? runIntro() : 0;
 
-// The opening, in reading order, one after another: explanation, the three lines, the punch line. They start
-// when the title sequence ends and do not wait for scrolling.
-if (document.documentElement.classList.contains('motion')) {
-  document.querySelectorAll('.intro .explain, .intro .punch').forEach((node, i) => {
-    node.style.setProperty('--d', `${titleTime + i * 160}ms`);
-    setTimeout(() => node.classList.add('in'), 50);
-  });
-}
-// Everything below the opening arrives as it scrolls into view, one after another.
+// After the title, everything arrives one after another, each part when it scrolls into view. What is already
+// on screen waits for the title sequence to finish; the rest waits for the scroll.
+const revealTargets = document.querySelectorAll('.intro .explain, .intro .punch, main > details.panel, footer');
 if (document.documentElement.classList.contains('motion') && 'IntersectionObserver' in window) {
-  const targets = document.querySelectorAll('main > details.panel, footer');
-  let base = 0;
+  let base = titleTime;
   const io = new IntersectionObserver(entries => {
     entries.filter(e => e.isIntersecting).forEach((e, i) => {
-      e.target.style.setProperty('--d', `${base + i * 280}ms`);
+      e.target.style.setProperty('--d', `${base + i * 160}ms`);
       e.target.classList.add('in');
       io.unobserve(e.target);
     });
     base = 0;
   }, { threshold: 0.1 });
-  targets.forEach(node => io.observe(node));
+  revealTargets.forEach(node => io.observe(node));
+} else {
+  revealTargets.forEach(node => node.classList.add('in'));
 }
 
 </script>
