@@ -78,22 +78,22 @@
   body { margin: 0; background: var(--bg); color: var(--ink);
          font: 16px/24px "Rubik", system-ui, -apple-system, "Segoe UI", "Noto Sans Ethiopic", Arial, sans-serif; }
   main { max-width: 720px; margin: 0 auto; padding: 16px 16px 64px; }
-  h1 { margin: 32px 0 24px; font-weight: 400; }
+  h1 { margin: 40px 0 48px; font-weight: 400; }
   h1 .tq { display: block; font-family: "Playpen", "Rubik", system-ui, sans-serif; font-weight: 300; font-size: 40px; line-height: 48px; color: var(--accent); }
-  h1 .ta { display: block; font-family: "Karantina", "Rubik", system-ui, sans-serif; font-weight: 700; font-size: 112px; line-height: 104px; margin-top: -8px; }
+  h1 .ta { display: block; font-family: "Karantina", "Rubik", system-ui, sans-serif; font-weight: 700; font-size: 112px; line-height: 104px; margin-top: -8px; white-space: nowrap; }
   h2 { font-size: 20px; line-height: 28px; margin: 0; }
   h3 { font-size: 16px; margin: 16px 0 8px; }
   p { margin: 0 0 8px; }
   a { color: var(--accent); }
   .muted { color: var(--muted); }
-  .intro { margin-bottom: 48px; }
+  .intro { margin-bottom: 56px; }
   .intro p { margin: 0; }
   /* The three opening lines: tight 1.1 inside a wrapped line, 8px between the lines themselves,
      and plenty of air above (from the title) and below (to the sticker). */
-  .intro .qs { margin: 40px 0; }
+  .intro .qs { margin: 48px 0; }
   .intro .q { font-size: 20px; line-height: 1; font-weight: 300; margin: 0 0 4px; }
   /* The punch line: a tilted marker "sticker". Without motion it simply sits there, dark text on yellow. */
-  .intro .punch { position: relative; z-index: 0; display: inline-block; margin: 0 8px 32px; padding: 0 8px;
+  .intro .punch { position: relative; z-index: 0; display: inline-block; margin: 0 8px 40px; padding: 0 8px; white-space: nowrap;
                   font-size: 40px; line-height: 48px; font-weight: 500; color: var(--on-marker); transform: rotate(-2deg); }
   .intro .punch::before { content: ""; position: absolute; z-index: -1; inset: 4px -8px 0 -8px; background: var(--marker);
                           border-radius: 16px 4px 24px 8px / 8px 16px 8px 16px; transform: skewX(-8deg); }
@@ -124,8 +124,9 @@
   /* The title fonts only have Hebrew and Latin letters. Arabic, Russian and Amharic fall back to wider, taller
      fonts: they need more line height (Arabic marks would touch the line above), and fitLine() steps them down. */
   :lang(ar) h1 .ta, :lang(ru) h1 .ta, :lang(am) h1 .ta { line-height: 136px; margin-top: 0; }
-  h1 .tq, .intro .punch { text-wrap: balance; }
+  h1 .tq { text-wrap: balance; }
   @media (min-width: 600px) {
+    h1, .intro { text-align: center; }
     h1 .tq { font-size: 56px; line-height: 64px; }
     h1 .ta { font-size: 144px; line-height: 136px; }
     .intro .punch { font-size: 48px; line-height: 56px; }
@@ -451,7 +452,7 @@ const REGISTRY_URL = 'https://www.gov.il/he/departments/dynamiccollectors/partie
 const CONTACT_FORM_URL = '';
 // Email for "write to us". Kept reversed, so it isn't a plain string in the page source. This keeps it out of casual
 // scraping only: anyone who reads the script can still reverse it. Empty = no email button.
-const CONTACT_MAIL_REVERSED = 'moc.liamg@1medeknayaaM';
+const CONTACT_MAIL_REVERSED = '';
 const contactMail = () => [...CONTACT_MAIL_REVERSED].reverse().join('');
 const PPA_EMAIL = 'ppa@justice.gov.il';
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -1074,12 +1075,25 @@ function lineCount(node) {
   const gap = parseFloat(getComputedStyle(node).fontSize) * 0.4;
   return tops.filter((top, i) => i === 0 || top - tops[i - 1] > gap).length;
 }
+// For text that must stay on one line: shrink until the text itself fits the column.
+function fitOneLine(node, min) {
+  node.style.fontSize = node.style.lineHeight = '';
+  const cs = getComputedStyle(node);
+  let size = parseFloat(cs.fontSize);
+  const ratio = parseFloat(cs.lineHeight) / size;
+  const room = node.parentElement.clientWidth - 16;
+  const range = document.createRange();
+  range.selectNodeContents(node);
+  while (size > min && range.getBoundingClientRect().width > room) {
+    size -= 4;
+    node.style.fontSize = `${size}px`;
+    node.style.lineHeight = `${Math.round((size * ratio) / 4) * 4}px`;
+  }
+}
 function fitTitle() {
   fitLine(document.querySelector('h1 .tq'), 32, 2);
-  fitLine(document.querySelector('h1 .ta'), 48);
-  // A punch line that can't fit on one line keeps its full size and wraps (balanced): two big lines hit harder.
-  const punch = document.querySelector('.intro .punch');
-  if (!fitLine(punch, 32)) punch.style.fontSize = punch.style.lineHeight = '';
+  fitOneLine(document.querySelector('h1 .ta'), 48);
+  fitOneLine(document.querySelector('.intro .punch'), 24);
 }
 fitTitle();
 document.fonts?.ready.then(fitTitle);
