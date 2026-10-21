@@ -46,17 +46,17 @@
   :root {
     --bg: #F7F8FC; --card: #FFFFFF; --line: #DCE2EE; --ink: #0B1B3A; --muted: #4A5670;
     --accent: #0038B8; --on-accent: #FFFFFF; --marker: #FFC72C; --on-marker: #0B1B3A;
-    --highlight: #FFFBEA; --error: #B3261E; --error-bg: #FDECEA; --fine: #646D83; --logo-loop: #0038B8;
+    --highlight: #FFFBEA; --error: #B3261E; --error-bg: #FDECEA; --fine: #646D83; --logo-loop: #0038B8; --sky: #DCEEFB;
   }
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
       --bg: #0B1630; --card: #13224A; --line: #2A3B66; --ink: #EEF2FF; --muted: #AAB4CC;
-      --accent: #8FB0FF; --on-accent: #0B1630; --highlight: #2E2A12; --error: #FF9A8F; --error-bg: #3A1A24; --fine: #77829E; --logo-loop: #FFC72C;
+      --accent: #8FB0FF; --on-accent: #0B1630; --highlight: #2E2A12; --error: #FF9A8F; --error-bg: #3A1A24; --fine: #77829E; --sky: #1B3358; --logo-loop: #FFC72C;
     }
   }
   :root[data-theme="dark"] {
     --bg: #0B1630; --card: #13224A; --line: #2A3B66; --ink: #EEF2FF; --muted: #AAB4CC;
-    --accent: #8FB0FF; --on-accent: #0B1630; --highlight: #2E2A12; --error: #FF9A8F; --error-bg: #3A1A24; --fine: #77829E; --logo-loop: #FFC72C;
+    --accent: #8FB0FF; --on-accent: #0B1630; --highlight: #2E2A12; --error: #FF9A8F; --error-bg: #3A1A24; --fine: #77829E; --sky: #1B3358; --logo-loop: #FFC72C;
   }
 
   /* Type scale on the 8px grid: 48/48 title, 24/32 punch line, 20/28 section titles, 16/24 everything else. */
@@ -90,7 +90,7 @@
   .intro p { margin: 0; }
   /* The three opening lines: tight 1.1 inside a wrapped line, 8px between the lines themselves,
      and plenty of air above (from the title) and below (to the sticker). */
-  .intro .qs { margin: 48px 0; }
+  .intro .qs { margin: 0 0 40px; }
   .intro .q { font-size: 20px; line-height: 1; font-weight: 300; margin: 0 0 4px; }
   /* The punch line: a tilted marker "sticker". Without motion it simply sits there, dark text on yellow. */
   .intro .punch { position: relative; z-index: 0; display: inline-block; margin: 0 8px 40px; padding: 0 8px; white-space: nowrap;
@@ -110,9 +110,10 @@
   .motion .intro .punch.in::before, .motion .intro .punch.in::after { clip-path: inset(-8px -16px -8px -16px); }
 
   /* Reveals: things arrive one after another (--d is set per element by JS), and below the fold as you scroll. */
-  .motion .reveal { opacity: 0; translate: 0 12px;
-                    transition: opacity .7s ease var(--d, 0ms), translate .8s cubic-bezier(.2, .8, .2, 1) var(--d, 0ms); }
-  .motion .reveal.in { opacity: 1; translate: 0 0; }
+  .motion .intro .body, .motion .intro .q, .motion .intro .punch, .motion main > details.panel, .motion footer {
+    opacity: 0; translate: 0 12px;
+    transition: opacity .7s ease var(--d, 0ms), translate .8s cubic-bezier(.2, .8, .2, 1) var(--d, 0ms); }
+  .motion .in { opacity: 1; translate: 0 0; }
 
   /* Opening sequence (see <head>). --write is set by JS to the writing duration. */
   .intro-anim h1 .tq:not(.written) { visibility: hidden; }
@@ -120,7 +121,7 @@
   @keyframes ink { to { opacity: 1; } }
   .intro-anim h1 .ta { animation: pop .5s cubic-bezier(.3, 1.6, .5, 1) calc(var(--write, 1200ms) + 1600ms) both; }
   @keyframes pop { from { opacity: 0; transform: scale(.6); } }
-  .intro .body { color: var(--muted); }
+  .intro .body { color: var(--muted); margin: 0 0 40px; padding: 16px; border-radius: 8px; background: var(--sky); }
   /* The title fonts only have Hebrew and Latin letters. Arabic, Russian and Amharic fall back to wider, taller
      fonts: they need more line height (Arabic marks would touch the line above), and fitLine() steps them down. */
   :lang(ar) h1 .ta, :lang(ru) h1 .ta, :lang(am) h1 .ta { line-height: 136px; margin-top: 0; }
@@ -281,13 +282,13 @@
 
   <h1><span class="tq" data-t="titleQ"></span><span class="ta" data-t="titleA"></span></h1>
   <div class="intro">
+    <p class="body" data-t="introBody"></p>
     <div class="qs">
       <p class="q" data-t="introQ"></p>
       <p class="q" data-t="introMaybe"></p>
       <p class="q" data-t="introNo"></p>
     </div>
     <p class="punch" data-t="introPunch"></p>
-    <p class="body" data-t="introBody"></p>
   </div>
 
   <details class="panel" id="p-form">
@@ -422,13 +423,11 @@ const details = load('party-deletion-details', {});     // name, phone, address
 const SAVED_FIELDS = ['f-name', 'f-phone', 'f-address'];
 
 // ---- Language and theme ----
-// Hebrew unless the user picked another language: many Israelis run their phone in English.
-// A ?lang=xx link wins (reviewers, sharing into a language community); then the saved choice; then Hebrew.
+// Always opens in Hebrew: this is an Israeli election page, and a saved choice would leak to whoever uses the
+// same browser next. A ?lang=xx link opens that language (reviewers, sharing into a language community).
 function initialLang() {
   const fromLink = new URLSearchParams(location.search).get('lang');
-  if (fromLink && I18N.languages[fromLink]) return fromLink;
-  const saved = load('party-deletion-lang', null);
-  return saved && I18N.languages[saved] ? saved : 'he';
+  return fromLink && I18N.languages[fromLink] ? fromLink : 'he';
 }
 let lang = initialLang();
 const t = (key, vars = {}) => I18N.ui[lang][key].replace(/\{(\w+)\}/g, (_, k) => vars[k]);
@@ -912,7 +911,6 @@ Object.entries(I18N.languages).filter(([, meta]) => !meta.hidden).forEach(([code
   const b = el('button', { type: 'button', lang: code, textContent: meta.name });
   b.addEventListener('click', () => {
     lang = code;
-    save('party-deletion-lang', lang);
     applyStaticText();
     fitTitle();
     renderErrors(false);
@@ -1043,7 +1041,7 @@ function fitOneLine(node, min) {
 function fitTitle() {
   fitLine(document.querySelector('h1 .tq'), 32, 2);
   fitOneLine(document.querySelector('h1 .ta'), 48);
-  fitOneLine(document.querySelector('.intro .punch'), 24);
+  fitOneLine(document.querySelector('.intro .punch'), 20);
 }
 fitTitle();
 document.fonts?.ready.then(fitTitle);
@@ -1065,12 +1063,18 @@ function runIntro() {
 }
 const titleTime = document.documentElement.classList.contains('intro-anim') ? runIntro() : 0;
 
-// One after another: every element in view when it first appears gets a 150ms-stepped delay. The first batch
-// waits for the title sequence; later batches (reached by scrolling) start right away.
+// The opening, in reading order, one after another: explanation, the three lines, the punch line. They start
+// when the title sequence ends and do not wait for scrolling.
+if (document.documentElement.classList.contains('motion')) {
+  document.querySelectorAll('.intro .body, .intro .q, .intro .punch').forEach((node, i) => {
+    node.style.setProperty('--d', `${titleTime + i * 280}ms`);
+    setTimeout(() => node.classList.add('in'), 50);
+  });
+}
+// Everything below the opening arrives as it scrolls into view, one after another.
 if (document.documentElement.classList.contains('motion') && 'IntersectionObserver' in window) {
-  const targets = document.querySelectorAll('.intro .q, .intro .punch, .intro .body, main > details.panel, footer');
-  targets.forEach(node => node.classList.add('reveal'));
-  let base = titleTime;
+  const targets = document.querySelectorAll('main > details.panel, footer');
+  let base = 0;
   const io = new IntersectionObserver(entries => {
     entries.filter(e => e.isIntersecting).forEach((e, i) => {
       e.target.style.setProperty('--d', `${base + i * 280}ms`);
