@@ -202,6 +202,7 @@
                   border: 1px solid var(--line); background: var(--bg); color: var(--ink);
                   text-decoration: none; display: inline-flex; align-items: center; justify-content: center; }
   button.primary, a.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); font-weight: 600; }
+  a.btn.outline { background: transparent; border-color: var(--accent); color: var(--accent); font-weight: 600; }
   a.btn.disabled { opacity: .5; pointer-events: none; }
   .linkish { background: none; border: none; padding: 0 8px; min-height: 40px; color: var(--accent); text-decoration: underline;
              display: inline-flex; align-items: center; }
@@ -219,7 +220,9 @@
   .who[open] > summary::after { content: "▴"; }
   ul.lists { list-style: none; margin: 0; padding: 0; }
   ul.lists > li { padding: 16px 8px; border-top: 1px solid var(--line); }
-  ul.lists > li.next { background: var(--highlight); border-radius: 8px; border-inline-start: 4px solid var(--marker); }
+  /* The list being worked on now: a lifted card with a blue outline; only its send button is filled. */
+  ul.lists > li.next { background: var(--card); border: 2px solid var(--accent); border-radius: 12px;
+                       box-shadow: 0 8px 24px rgb(0 56 184 / .10); }
   .row { display: flex; justify-content: space-between; align-items: center; gap: 16px; }
   .row label { display: flex; align-items: center; gap: 8px; }
   .row input[type=checkbox] { width: 24px; height: 24px; accent-color: var(--accent); }
@@ -330,7 +333,7 @@
         <p class="q" data-t="introMaybe"></p>
         <p class="q" data-t="introNo"></p>
       </div>
-      <p class="body" data-t="introBody"></p>
+      <p class="body" id="intro-body" data-t="introBody"></p>
     </div>
   </div>
 
@@ -405,14 +408,6 @@
     </div>
   </details>
 
-  <details class="panel" id="p-a11y">
-    <summary><h2 class="ptitle" data-t="a11yTitle"></h2></summary>
-    <div class="pbody">
-      <p data-t="a11yBody"></p>
-      <p><span data-t="a11yContact"></span> <a href="https://github.com/nadavbh12/party-spam/issues" target="_blank" rel="noopener" data-t="a11yContactLink"></a></p>
-      <p class="muted" data-t="a11yUpdated"></p>
-    </div>
-  </details>
 
   <details class="panel" id="p-legal">
     <summary><h2 class="ptitle" data-t="legalTitle"></h2></summary>
@@ -442,6 +437,8 @@ const I18N = DATA.i18n;
 const SITE_URL = 'https://nadavbh12.github.io/party-spam/';
 const SOURCE_URL = 'https://github.com/nadavbh12/party-spam';
 const REGISTRY_URL = 'https://www.gov.il/he/departments/dynamiccollectors/parties-db';
+// Privacy Protection Authority guideline 2/2017 on direct mail, which explains the section 17ו right to be deleted.
+const LAW_URL = 'https://www.gov.il/he/pages/direct_mail_2';
 // Google Form for suggestions and help requests. Empty = the contact line stays hidden.
 const CONTACT_FORM_URL = '';
 // Email for "write to us". Kept reversed, so it isn't a plain string in the page source. This keeps it out of casual
@@ -473,7 +470,7 @@ function initialLang() {
   return fromLink && I18N.languages[fromLink] ? fromLink : 'he';
 }
 let lang = initialLang();
-const t = (key, vars = {}) => I18N.ui[lang][key].replace(/\{(\w+)\}/g, (_, k) => vars[k]);
+const t = (key, vars = {}) => I18N.ui[lang][key].replace(/\{(\w+)\}/g, (m, k) => vars[k] ?? m);
 const listName = title => (lang === 'he' ? title : I18N.lists[lang][title]);
 const formatDate = iso => new Date(iso).toLocaleDateString(I18N.languages[lang].locale);
 const today = () => new Date().toISOString().slice(0, 10);
@@ -612,9 +609,9 @@ function withIcon(node, name) {
   return node;
 }
 
-function sendLink(text, units, source, { primary = false, gmail = false } = {}) {
-  const a = el('a', { className: primary ? 'btn primary' : 'linkish', textContent: text, href: '#' });
-  if (primary) withIcon(a, 'send');
+function sendLink(text, units, source, { primary = false, outline = false, gmail = false } = {}) {
+  const a = el('a', { className: primary ? 'btn primary' : outline ? 'btn outline' : 'linkish', textContent: text, href: '#' });
+  if (primary || outline) withIcon(a, 'send');
   else if (gmail) withIcon(a, 'mail');
   if (gmail) { a.target = '_blank'; a.rel = 'noopener'; }
   a.addEventListener('click', ev => openSend(ev, a, units, source, gmail));
@@ -662,7 +659,8 @@ function celebrate() {
 function copyButton(units) {
   const b = withIcon(el('button', { type: 'button', className: 'linkish', textContent: t('copy') }), 'copy');
   b.addEventListener('click', async () => {
-    if (!units.length || !requireValidForm()) return;
+    const formEmpty = ['f-name', 'f-id', 'f-phone', 'f-address'].every(id => !value(id));
+    if (!units.length || (!formEmpty && !requireValidForm())) return;
     const text = `${emailsOf(units).join(', ')}\n${SUBJECT}\n\n${letterText('he', partiesOf(units))}`;
     try { await navigator.clipboard.writeText(text); b.textContent = t('copied'); }
     catch (e) { b.textContent = t('copyFailed'); }
@@ -800,7 +798,7 @@ function unitRow(unit, isNext) {
   } else if (pending?.source === 'row' && pending.titles.includes(unit.title)) {
     actions.append(confirmBox(t('confirmQ')));
   } else if (!choosing && !queue && unit.emails.length) {
-    head.append(sendLink(PREFER_GMAIL ? t('gmailPrimary') : t('send'), [unit], 'row', { primary: true, gmail: PREFER_GMAIL }));
+    head.append(sendLink(PREFER_GMAIL ? t('gmailPrimary') : t('send'), [unit], 'row', { primary: isNext, outline: !isNext, gmail: PREFER_GMAIL }));
     if (!PREFER_GMAIL) actions.append(sendLink(t('gmail'), [unit], 'row', { gmail: true }));
     actions.append(copyButton([unit]));
   }
@@ -874,6 +872,9 @@ function applyStaticText() {
   document.querySelectorAll('[data-t]').forEach(node => { node.textContent = t(node.dataset.t); });
   document.querySelectorAll('[data-not-he]').forEach(node => { node.hidden = lang === 'he'; });
   $('id-why').setAttribute('aria-label', t('idWhy'));
+  const [lawBefore, lawAfter] = t('introBody', { law: '\u0000' }).split('\u0000');
+  $('intro-body').replaceChildren(lawBefore,
+    el('a', { href: LAW_URL, target: '_blank', rel: 'noopener', textContent: t('lawRef') }), lawAfter);
   $('hero-art').setAttribute('aria-label', t('artLabel'));
   fitBubbles();
   document.querySelectorAll('#lang-menu button').forEach(b => b.setAttribute('aria-current', String(b.lang === lang)));
@@ -933,7 +934,7 @@ function voiceFor(code) {
   return speech.getVoices().find(v => prefixes.some(p => v.lang.toLowerCase().startsWith(p))) || null;
 }
 function readAloudText() {
-  const parts = ['title', 'introQ', 'introMaybe', 'introNo', 'introBody'].map(k => t(k));
+  const parts = ['title', 'introQ', 'introMaybe', 'introNo', 'introBody'].map(k => t(k, { law: t('lawRef') }));
   parts.push(queue ? $('bulk').innerText : t('afterSendNote'));
   return parts.join('\n');
 }
