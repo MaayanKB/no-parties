@@ -205,7 +205,9 @@
                   border: 1px solid var(--line); background: var(--bg); color: var(--ink);
                   text-decoration: none; display: inline-flex; align-items: center; justify-content: center; }
   button.primary, a.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); font-weight: 600; }
-  a.btn.outline { background: transparent; border-color: var(--accent); color: var(--accent); font-weight: 600; }
+  button.outline, a.btn.outline { background: transparent; border-color: var(--accent); color: var(--accent); font-weight: 600; }
+  .sheet-actions { display: flex; flex-direction: column; gap: 8px; }
+  .sheet-actions button { width: 100%; }
   a.btn.disabled { opacity: .5; pointer-events: none; }
   .linkish { background: none; border: none; padding: 0 8px; min-height: 40px; color: var(--accent); text-decoration: underline;
              display: inline-flex; align-items: center; }
@@ -438,6 +440,22 @@
   <p><span data-t="a11yContact"></span> <a href="https://github.com/nadavbh12/party-spam/issues" target="_blank" rel="noopener" data-t="a11yContactLink"></a></p>
   <p class="muted" data-t="a11yUpdated"></p>
 </dialog>
+<dialog class="sheet" id="dlg-blanks" aria-labelledby="dlg-blanks-title">
+  <div class="sheet-head"><h2 id="dlg-blanks-title" data-t="blanksTitle"></h2><button type="button" class="icon-btn sheet-close" data-close>×</button></div>
+  <p data-t="blanksBody"></p>
+  <div class="sheet-actions">
+    <button type="button" class="primary" data-choice="continue" data-t="blanksContinue"></button>
+    <button type="button" data-choice="fill" data-t="blanksFill"></button>
+  </div>
+</dialog>
+<dialog class="sheet" id="dlg-method" aria-labelledby="dlg-method-title">
+  <div class="sheet-head"><h2 id="dlg-method-title" data-t="methodTitle"></h2><button type="button" class="icon-btn sheet-close" data-close>×</button></div>
+  <div class="sheet-actions">
+    <button type="button" class="primary" id="method-app" data-choice="app" data-icon="send" data-t="methodApp"></button>
+    <button type="button" data-choice="gmail" data-icon="mail" data-t="methodGmail"></button>
+    <button type="button" data-choice="copy" data-icon="copy" data-t="methodCopy"></button>
+  </div>
+</dialog>
 <dialog class="sheet" id="dlg-legal" aria-labelledby="dlg-legal-title">
   <div class="sheet-head"><h2 id="dlg-legal-title" data-t="legalTitle"></h2><button type="button" class="icon-btn sheet-close" data-close>×</button></div>
   <p data-t="legalP1"></p>
@@ -571,7 +589,7 @@ function letterText(letterLang, parties) {
   // and keeps the mailto link short enough for mail clients that truncate long links.
   const lines = [
     L.to,
-    parties.map(p => fill(L.partyLine, { name: p.short_name, number: p.number })).join(', '),
+    parties.length ? parties.map(p => fill(L.partyLine, { name: p.short_name, number: p.number })).join(', ') : '_'.repeat(24),
     '', L.re, '',
     fill(L.intro, { name, idPart: value('f-id') ? fill(L.idPart, { id: value('f-id') }) : '' }),
     L.demand, ...L.items, '', L.also, L.ask, '', L.identify,
@@ -617,14 +635,55 @@ function el(tag, props = {}, children = []) {
   return node;
 }
 
-// Opens the email for `units` from a click on link `a`. Validates first and builds the URL at click
-// time, so it always carries the latest details. Returns false when the send did not start.
-function openSend(ev, a, units, source, gmail = false) {
-  if (!units.length || !requireValidForm()) { ev.preventDefault(); return false; }
-  a.href = gmail ? gmailUrl(units) : mailtoUrl(units);
-  copySafetyNet(units);
+// Sending goes through up to two popups, each asked once per visit: with an empty form, one explains that the
+// email opens with blanks to fill in; then the user picks how to send (mail app, Gmail, or copy the letter).
+// Details that were typed in must be valid. `onStarted` runs just before the email opens.
+let sendMethod = null;        // 'app' | 'gmail' | 'copy'
+let blanksAccepted = false;
+const formEmpty = () => ['f-name', 'f-id', 'f-phone', 'f-address'].every(id => !value(id));
+
+function startSend(units, source, onStarted = () => {}) {
+  if (!units.length) return;
+  if (!formEmpty() && !requireValidForm()) return;
+  if (formEmpty() && !blanksAccepted) {
+    askDialog('dlg-blanks', choice => {
+      if (choice === 'fill') return openForm();
+      blanksAccepted = true;
+      startSend(units, source, onStarted);
+    });
+    return;
+  }
+  if (!sendMethod) {
+    askDialog('dlg-method', choice => { sendMethod = choice; startSend(units, source, onStarted); });
+    return;
+  }
+  onStarted();
+  deliver(units, source, sendMethod);
+}
+
+function deliver(units, source, method) {
+  if (method === 'copy') {
+    const text = `${emailsOf(units).join(', ')}\n${SUBJECT}\n\n${letterText('he', partiesOf(units))}`;
+    navigator.clipboard?.writeText(text).then(() => showToast(undefined, t('copiedAll'))).catch(() => {});
+  } else {
+    if (method === 'gmail') window.open(gmailUrl(units), '_blank', 'noopener');
+    else location.href = mailtoUrl(units);
+    copySafetyNet(units);
+  }
   setTimeout(() => setPending(units, source), 0);
-  return true;
+}
+
+function openForm() {
+  $('p-form').open = true;
+  $('f-name').focus();
+  $('fld-name').scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+// A popup with choice buttons (data-choice); the callback gets the chosen value. ×, Esc or outside: nothing.
+let dialogChoice = null;
+function askDialog(id, onChoice) {
+  dialogChoice = onChoice;
+  $(id).showModal();
 }
 
 function withIcon(node, name) {
@@ -632,17 +691,15 @@ function withIcon(node, name) {
   return node;
 }
 
-function sendLink(text, units, source, { primary = false, outline = false, gmail = false } = {}) {
-  const a = el('a', { className: primary ? 'btn primary' : outline ? 'btn outline' : 'linkish', textContent: text, href: '#' });
-  if (primary || outline) withIcon(a, 'send');
-  else if (gmail) withIcon(a, 'mail');
-  if (gmail) { a.target = '_blank'; a.rel = 'noopener'; }
-  a.addEventListener('click', ev => openSend(ev, a, units, source, gmail));
-  return a;
+function sendButton(text, units, source, { primary = false, outline = false } = {}) {
+  const b = el('button', { type: 'button', className: primary ? 'primary' : outline ? 'outline' : 'linkish', textContent: text });
+  if (primary || outline) withIcon(b, 'send');
+  b.addEventListener('click', () => startSend(units, source));
+  return b;
 }
 
 // Windows hands mailto links to desktop mail apps (Outlook and the like) through a ~2,000-character
-// limit and cuts the rest silently. The letter is longer than that, so on Windows the page offers
+// limit and cuts the rest silently. The letter is longer than that, so on Windows the send popup offers
 // Gmail and copy only, never the desktop mail app. Phones and Macs have no such limit.
 const PREFER_GMAIL = /Windows/i.test(navigator.userAgent);
 
@@ -679,18 +736,6 @@ function celebrate() {
   meter.classList.add('pulse');
 }
 
-function copyButton(units) {
-  const b = withIcon(el('button', { type: 'button', className: 'linkish', textContent: t('copy') }), 'copy');
-  b.addEventListener('click', async () => {
-    const formEmpty = ['f-name', 'f-id', 'f-phone', 'f-address'].every(id => !value(id));
-    if (!units.length || (!formEmpty && !requireValidForm())) return;
-    const text = `${emailsOf(units).join(', ')}\n${SUBJECT}\n\n${letterText('he', partiesOf(units))}`;
-    try { await navigator.clipboard.writeText(text); b.textContent = t('copied'); }
-    catch (e) { b.textContent = t('copyFailed'); }
-  });
-  return b;
-}
-
 function confirmBox(question) {
   const yes = el('button', { type: 'button', className: 'primary', textContent: t('yes') });
   const no = el('button', { type: 'button', textContent: t('notYet') });
@@ -708,18 +753,17 @@ let queue = load('party-deletion-queue', null);   // {titles, i}
 function saveQueue() { save('party-deletion-queue', queue); }
 const queueUnit = i => UNITS.find(u => u.title === queue.titles[i]);
 
-// The main button of the sequence: mail app, or Gmail in a new tab on Windows.
-function primaryAnchor(text) {
-  const a = withIcon(el('a', { className: 'btn primary', href: '#', textContent: text }), 'send');
-  if (PREFER_GMAIL) { a.target = '_blank'; a.rel = 'noopener'; }
-  return a;
+// The main button of the sequence.
+function primaryButton(text) {
+  return withIcon(el('button', { type: 'button', className: 'primary block', textContent: text }), 'send');
 }
 
-function startQueue(ev, a, units) {
-  queue = { titles: units.map(u => u.title), i: 0 };
-  if (!openSend(ev, a, [units[0]], 'queue', PREFER_GMAIL)) { queue = null; return; }
-  choosing = false;
-  saveQueue();
+function startQueue(units) {
+  startSend([units[0]], 'queue', () => {
+    queue = { titles: units.map(u => u.title), i: 0 };
+    choosing = false;
+    saveQueue();
+  });
 }
 
 function endQueue() {
@@ -729,12 +773,12 @@ function endQueue() {
   render();
 }
 
-function advanceQueue(ev, a, markCurrent) {
+function advanceQueue(markCurrent) {
   const current = queueUnit(queue.i);
   if (markCurrent) { markSent([current]); celebrate(); }
   queue.i += 1;
   saveQueue();
-  openSend(ev, a, [queueUnit(queue.i)], 'queue', PREFER_GMAIL);
+  startSend([queueUnit(queue.i)], 'queue');
 }
 
 function renderQueueStep(box) {
@@ -746,12 +790,12 @@ function renderQueueStep(box) {
     el('p', { className: 'progress', textContent: t('queueStep', { i: queue.i + 1, n, list: listName(current.title) }) }),
   ];
   if (!opened) {
-    parts.push(sendLink(t('queueOpen'), [current], 'queue', { primary: true, gmail: PREFER_GMAIL }));
+    parts.push(sendButton(t('queueOpen'), [current], 'queue', { primary: true }));
   } else {
     parts.push(el('p', { className: 'muted', textContent: t('queueHint') }));
     if (next) {
-      const yes = primaryAnchor(t('queueYesNext', { list: listName(next.title) }));
-      yes.addEventListener('click', ev => advanceQueue(ev, yes, true));
+      const yes = primaryButton(t('queueYesNext', { list: listName(next.title) }));
+      yes.addEventListener('click', () => advanceQueue(true));
       parts.push(yes);
     } else {
       const done = withIcon(el('button', { type: 'button', className: 'primary block', textContent: t('queueYesDone') }), 'check');
@@ -759,11 +803,11 @@ function renderQueueStep(box) {
       parts.push(done);
     }
   }
-  const extra = PREFER_GMAIL ? [] : [sendLink(t('gmail'), [current], 'queue', { gmail: true })];
-  if (opened) extra.push(sendLink(t('queueReopen'), [current], 'queue', { gmail: PREFER_GMAIL }));
+  const extra = [];
+  if (opened) extra.push(sendButton(t('queueReopen'), [current], 'queue'));
   if (next) {
-    const skip = withIcon(el('a', { className: 'linkish', href: '#', textContent: t('queueSkip') }), 'skip');
-    skip.addEventListener('click', ev => advanceQueue(ev, skip, false));
+    const skip = withIcon(el('button', { type: 'button', className: 'linkish', textContent: t('queueSkip') }), 'skip');
+    skip.addEventListener('click', () => advanceQueue(false));
     extra.push(skip);
   }
   const stop = withIcon(el('button', { type: 'button', className: 'linkish', textContent: t('queueStop') }), 'stop');
@@ -782,16 +826,16 @@ function renderBulk() {
     box.replaceChildren();
   } else if (choosing) {
     const picked = left.filter(u => chosen.has(u.title));
-    const start = primaryAnchor(t('queueStartChosen', { n: picked.length }));
-    if (!picked.length) start.classList.add('disabled');
-    start.addEventListener('click', ev => startQueue(ev, start, picked));
+    const start = primaryButton(t('queueStartChosen', { n: picked.length }));
+    start.disabled = !picked.length;
+    start.addEventListener('click', () => startQueue(picked));
     const cancel = el('button', { type: 'button', className: 'linkish', textContent: t('cancelChoose') });
     cancel.addEventListener('click', () => { choosing = false; render(); });
     box.replaceChildren(start, el('div', { className: 'actions' }, [cancel]));
   } else {
     const all = left.length === UNITS.filter(u => u.emails.length).length;
-    const start = primaryAnchor(all ? t('queueStart') : t('queueStartRemaining', { n: left.length }));
-    start.addEventListener('click', ev => startQueue(ev, start, left));
+    const start = primaryButton(all ? t('queueStart') : t('queueStartRemaining', { n: left.length }));
+    start.addEventListener('click', () => startQueue(left));
     const choose = el('button', { type: 'button', className: 'linkish', textContent: t('choose') });
     choose.addEventListener('click', () => { choosing = true; chosen = new Set(left.map(u => u.title)); render(); });
     box.replaceChildren(start, el('div', { className: 'actions' }, [choose]));
@@ -821,9 +865,7 @@ function unitRow(unit, isNext) {
   } else if (pending?.source === 'row' && pending.titles.includes(unit.title)) {
     actions.append(confirmBox(t('confirmQ')));
   } else if (!choosing && !queue && unit.emails.length) {
-    head.append(sendLink(PREFER_GMAIL ? t('gmailPrimary') : t('send'), [unit], 'row', { primary: isNext, outline: !isNext, gmail: PREFER_GMAIL }));
-    if (!PREFER_GMAIL) actions.append(sendLink(t('gmail'), [unit], 'row', { gmail: true }));
-    actions.append(copyButton([unit]));
+    head.append(sendButton(t('send'), [unit], 'row', { primary: isNext, outline: !isNext }));
   }
 
   const recipients = el('ul', { className: 'recipients' }, unit.parties.map(p => el('li', {
@@ -892,6 +934,13 @@ document.querySelectorAll('[data-dialog]').forEach(b => b.addEventListener('clic
 document.querySelectorAll('dialog.sheet').forEach(d => {
   d.addEventListener('click', ev => { if (ev.target === d || ev.target.closest('[data-close]')) d.close(); });
 });
+document.querySelectorAll('[data-choice]').forEach(b => b.addEventListener('click', () => {
+  const onChoice = dialogChoice;
+  dialogChoice = null;
+  b.closest('dialog').close();
+  onChoice?.(b.dataset.choice);
+}));
+$('method-app').hidden = PREFER_GMAIL;
 
 function applyStaticText() {
   const meta = I18N.languages[lang];
@@ -942,9 +991,9 @@ function render() {
   const errors = validateForm(formValues());
   $('form-summary').textContent = Object.keys(errors).length ? '' : [value('f-name'), value('f-phone')].filter(Boolean).join(' · ');
 
-  const preview = pending ? partiesOf(unitsByTitle(pending.titles)) : UNITS[0].parties;
-  $('letter-he').textContent = letterText('he', preview);
-  $('letter-tr').textContent = letterText(lang, preview);
+  // The preview leaves the addressee blank; each email fills in its own list.
+  $('letter-he').textContent = letterText('he', []);
+  $('letter-tr').textContent = letterText(lang, []);
   $('letter-tr').dir = I18N.languages[lang].dir;
 
   const doneWasHidden = $('p-done').hidden;
