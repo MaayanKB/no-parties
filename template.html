@@ -46,17 +46,17 @@
   :root {
     --bg: #F7F8FC; --card: #FFFFFF; --line: #DCE2EE; --ink: #0B1B3A; --muted: #4A5670;
     --accent: #0038B8; --on-accent: #FFFFFF; --marker: #FFC72C; --on-marker: #0B1B3A;
-    --highlight: #FFFBEA; --error: #B3261E; --error-bg: #FDECEA; --fine: #646D83; --logo-loop: #0038B8; --sky: #DCEEFB; --dots: #0038B8; --band: linear-gradient(180deg, #DCEEFB 0%, #DCEEFB 50%, #F7F8FC 100%);
+    --highlight: #FFFBEA; --error: #B3261E; --error-bg: #FDECEA; --fine: #646D83; --logo-loop: #0038B8; --sky: #DCEEFB; --dots: #0038B8; --paper: #FFF8E8; --paper-line: #EADFC4; --paper-sheet: #FFFFFF; --band: linear-gradient(180deg, #DCEEFB 0%, #DCEEFB 50%, #F7F8FC 100%);
   }
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
       --bg: #0B1630; --card: #13224A; --line: #2A3B66; --ink: #EEF2FF; --muted: #AAB4CC;
-      --accent: #8FB0FF; --on-accent: #0B1630; --highlight: #2E2A12; --error: #FF9A8F; --error-bg: #3A1A24; --fine: #77829E; --sky: #1B3358; --dots: #FFC72C; --band: linear-gradient(180deg, #24427A 0%, #13224A 50%, #0B1630 100%); --logo-loop: #FFC72C;
+      --accent: #8FB0FF; --on-accent: #0B1630; --highlight: #2E2A12; --error: #FF9A8F; --error-bg: #3A1A24; --fine: #77829E; --sky: #1B3358; --dots: #FFC72C; --paper: #24211A; --paper-line: #3D372A; --paper-sheet: #2E2A21; --band: linear-gradient(180deg, #24427A 0%, #13224A 50%, #0B1630 100%); --logo-loop: #FFC72C;
     }
   }
   :root[data-theme="dark"] {
     --bg: #0B1630; --card: #13224A; --line: #2A3B66; --ink: #EEF2FF; --muted: #AAB4CC;
-    --accent: #8FB0FF; --on-accent: #0B1630; --highlight: #2E2A12; --error: #FF9A8F; --error-bg: #3A1A24; --fine: #77829E; --sky: #1B3358; --dots: #FFC72C; --band: linear-gradient(180deg, #24427A 0%, #13224A 50%, #0B1630 100%); --logo-loop: #FFC72C;
+    --accent: #8FB0FF; --on-accent: #0B1630; --highlight: #2E2A12; --error: #FF9A8F; --error-bg: #3A1A24; --fine: #77829E; --sky: #1B3358; --dots: #FFC72C; --paper: #24211A; --paper-line: #3D372A; --paper-sheet: #2E2A21; --band: linear-gradient(180deg, #24427A 0%, #13224A 50%, #0B1630 100%); --logo-loop: #FFC72C;
   }
 
   /* Type scale on the 8px grid: the title, 18/28 opening text, 20/28 section titles, 16/24 everything else. */
@@ -174,6 +174,8 @@
   .icon-btn::before { margin: 0; }
 
   details.panel { background: var(--card); border: 1px solid var(--line); border-radius: 8px; margin-top: 24px; }
+  details.panel#p-letter { background: var(--paper); border-color: var(--paper-line); }
+  #p-letter pre.letter { background: var(--paper-sheet); border-color: var(--paper-line); }
   details.panel > summary { list-style: none; cursor: pointer; padding: 16px; display: flex;
                             justify-content: space-between; align-items: center; gap: 16px; min-height: 56px; }
   details.panel > summary::-webkit-details-marker { display: none; }
@@ -247,6 +249,15 @@
   .tip.open { display: block; }
   @media (hover: hover) { .tip-btn:hover ~ .tip, .tip-btn:focus-visible ~ .tip { display: block; } }
   footer { margin-top: 24px; }
+  .footer-links { display: flex; flex-wrap: wrap; gap: 8px 16px; margin-top: 16px; }
+  .footer-links .linkish, .footer-links a { padding: 0; min-height: 40px; display: inline-flex; align-items: center; }
+  /* Popups for the accessibility statement and the legal notice. */
+  dialog.sheet { width: calc(100% - 32px); max-width: 560px; border: 0; border-radius: 16px; padding: 24px;
+                 background: var(--card); color: var(--ink); box-shadow: 0 24px 64px rgb(11 27 58 / .3); }
+  dialog.sheet::backdrop { background: rgb(11 22 48 / .5); }
+  dialog.sheet p { margin: 0 0 16px; }
+  .sheet-head { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 16px; }
+  .sheet-close { font-size: 24px; line-height: 1; }
   .contact { margin-top: 24px; }
   footer .fine { margin-top: 24px; color: var(--fine); }
   .toast { position: fixed; inset: auto 16px 16px 16px; max-width: 688px; margin: 0 auto; padding: 16px;
@@ -409,19 +420,29 @@
   </details>
 
 
-  <details class="panel" id="p-legal">
-    <summary><h2 class="ptitle" data-t="legalTitle"></h2></summary>
-    <div class="pbody">
-      <p data-t="legalP1"></p>
-      <p data-t="legalP2"></p>
-      <p data-t="legalP3"></p>
-    </div>
-  </details>
 
   <p class="contact" id="contact" hidden><span data-t="contactPrompt"></span> <a id="contact-link" target="_blank" rel="noopener" data-t="contactLink" hidden></a> <button type="button" class="linkish" id="contact-mail" data-t="contactLink" hidden></button></p>
 
   <footer class="muted" id="footer"></footer>
+  <nav class="footer-links">
+    <button type="button" class="linkish" data-dialog="dlg-a11y" data-t="a11yTitle"></button>
+    <button type="button" class="linkish" data-dialog="dlg-legal" data-t="legalTitle"></button>
+    <a href="https://www.kolzchut.org.il/he/%D7%94%D7%A1%D7%A8%D7%AA_%D7%A4%D7%A8%D7%98%D7%99%D7%9D_%D7%A9%D7%9C_%D7%91%D7%A2%D7%9C%D7%99_%D7%96%D7%9B%D7%95%D7%AA_%D7%91%D7%97%D7%99%D7%A8%D7%94_%D7%9E%D7%9E%D7%90%D7%92%D7%A8%D7%99_%D7%94%D7%9E%D7%99%D7%93%D7%A2_%D7%A9%D7%9C_%D7%94%D7%9E%D7%A4%D7%9C%D7%92%D7%95%D7%AA" target="_blank" rel="noopener" data-t="kolZchutLink"></a>
+  </nav>
 </main>
+
+<dialog class="sheet" id="dlg-a11y" aria-labelledby="dlg-a11y-title">
+  <div class="sheet-head"><h2 id="dlg-a11y-title" data-t="a11yTitle"></h2><button type="button" class="icon-btn sheet-close" data-close>×</button></div>
+  <p data-t="a11yBody"></p>
+  <p><span data-t="a11yContact"></span> <a href="https://github.com/nadavbh12/party-spam/issues" target="_blank" rel="noopener" data-t="a11yContactLink"></a></p>
+  <p class="muted" data-t="a11yUpdated"></p>
+</dialog>
+<dialog class="sheet" id="dlg-legal" aria-labelledby="dlg-legal-title">
+  <div class="sheet-head"><h2 id="dlg-legal-title" data-t="legalTitle"></h2><button type="button" class="icon-btn sheet-close" data-close>×</button></div>
+  <p data-t="legalP1"></p>
+  <p data-t="legalP2"></p>
+  <p data-t="legalP3"></p>
+</dialog>
 
 <div class="toast" id="toast" role="status" hidden><strong id="toast-main"></strong><span id="toast-sub"></span></div>
 
@@ -864,6 +885,12 @@ function fitBubbles() {
   });
 }
 
+// Footer links open the accessibility statement and the legal notice as popups; × , Esc or a click outside closes.
+document.querySelectorAll('[data-dialog]').forEach(b => b.addEventListener('click', () => $(b.dataset.dialog).showModal()));
+document.querySelectorAll('dialog.sheet').forEach(d => {
+  d.addEventListener('click', ev => { if (ev.target === d || ev.target.closest('[data-close]')) d.close(); });
+});
+
 function applyStaticText() {
   const meta = I18N.languages[lang];
   document.documentElement.lang = lang;
@@ -872,6 +899,7 @@ function applyStaticText() {
   document.querySelectorAll('[data-t]').forEach(node => { node.textContent = t(node.dataset.t); });
   document.querySelectorAll('[data-not-he]').forEach(node => { node.hidden = lang === 'he'; });
   $('id-why').setAttribute('aria-label', t('idWhy'));
+  document.querySelectorAll('.sheet-close').forEach(b => b.setAttribute('aria-label', t('close')));
   const [lawBefore, lawAfter] = t('introBody', { law: '\u0000' }).split('\u0000');
   $('intro-body').replaceChildren(lawBefore,
     el('a', { href: LAW_URL, target: '_blank', rel: 'noopener', textContent: t('lawRef') }), lawAfter);
