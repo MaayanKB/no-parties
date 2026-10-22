@@ -217,7 +217,8 @@
   .block { width: 100%; margin-top: 16px; }
 
   .progress { font-weight: 600; margin: 16px 0 8px; }
-  .bulk { border: 2px solid var(--accent); border-radius: 8px; padding: 16px; margin: 8px 0 16px; }
+  .bulk { border: 2px solid var(--accent); border-radius: 8px; padding: 16px 16px 4px; margin: 8px 0 16px; }
+  #bulk > :first-child { margin-top: 0; }
   .bulk .btn.primary { width: 100%; }
   .actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 8px; }
   .row-actions { flex-direction: column; align-items: flex-start; gap: 0; }
@@ -227,7 +228,7 @@
   .who > summary::after { content: "▾"; }
   .who[open] > summary::after { content: "▴"; }
   ul.lists { list-style: none; margin: 0; padding: 0; }
-  ul.lists > li { padding: 24px 8px 12px; border-top: 1px solid var(--line); }   /* the last line's 40px tap area adds the rest */
+  ul.lists > li { padding: 24px 24px 12px; border-top: 1px solid var(--line); }   /* the last line's 40px tap area adds the rest */
   /* The list the user is working on (tapped, or the queue's current one): a lifted card with a blue outline;
      only its send button is filled. */
   ul.lists > li.selected { background: var(--card); border: 2px solid var(--accent); border-radius: 12px;
@@ -596,7 +597,7 @@ function letterText(letterLang, parties) {
   const lines = [
     L.to,
     parties.length ? parties.map(p => fill(L.partyLine, { name: p.short_name, number: p.number })).join(', ')
-                   : fill(L.partyLine, { name: '_'.repeat(14), number: '_'.repeat(10) }),
+                   : fill(L.partyLine, { name: L.placeholderParty, number: L.placeholderNumber }),
     '', L.re, '',
     fill(L.intro, { name, idPart: value('f-id') ? fill(L.idPart, { id: value('f-id') }) : '' }),
     L.demand, ...L.items, '', L.also, L.ask, '', L.identify,

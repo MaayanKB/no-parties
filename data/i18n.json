@@ -764,7 +764,9 @@
       "phone": "טלפון: {phone}",
       "address": "כתובת: {address}",
       "regards": "בכבוד רב,",
-      "placeholderName": "[שם מלא]"
+      "placeholderName": "[שם מלא]",
+      "placeholderParty": "[שם מפלגה]",
+      "placeholderNumber": "[מספר מפלגה]"
     },
     "en": {
       "to": "To",
@@ -785,7 +787,9 @@
       "phone": "Phone: {phone}",
       "address": "Address: {address}",
       "regards": "Sincerely,",
-      "placeholderName": "[full name]"
+      "placeholderName": "[full name]",
+      "placeholderParty": "[party name]",
+      "placeholderNumber": "[party number]"
     },
     "ar": {
       "to": "إلى",
@@ -806,7 +810,9 @@
       "phone": "الهاتف: {phone}",
       "address": "العنوان: {address}",
       "regards": "مع الاحترام،",
-      "placeholderName": "[الاسم الكامل]"
+      "placeholderName": "[الاسم الكامل]",
+      "placeholderParty": "[اسم الحزب]",
+      "placeholderNumber": "[رقم الحزب]"
     },
     "ru": {
       "to": "Кому",
@@ -827,7 +833,9 @@
       "phone": "Телефон: {phone}",
       "address": "Адрес: {address}",
       "regards": "С уважением,",
-      "placeholderName": "[полное имя]"
+      "placeholderName": "[полное имя]",
+      "placeholderParty": "[название партии]",
+      "placeholderNumber": "[номер партии]"
     },
     "am": {
       "to": "ለ",
@@ -848,7 +856,9 @@
       "phone": "ስልክ፦ {phone}",
       "address": "አድራሻ፦ {address}",
       "regards": "ከሠላምታ ጋር፣",
-      "placeholderName": "[ሙሉ ስም]"
+      "placeholderName": "[ሙሉ ስም]",
+      "placeholderParty": "[የፓርቲ ስም]",
+      "placeholderNumber": "[የፓርቲ ቁጥር]"
     }
   }
 }
