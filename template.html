@@ -476,6 +476,8 @@ const DATA = JSON.parse(document.getElementById('data').textContent);
 const I18N = DATA.i18n;
 const SITE_URL = 'https://nadavbh12.github.io/party-spam/';
 const SOURCE_URL = 'https://github.com/nadavbh12/party-spam';
+// Where to ask for a fix or a removal (a logo, a mistake) until the contact form exists.
+const ISSUES_URL = 'https://github.com/nadavbh12/party-spam/issues';
 const REGISTRY_URL = 'https://www.gov.il/he/departments/dynamiccollectors/parties-db';
 // Privacy Protection Authority Q&A on the use of voter-register data (17.09.2026). Question 6 states the right to
 // demand in writing that a party delete the data it uses for direct mail: the section 17ו(ב) right.
@@ -965,7 +967,8 @@ function applyStaticText() {
     before, el('a', { href: REGISTRY_URL, target: '_blank', rel: 'noopener', textContent: t('registry') }),
     after.replace('{date}', '{{SCRAPED_DATE}}'), ' ',
     el('a', { href: SOURCE_URL, target: '_blank', rel: 'noopener', textContent: t('source') }),
-    el('p', { className: 'fine', textContent: t('logoNote') }));
+    el('p', { className: 'fine' }, [t('logoNote'), ' ', t('logoRemove'), ' ',
+      el('a', { href: ISSUES_URL, target: '_blank', rel: 'noopener', textContent: t('logoRemoveLink') })]));
   if (CONTACT_FORM_URL) {
     $('contact-link').href = CONTACT_FORM_URL;
     $('contact-link').hidden = false;
