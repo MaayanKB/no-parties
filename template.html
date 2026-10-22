@@ -46,17 +46,17 @@
   :root {
     --bg: #F7F8FC; --card: #FFFFFF; --line: #DCE2EE; --ink: #0B1B3A; --muted: #4A5670;
     --accent: #0038B8; --on-accent: #FFFFFF; --marker: #FFC72C; --on-marker: #0B1B3A;
-    --highlight: #FFFBEA; --error: #B3261E; --error-bg: #FDECEA; --fine: #646D83; --logo-loop: #0038B8; --sky: #DCEEFB; --dots: #0038B8; --paper: #FFF8E8; --paper-line: #EADFC4; --paper-sheet: #FFFFFF; --band: linear-gradient(180deg, #DCEEFB 0%, #DCEEFB 50%, #F7F8FC 100%);
+    --highlight: #FFFBEA; --error: #B3261E; --error-bg: #FDECEA; --fine: #646D83; --logo-loop: #0038B8; --sky: #DCEEFB; --dots: #0038B8; --letter-tab: #0B1B3A; --on-letter-tab: #FFFFFF; --band: linear-gradient(180deg, #DCEEFB 0%, #DCEEFB 50%, #F7F8FC 100%);
   }
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
       --bg: #0B1630; --card: #13224A; --line: #2A3B66; --ink: #EEF2FF; --muted: #AAB4CC;
-      --accent: #8FB0FF; --on-accent: #0B1630; --highlight: #2E2A12; --error: #FF9A8F; --error-bg: #3A1A24; --fine: #77829E; --sky: #1B3358; --dots: #FFC72C; --paper: #24211A; --paper-line: #3D372A; --paper-sheet: #2E2A21; --band: linear-gradient(180deg, #24427A 0%, #13224A 50%, #0B1630 100%); --logo-loop: #FFC72C;
+      --accent: #8FB0FF; --on-accent: #0B1630; --highlight: #2E2A12; --error: #FF9A8F; --error-bg: #3A1A24; --fine: #77829E; --sky: #1B3358; --dots: #FFC72C; --letter-tab: #FFC72C; --on-letter-tab: #0B1B3A; --band: linear-gradient(180deg, #24427A 0%, #13224A 50%, #0B1630 100%); --logo-loop: #FFC72C;
     }
   }
   :root[data-theme="dark"] {
     --bg: #0B1630; --card: #13224A; --line: #2A3B66; --ink: #EEF2FF; --muted: #AAB4CC;
-    --accent: #8FB0FF; --on-accent: #0B1630; --highlight: #2E2A12; --error: #FF9A8F; --error-bg: #3A1A24; --fine: #77829E; --sky: #1B3358; --dots: #FFC72C; --paper: #24211A; --paper-line: #3D372A; --paper-sheet: #2E2A21; --band: linear-gradient(180deg, #24427A 0%, #13224A 50%, #0B1630 100%); --logo-loop: #FFC72C;
+    --accent: #8FB0FF; --on-accent: #0B1630; --highlight: #2E2A12; --error: #FF9A8F; --error-bg: #3A1A24; --fine: #77829E; --sky: #1B3358; --dots: #FFC72C; --letter-tab: #FFC72C; --on-letter-tab: #0B1B3A; --band: linear-gradient(180deg, #24427A 0%, #13224A 50%, #0B1630 100%); --logo-loop: #FFC72C;
   }
 
   /* Type scale on the 8px grid: the title, 18/28 opening text, 20/28 section titles, 16/24 everything else. */
@@ -174,8 +174,9 @@
   .icon-btn::before { margin: 0; }
 
   details.panel { background: var(--card); border: 1px solid var(--line); border-radius: 8px; margin-top: 24px; }
-  details.panel#p-letter { background: var(--paper); border-color: var(--paper-line); }
-  #p-letter pre.letter { background: var(--paper-sheet); border-color: var(--paper-line); }
+  /* The letter panel stands out while closed: a dark tab by day, a yellow one at night. Open, it looks like the rest. */
+  details.panel#p-letter:not([open]) { background: var(--letter-tab); border-color: var(--letter-tab); }
+  details.panel#p-letter:not([open]) > summary, details.panel#p-letter:not([open]) > summary::after { color: var(--on-letter-tab); }
   details.panel > summary { list-style: none; cursor: pointer; padding: 16px; display: flex;
                             justify-content: space-between; align-items: center; gap: 16px; min-height: 56px; }
   details.panel > summary::-webkit-details-marker { display: none; }
@@ -1051,7 +1052,7 @@ $('complaint-mail').addEventListener('click', ev => {
 
 // Open the form first; if saved details already make it valid, go straight to the lists.
 const startValid = !Object.keys(validateForm(formValues())).length;
-$('p-form').open = !startValid;
+$('p-form').open = false;   // starts closed; sending without details opens it (requireValidForm)
 $('p-lists').open = startValid;
 applyStaticText();
 render();

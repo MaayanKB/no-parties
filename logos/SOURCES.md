@@ -14,5 +14,12 @@ Remove any logo immediately if its owner asks.
 | joint-list.svg | https://commons.wikimedia.org/wiki/File:Logo_of_the_Joint_List_(Israel)_2026.svg | PD-textlogo |
 | religious-zionism.png | https://commons.wikimedia.org/wiki/File:Religious_Zionist_Party_logo_2026.png | PD-textlogo, PD-shape (resized to 240px) |
 | amcha.svg | https://commons.wikimedia.org/wiki/File:Amcha_Yisrael.svg | PD-textlogo |
+| yisrael-beitenu.svg | https://commons.wikimedia.org/wiki/File:Israel-beytenu-logo.svg | PD-textlogo (the 2019 logo; the 2022 logo is not free) |
+| otzma.svg | https://commons.wikimedia.org/wiki/File:Otzma_Yehudit_2021_logo.svg | PD-textlogo (2021 logo; its history shows an early non-free resize) |
+| raam.svg | https://commons.wikimedia.org/wiki/File:Raam_logo_2021.svg | PD-textlogo (2021 logo; the upload comment mentions fair use) |
+| reservists.svg | https://commons.wikimedia.org/wiki/File:Logo_of_The_Reservists.svg | PD-textlogo (The Reservists only, not the joint list) |
 
-Retrieved 20.10.2026.
+United Torah Judaism and Shas have no free logo on Commons in any year. Their tiles show the list's ballot
+letters, set in Rubik (OFL) and converted to paths: utj-letters.svg (ג) and shas-letters.svg (שס).
+
+Retrieved 20.10.2026; added 22.10.2026.
