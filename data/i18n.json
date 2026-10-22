@@ -1,8 +1,8 @@
 {
-  "_comment": "UI strings and display-only letter translations. The email itself is always sent in Hebrew (letter.he). Only 'he' has been reviewed; the other languages are first drafts awaiting a native speaker.",
+  "_comment": "UI strings and display-only letter translations. The email itself is always sent in Hebrew (letter.he). 'he' and 'en' have been reviewed; the other languages are first drafts awaiting a native speaker.",
   "reviewed": {
     "he": true,
-    "en": false,
+    "en": true,
     "ar": false,
     "ru": false,
     "am": false
