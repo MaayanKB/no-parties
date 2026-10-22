@@ -208,6 +208,9 @@
   button.outline, a.btn.outline { background: transparent; border-color: var(--accent); color: var(--accent); font-weight: 600; }
   .sheet-actions { display: flex; flex-direction: column; gap: 8px; }
   .sheet-actions button { width: 100%; }
+  /* Send popups: white options with dark text and a yellow main option, readable on the card in both themes. */
+  .sheet-actions button { background: #FFFFFF; border-color: var(--line); color: #0B1B3A; font-weight: 600; }
+  .sheet-actions button.primary { background: var(--marker); border-color: var(--marker); }
   a.btn.disabled { opacity: .5; pointer-events: none; }
   .linkish { background: none; border: none; padding: 0 8px; min-height: 40px; color: var(--accent); text-decoration: underline;
              display: inline-flex; align-items: center; }
@@ -224,9 +227,10 @@
   .who > summary::after { content: "▾"; }
   .who[open] > summary::after { content: "▴"; }
   ul.lists { list-style: none; margin: 0; padding: 0; }
-  ul.lists > li { padding: 16px 8px; border-top: 1px solid var(--line); }
-  /* The list being worked on now: a lifted card with a blue outline; only its send button is filled. */
-  ul.lists > li.next { background: var(--card); border: 2px solid var(--accent); border-radius: 12px;
+  ul.lists > li { padding: 16px 8px 4px; border-top: 1px solid var(--line); }   /* the last line's 40px tap area adds the rest */
+  /* The list the user is working on (tapped, or the queue's current one): a lifted card with a blue outline;
+     only its send button is filled. */
+  ul.lists > li.selected { background: var(--card); border: 2px solid var(--accent); border-radius: 12px;
                        box-shadow: 0 8px 24px rgb(0 56 184 / .10); }
   .row { display: flex; justify-content: space-between; align-items: center; gap: 16px; }
   .row label { display: flex; align-items: center; gap: 8px; }
@@ -844,8 +848,20 @@ function renderBulk() {
   }
 }
 
-function unitRow(unit, isNext) {
-  const li = el('li', { className: isNext ? 'next' : '' });
+// The row the user tapped. Marked in place (no re-render), so a tap on "who gets it" still opens it.
+let selected = null;
+function selectRow(li, unit) {
+  if (queue || selected === unit.title) return;
+  selected = unit.title;
+  document.querySelectorAll('ul.lists > li.selected').forEach(x => x.classList.remove('selected'));
+  document.querySelectorAll('ul.lists [data-send]').forEach(b => b.classList.replace('primary', 'outline'));
+  li.classList.add('selected');
+  li.querySelector('[data-send]')?.classList.replace('outline', 'primary');
+}
+
+function unitRow(unit, isSelected) {
+  const li = el('li', { className: isSelected ? 'selected' : '' });
+  li.addEventListener('click', () => selectRow(li, unit));
   // Logo on a white tile (logos are drawn for light backgrounds), only for lists with a free text logo.
   const logo = DATA.list_logos[unit.title];
   const nameEl = el('span', { className: 'lname' }, [logo
@@ -867,7 +883,9 @@ function unitRow(unit, isNext) {
   } else if (pending?.source === 'row' && pending.titles.includes(unit.title)) {
     actions.append(confirmBox(t('confirmQ')));
   } else if (!choosing && !queue && unit.emails.length) {
-    head.append(sendButton(t('send'), [unit], 'row', { primary: isNext, outline: !isNext }));
+    const send = sendButton(t('send'), [unit], 'row', { primary: isSelected, outline: !isSelected });
+    send.dataset.send = '';
+    head.append(send);
   }
 
   const recipients = el('ul', { className: 'recipients' }, unit.parties.map(p => el('li', {
@@ -982,8 +1000,8 @@ function applyStaticText() {
 }
 
 function render() {
-  const firstOpen = queue ? queueUnit(queue.i) : choosing ? null : remaining()[0];
-  $('lists').replaceChildren(...UNITS.map(u => unitRow(u, u === firstOpen)));
+  const current = queue ? queueUnit(queue.i) : UNITS.find(u => u.title === selected);
+  $('lists').replaceChildren(...UNITS.map(u => unitRow(u, u === current)));
   const total = UNITS.filter(u => u.emails.length).length;
   const sentCount = UNITS.filter(isSent).length;
   $('progress').textContent = t('progress', { sent: sentCount, total });
