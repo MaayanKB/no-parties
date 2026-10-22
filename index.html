@@ -227,7 +227,7 @@
   .who > summary::after { content: "▾"; }
   .who[open] > summary::after { content: "▴"; }
   ul.lists { list-style: none; margin: 0; padding: 0; }
-  ul.lists > li { padding: 16px 8px 4px; border-top: 1px solid var(--line); }   /* the last line's 40px tap area adds the rest */
+  ul.lists > li { padding: 24px 8px 12px; border-top: 1px solid var(--line); }   /* the last line's 40px tap area adds the rest */
   /* The list the user is working on (tapped, or the queue's current one): a lifted card with a blue outline;
      only its send button is filled. */
   ul.lists > li.selected { background: var(--card); border: 2px solid var(--accent); border-radius: 12px;
@@ -645,7 +645,8 @@ function letterText(letterLang, parties) {
   // and keeps the mailto link short enough for mail clients that truncate long links.
   const lines = [
     L.to,
-    parties.length ? parties.map(p => fill(L.partyLine, { name: p.short_name, number: p.number })).join(', ') : '_'.repeat(24),
+    parties.length ? parties.map(p => fill(L.partyLine, { name: p.short_name, number: p.number })).join(', ')
+                   : fill(L.partyLine, { name: '_'.repeat(14), number: '_'.repeat(10) }),
     '', L.re, '',
     fill(L.intro, { name, idPart: value('f-id') ? fill(L.idPart, { id: value('f-id') }) : '' }),
     L.demand, ...L.items, '', L.also, L.ask, '', L.identify,
