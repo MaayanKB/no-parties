@@ -35,15 +35,6 @@ test('read-aloud follows the order the opening is shown', () => {
   assert.deepEqual(read, shown);
 });
 
-// Regression: the hidden state of the reveal was more specific than `.motion .in`, so everything after the title
-// stayed invisible. Every hidden selector must step aside once the element is `.in`.
-test('reveal hidden states give way to .in', () => {
-  const rule = html.match(/([^{}]*)\{\s*opacity: 0; translate: 0 12px; \}/);
-  assert.ok(rule, 'hidden reveal rule not found');
-  const selectors = rule[1].split(',').map(x => x.trim()).filter(Boolean);
-  for (const sel of selectors) assert.match(sel, /:not\(\.in\)$/, `${sel} must end with :not(.in)`);
-});
-
 // Regression: a language picked from the menu was saved, so the page reopened in it for whoever used that browser next.
 test('the language choice is not saved between visits', () => {
   assert.equal(html.match(/save\('party-deletion-lang'/), null);
@@ -84,4 +75,19 @@ test('tracked events never include form values', () => {
   const calls = [...html.matchAll(/track\(([^)]*)\)/g)].map(m => m[1]);
   assert.ok(calls.length >= 10, 'expected the tracked events to be found');
   for (const arg of calls) assert.doesNotMatch(arg, /value\(|f-|letterText|formValues/, `track(${arg})`);
+});
+
+// Regression: the letter's line breaks went out as bare LF, and some mail apps ran it into one paragraph.
+test('mailto bodies use CRLF line breaks', () => {
+  assert.match(html, /const mailBody = text => enc\(text\.replace\(\/\\r\?\\n\/g, '\\r\\n'\)\);/);
+  assert.equal(html.match(/mailto:[^`]*&body=\$\{enc\(/), null, 'mailto bodies must go through mailBody()');
+});
+
+// Regression: content below the title stayed hidden on Brave mobile, even when scrolling, because it waited for the
+// script to show it. Hidden states must be CSS animations that end visible on their own, never "hidden until JS".
+test('nothing stays hidden waiting for the script', () => {
+  assert.equal(html.match(/:not\(\.in\)/), null, 'no hidden state that waits for a JS class');
+  assert.equal(html.match(/\.tq:not\(\.written\) \{ visibility: hidden/), null);
+  assert.match(html, /animation: hold-in [^;]*var\(--hold, \d+ms\)/, 'the hold has a default, so it ends without JS');
+  assert.match(html, /@supports \(animation-timeline: view\(\)\)/, 'scroll reveal only where supported');
 });

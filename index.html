@@ -102,15 +102,28 @@
   .intro .qs { margin: 0 0 16px; }
   .intro .q, .intro .body { font-size: 18px; line-height: 24px; font-weight: 400; color: var(--ink); margin: 0; }
 
-  /* Reveals: things arrive one after another (--d is set per element by JS), and below the fold as you scroll. */
-  .motion .intro .explain, .motion main > details.panel, .motion footer {
-    transition: opacity .7s ease var(--d, 0ms), translate .8s cubic-bezier(.2, .8, .2, 1) var(--d, 0ms); }
-  .motion .intro .explain:not(.in),
-  .motion main > details.panel:not(.in), .motion footer:not(.in) { opacity: 0; translate: 0 12px; }
-  .motion .in { opacity: 1; translate: 0 0; }
+  /* Reveals are CSS only and always end visible, whatever the browser does with the script: nothing waits for JS
+     to show it. (Content once stayed hidden on Brave mobile, even when scrolling.)
+     - On a first visit, the content waits for the title, then fades in one after another (--i, set by JS; a scroll
+       sets --hold to 0 so nothing waits once the user moves). Without JS it still comes, after the default hold.
+     - Below the fold, it rises as it scrolls into view, where the browser supports scroll-driven animations;
+       elsewhere it is simply there. */
+  .intro-anim .intro .explain, .intro-anim main > details.panel, .intro-anim footer {
+    animation: hold-in .7s ease calc(var(--hold, 4200ms) + var(--i, 0) * 160ms) both; }
+  @keyframes hold-in { from { opacity: 0; } }
+  @supports (animation-timeline: view()) {
+    .motion .intro .explain, .motion main > details.panel, .motion footer {
+      animation: rise linear both; animation-timeline: view(); animation-range: entry 0% entry 100%; }
+    .intro-anim .intro .explain, .intro-anim main > details.panel, .intro-anim footer {
+      animation: hold-in .7s ease calc(var(--hold, 4200ms) + var(--i, 0) * 160ms) both, rise linear both;
+      animation-timeline: auto, view(); animation-range: normal, entry 0% entry 100%; }
+  }
+  @keyframes rise { from { filter: opacity(0); translate: 0 24px; } 40%, to { filter: opacity(1); translate: 0 0; } }
 
-  /* Opening sequence (see <head>). --write is set by JS to the writing duration. */
-  .intro-anim h1 .tq:not(.written) { visibility: hidden; }
+  /* Opening sequence (see <head>). --write is set by JS to the writing duration. Without JS, the question
+     shows after the default lead-in instead of being written. */
+  .intro-anim h1 .tq:not(.written) { animation: lead-in 1.9s step-end both; }
+  @keyframes lead-in { from { visibility: hidden; } }
   .intro-anim h1 .tq .ch { opacity: 0; animation: ink .28s ease-out forwards; }
   @keyframes ink { to { opacity: 1; } }
   .intro-anim h1 .ta { animation: pop .5s cubic-bezier(.3, 1.6, .5, 1) calc(var(--write, 1200ms) + 800ms) both; }
@@ -672,7 +685,9 @@ function letterText(letterLang, parties) {
 const SUBJECT = I18N.letter.he.subject;
 const partiesOf = units => units.flatMap(u => u.parties);
 const emailsOf = units => [...new Set(units.flatMap(u => u.emails))];
-const mailtoUrl = units => `mailto:${emailsOf(units).join(',')}?subject=${enc(SUBJECT)}&body=${enc(letterText('he', partiesOf(units)))}`;
+// Line breaks in a mailto body must be CRLF (RFC 6068); some mail apps drop bare LFs and run the letter into one paragraph.
+const mailBody = text => enc(text.replace(/\r?\n/g, '\r\n'));
+const mailtoUrl = units => `mailto:${emailsOf(units).join(',')}?subject=${enc(SUBJECT)}&body=${mailBody(letterText('he', partiesOf(units)))}`;
 const gmailUrl = units => `https://mail.google.com/mail/?view=cm&fs=1&to=${enc(emailsOf(units).join(','))}&su=${enc(SUBJECT)}&body=${enc(letterText('he', partiesOf(units)))}`;
 
 // ---- Sending ----
@@ -1024,7 +1039,7 @@ function complaintMailto(units) {
     'אבקש שהרשות תבדוק את הטיפול בבקשתי ותורה על מחיקת המידע.',
     '', 'בכבוד רב,', name,
   ].join('\n');
-  return `mailto:${PPA_EMAIL}?subject=${enc('תלונה: מפלגות לא מחקו את פרטיי ממאגרי המידע')}&body=${enc(body)}`;
+  return `mailto:${PPA_EMAIL}?subject=${enc('תלונה: מפלגות לא מחקו את פרטיי ממאגרי המידע')}&body=${mailBody(body)}`;
 }
 
 const icsText = text => text.replace(/[\\;,]/g, c => `\\${c}`).replace(/\n/g, '\\n');
@@ -1350,23 +1365,14 @@ function runIntro() {
 }
 const titleTime = document.documentElement.classList.contains('intro-anim') ? runIntro() : 0;
 
-// After the title, everything arrives one after another, each part when it scrolls into view. What is already
-// on screen waits for the title sequence to finish; the rest waits for the scroll.
-const revealTargets = document.querySelectorAll('.intro .explain, main > details.panel, footer');
-if (document.documentElement.classList.contains('motion') && 'IntersectionObserver' in window) {
-  let base = titleTime;
-  const io = new IntersectionObserver(entries => {
-    entries.filter(e => e.isIntersecting).forEach((e, i) => {
-      e.target.style.setProperty('--d', `${base + i * 160}ms`);
-      e.target.classList.add('in');
-      io.unobserve(e.target);
-    });
-    base = 0;
-  }, { threshold: 0.1 });
-  revealTargets.forEach(node => io.observe(node));
-} else {
-  revealTargets.forEach(node => node.classList.add('in'));
-}
+// The reveals themselves are CSS (see "Reveals"). Here: their order, the wait for the title, and no waiting once
+// the user scrolls.
+document.querySelectorAll('.intro .explain, main > details.panel, footer')
+  .forEach((node, i) => node.style.setProperty('--i', i));
+document.documentElement.style.setProperty('--hold', `${titleTime}ms`);
+const noHold = () => document.documentElement.style.setProperty('--hold', '0ms');
+addEventListener('scroll', noHold, { once: true, passive: true });
+setTimeout(noHold, titleTime + 1500);   // and panels shown later (after sending) come at once
 
 </script>
 </body>
