@@ -55,3 +55,26 @@ test('the opening text sits above the header fade', () => {
   assert.match(html, /\.hero::before \{[^}]*bottom: -\d+px/, 'the fade is expected to run below the header');
   assert.match(html, /\.intro \{ position: relative;/);
 });
+
+// Regression: 5 cheers cycled over 13 lists, so the same line came back again and again.
+test('every confirmed list before the last gets its own cheer, in every language', () => {
+  const i18n = JSON.parse(readFileSync(new URL('../data/i18n.json', import.meta.url), 'utf8'));
+  const parties = JSON.parse(readFileSync(new URL('../data/parties.json', import.meta.url), 'utf8'));
+  const polling = JSON.parse(readFileSync(new URL('../data/polling.json', import.meta.url), 'utf8'));
+  const withEmail = new Set(parties.filter(p => p.email).map(p => p.number));
+  const lists = new Set(polling.likely.filter(x => withEmail.has(x.number)).map(x => x.list));
+  for (const [lang, ui] of Object.entries(i18n.ui)) {
+    assert.ok(new Set(ui.cheers).size >= lists.size - 1, `${lang}: ${ui.cheers.length} cheers for ${lists.size} lists`);
+  }
+});
+
+// Regression: after the last list was sent, the bordered "send all" box stayed on screen, empty.
+test('the send-all box hides when nothing is left to send', () => {
+  assert.match(html, /\$\('bulk-box'\)\.hidden = !queue && !left\.length;/);
+});
+
+// Regression: the calendar event's text went out unescaped, and a comma cuts it short in some calendar apps (RFC 5545).
+test('calendar text is escaped', () => {
+  assert.match(html, /`DESCRIPTION:\$\{icsText\(/);
+  assert.match(html, /`SUMMARY:\$\{icsText\(/);
+});

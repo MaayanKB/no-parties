@@ -183,7 +183,7 @@
   details.panel > summary::after { content: "▾"; color: var(--muted); }
   details.panel[open] > summary::after { content: "▴"; }
   .ptitle { font-weight: 600; font-size: 20px; line-height: 28px; }
-  .psum { color: var(--muted); flex: 1; text-align: end; }
+  .psum { color: var(--muted); flex: 1; min-width: 0; text-align: end; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .pbody { padding: 0 16px 16px; }
 
   .field { margin-top: 16px; }
@@ -272,6 +272,13 @@
            border-radius: 8px; background: var(--ink); color: var(--bg); box-shadow: 0 8px 24px rgb(0 0 0 / .2);
            display: flex; flex-direction: column; gap: 4px; }
   .toast.cheer { background: var(--marker); color: var(--on-marker); }
+  .toast.finale { padding: 24px; font-size: 1.25em; text-align: center; border: 3px solid var(--accent); }
+  .toast.finale:not([hidden]) { animation: finale .6s cubic-bezier(.2, 1.6, .4, 1); }
+  @keyframes finale { from { transform: scale(.6); opacity: 0; } }
+  .confetti { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 20; }
+  .confetti span { position: absolute; top: -16px; width: 8px; height: 16px; border-radius: 2px; animation: fall linear forwards; }
+  @keyframes fall { to { transform: translateY(110vh) rotate(calc(var(--spin) * 720deg)); } }
+  @media (prefers-reduced-motion: reduce) { .toast.finale:not([hidden]) { animation: none; } }
   #toast-main:empty, #toast-sub:empty { display: none; }
   .meter { height: 8px; border-radius: 8px; background: var(--line); overflow: hidden; margin-bottom: 16px; }
   #meter-fill { display: block; height: 100%; width: 0; background: var(--accent); border-radius: 8px; transition: width .4s ease; }
@@ -393,9 +400,10 @@
     <div class="pbody">
       <p class="muted" data-t="orderNote"></p>
       <p class="muted" data-t="afterSendNote"></p>
+      <p class="muted"><span data-t="noAnswerQ"></span> <button type="button" class="linkish" id="complaint-any" data-t="complaintLink"></button></p>
       <p class="progress" id="progress" aria-live="polite"></p>
       <div class="meter" aria-hidden="true"><span id="meter-fill"></span></div>
-      <div class="bulk">
+      <div class="bulk" id="bulk-box">
         <div id="bulk" aria-live="polite"></div>
         <p class="muted" data-t="hebrewNote" data-not-he></p>
       </div>
@@ -422,6 +430,7 @@
       <p class="muted" data-t="hebrewNote" data-not-he></p>
       <h3 data-t="letterHebrew" data-not-he></h3>
       <pre class="letter" id="letter-he" dir="rtl" lang="he"></pre>
+      <div class="actions"><button type="button" id="copy-letter" data-t="copy" data-icon="copy"></button></div>
       <h3 data-t="letterTranslation" data-not-he></h3>
       <pre class="letter" id="letter-tr" data-not-he></pre>
     </div>
@@ -457,7 +466,7 @@
   <div class="sheet-head"><h2 id="dlg-method-title" data-t="methodTitle"></h2><button type="button" class="icon-btn sheet-close" data-close>×</button></div>
   <div class="sheet-actions">
     <button type="button" class="primary" id="method-app" data-choice="app" data-icon="send" data-t="methodApp"></button>
-    <button type="button" data-choice="gmail" data-icon="mail" data-t="methodGmail"></button>
+    <button type="button" id="method-gmail" data-choice="gmail" data-icon="mail" data-t="methodGmail"></button>
     <button type="button" data-choice="copy" data-icon="copy" data-t="methodCopy"></button>
   </div>
 </dialog>
@@ -625,6 +634,12 @@ function markSent(units) {
   save('party-deletion-sent', sent);
 }
 
+// For an email that bounced or never went out: the list goes back to "not sent".
+function unmarkSent(unit) {
+  unit.parties.forEach(p => { delete sent[p.number]; });
+  save('party-deletion-sent', sent);
+}
+
 function clearPending() {
   pending = null;
   save('party-deletion-pending', null);
@@ -710,6 +725,8 @@ function sendButton(text, units, source, { primary = false, outline = false } = 
 // limit and cuts the rest silently. The letter is longer than that, so on Windows the send popup offers
 // Gmail and copy only, never the desktop mail app. Phones and Macs have no such limit.
 const PREFER_GMAIL = /Windows/i.test(navigator.userAgent);
+// Gmail's web compose link hits a 404 on phones after its sign-in redirect; there the mail app (Gmail too, if it's the default) is the way.
+const IS_PHONE = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || (/Macintosh/.test(navigator.userAgent) && navigator.maxTouchPoints > 1);
 
 // Some mail clients cut long mailto links. Copy the full letter on every send, so a cut or empty
 // email can be fixed with one paste. Silent when the clipboard is unavailable.
@@ -726,7 +743,7 @@ function showToast(main, sub, cheer = false) {
   const visible = !$('toast').hidden;
   if (main !== undefined || !visible) $('toast-main').textContent = main || '';
   if (sub !== undefined || !visible) $('toast-sub').textContent = sub || '';
-  if (main !== undefined) $('toast').classList.toggle('cheer', cheer);
+  if (main !== undefined) { $('toast').classList.toggle('cheer', cheer); $('toast').classList.remove('finale'); }
   $('toast').hidden = false;
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => { $('toast').hidden = true; }, 8000);
@@ -737,11 +754,29 @@ function celebrate() {
   const total = UNITS.filter(u => u.emails.length).length;
   const count = UNITS.filter(isSent).length;
   const cheers = I18N.ui[lang].cheers;
-  showToast(count >= total ? t('cheersDone') : `${cheers[(count - 1) % cheers.length]} (${count}/${total})`, '', true);
+  const done = count >= total;
+  showToast(done ? t('cheersDone') : `${cheers[(count - 1) % cheers.length]} (${count}/${total})`, '', true);
+  $('toast').classList.toggle('finale', done);
+  if (done) confetti();
   const meter = document.querySelector('.meter');
   meter.classList.remove('pulse');
   void meter.offsetWidth;   // restart the animation
   meter.classList.add('pulse');
+}
+
+// Paper confetti for the last list. Plain DOM, removed after it falls; skipped with reduced motion.
+function confetti() {
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const colors = ['#0038B8', '#FFC72C', '#DCEEFB', '#0B1630'];
+  const layer = el('div', { className: 'confetti', ariaHidden: 'true' });
+  for (let i = 0; i < 48; i++) {
+    const bit = el('span');
+    bit.style.cssText = `left:${Math.random() * 100}%;background:${colors[i % colors.length]};` +
+      `animation-delay:${Math.random() * .6}s;animation-duration:${1.8 + Math.random() * 1.2}s;--spin:${Math.random() < .5 ? -1 : 1}`;
+    layer.append(bit);
+  }
+  document.body.append(layer);
+  setTimeout(() => layer.remove(), 4000);
 }
 
 function confirmBox(question) {
@@ -828,6 +863,7 @@ function renderQueueStep(box) {
 function renderBulk() {
   const box = $('bulk');
   const left = remaining();
+  $('bulk-box').hidden = !queue && !left.length;
   if (queue) {
     renderQueueStep(box);
   } else if (!left.length) {
@@ -890,6 +926,12 @@ function unitRow(unit, isSelected) {
     head.append(send);
   }
 
+  if (isSent(unit)) {
+    const undo = el('button', { type: 'button', className: 'linkish', textContent: t('unmark') });
+    undo.addEventListener('click', () => { unmarkSent(unit); render(); });
+    actions.append(undo);
+  }
+
   const recipients = el('ul', { className: 'recipients' }, unit.parties.map(p => el('li', {
     textContent: p.emails.length
       ? `${p.name}: ${p.emails.join(', ')}` + (p.note_key ? ` (${t(p.note_key)})` : '')
@@ -907,12 +949,14 @@ function overdueUnits() {
 }
 
 function complaintMailto(units) {
-  const name = value('f-name');
+  const name = value('f-name') || I18N.letter.he.placeholderName;
   const body = [
     'לכבוד הרשות להגנת הפרטיות,', '',
     `שמי ${name}${value('f-id') ? `, ת"ז ${value('f-id')}` : ''}.`,
     'פניתי בכתב למפלגות הבאות בדרישה למחוק את המידע האישי שלי ממאגרי המידע שלהן, לפי סעיף 17ו לחוק הגנת הפרטיות, התשמ"א-1981, ולא קיבלתי אישור על המחיקה בתוך 30 יום:',
-    ...units.map(u => `- ${u.parties.map(p => `${p.name} (${p.number})`).join(', ')}: פנייה מ-${new Date(sentDate(u)).toLocaleDateString('he-IL')}`),
+    ...(units.length
+      ? units.map(u => `- ${u.parties.map(p => `${p.name} (${p.number})`).join(', ')}: פנייה מ-${new Date(sentDate(u)).toLocaleDateString('he-IL')}`)
+      : ['- [שם המפלגה] ([מספר המפלגה]): פנייה מ-[תאריך]']),
     '', 'הפניות המקוריות מצורפות.',
     'אבקש שהרשות תבדוק את הטיפול בבקשתי ותורה על מחיקת המידע.',
     '', 'בכבוד רב,', name,
@@ -920,20 +964,32 @@ function complaintMailto(units) {
   return `mailto:${PPA_EMAIL}?subject=${enc('תלונה: מפלגות לא מחקו את פרטיי ממאגרי המידע')}&body=${enc(body)}`;
 }
 
+const icsText = text => text.replace(/[\\;,]/g, c => `\\${c}`).replace(/\n/g, '\\n');
+
 function calendarFile() {
   const first = UNITS.filter(isSent).map(sentDate).sort()[0];
   const due = new Date(new Date(first).getTime() + 30 * DAY_MS).toISOString().slice(0, 10).replaceAll('-', '');
   const ics = [
     'BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//party-spam//HE', 'BEGIN:VEVENT',
     `UID:party-spam-${first}@nadavbh12.github.io`, `DTSTAMP:${due}T090000Z`,
-    `DTSTART;VALUE=DATE:${due}`, `SUMMARY:${t('icsSummary')}`,
-    `DESCRIPTION:${t('icsDescription')} ${SITE_URL}`,
+    `DTSTART;VALUE=DATE:${due}`, `SUMMARY:${icsText(t('icsSummary'))}`,
+    `DESCRIPTION:${icsText(`${t('icsDescription')} ${SITE_URL}`)}`,
     'END:VEVENT', 'END:VCALENDAR',
   ].join('\r\n');
   return URL.createObjectURL(new Blob([ics], { type: 'text/calendar' }));
 }
 
 // ---- Rendering ----
+$('complaint-any').addEventListener('click', () => {
+  const overdue = overdueUnits();
+  location.href = complaintMailto(overdue.length ? overdue : UNITS.filter(isSent));
+  showToast(undefined, t('overdueAttach'));
+});
+$('copy-letter').addEventListener('click', () => {
+  navigator.clipboard?.writeText(letterText('he', []))
+    .then(() => showToast(t('copied'), ''))
+    .catch(() => showToast(t('copyFailed'), ''));
+});
 $('contact-mail').addEventListener('click', () => { location.href = `mailto:${contactMail()}`; });
 
 // A translated bubble may be longer than the Hebrew one: widen its bubble around the text, kept inside the picture.
@@ -963,6 +1019,7 @@ document.querySelectorAll('[data-choice]').forEach(b => b.addEventListener('clic
   onChoice?.(b.dataset.choice);
 }));
 $('method-app').hidden = PREFER_GMAIL;
+$('method-gmail').hidden = IS_PHONE;
 
 function applyStaticText() {
   const meta = I18N.languages[lang];
@@ -1012,7 +1069,7 @@ function render() {
   renderBulk();
 
   const errors = validateForm(formValues());
-  $('form-summary').textContent = Object.keys(errors).length ? '' : [value('f-name'), value('f-phone')].filter(Boolean).join(' · ');
+  $('form-summary').textContent = Object.keys(errors).length ? '' : (value('f-name') || value('f-phone'));
 
   // The preview leaves the addressee blank; each email fills in its own list.
   $('letter-he').textContent = letterText('he', []);
