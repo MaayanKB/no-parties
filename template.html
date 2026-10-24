@@ -475,12 +475,15 @@
   <p data-t="legalP1"></p>
   <p data-t="legalP2"></p>
   <p data-t="legalP3"></p>
+  <p data-t="legalPrivacy"></p>
 </dialog>
 
 <div class="toast" id="toast" role="status" hidden><strong id="toast-main"></strong><span id="toast-sub"></span></div>
 
 
 
+<!-- Anonymous usage counts (GoatCounter): no cookies, no IP stored. Event names only, see track(). -->
+<script data-goatcounter="https://noparties.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
 <script id="data" type="application/json">{{DATA}}</script>
 <script>
 {{VALIDATE_JS}}
@@ -645,7 +648,13 @@ function clearPending() {
   save('party-deletion-pending', null);
 }
 
+// Anonymous counts of what people do, to learn where they get stuck. Event names only: never anything typed into the form.
+function track(name) {
+  window.goatcounter?.count?.({ path: name, title: name, event: true });
+}
+
 function confirmPending(didSend) {
+  if (!didSend) track('not-sent');
   if (didSend) markSent(unitsByTitle(pending.titles));
   clearPending();
   render();
@@ -670,6 +679,7 @@ function startSend(units, source, onStarted = () => {}) {
   if (!formEmpty() && !requireValidForm()) return;
   if (formEmpty() && !blanksAccepted) {
     askDialog('dlg-blanks', choice => {
+      track(`blanks-${choice}`);
       if (choice === 'fill') return openForm();
       blanksAccepted = true;
       startSend(units, source, onStarted);
@@ -677,7 +687,7 @@ function startSend(units, source, onStarted = () => {}) {
     return;
   }
   if (!sendMethod) {
-    askDialog('dlg-method', choice => { sendMethod = choice; startSend(units, source, onStarted); });
+    askDialog('dlg-method', choice => { sendMethod = choice; track(`method-${choice}`); startSend(units, source, onStarted); });
     return;
   }
   onStarted();
@@ -685,6 +695,7 @@ function startSend(units, source, onStarted = () => {}) {
 }
 
 function deliver(units, source, method) {
+  track(`open-${source}`);
   if (method === 'copy') {
     const text = `${emailsOf(units).join(', ')}\n${SUBJECT}\n\n${letterText('he', partiesOf(units))}`;
     navigator.clipboard?.writeText(text).then(() => showToast(undefined, t('copiedAll'))).catch(() => {});
@@ -755,6 +766,7 @@ function celebrate() {
   const count = UNITS.filter(isSent).length;
   const cheers = I18N.ui[lang].cheers;
   const done = count >= total;
+  track(done ? 'all-sent' : 'sent');
   showToast(done ? t('cheersDone') : `${cheers[(count - 1) % cheers.length]} (${count}/${total})`, '', true);
   $('toast').classList.toggle('finale', done);
   if (done) confetti();
@@ -804,6 +816,7 @@ function primaryButton(text) {
 function startQueue(units) {
   startSend([units[0]], 'queue', () => {
     queue = { titles: units.map(u => u.title), i: 0 };
+    track('queue-start');
     choosing = false;
     saveQueue();
   });
@@ -854,7 +867,7 @@ function renderQueueStep(box) {
     extra.push(skip);
   }
   const stop = withIcon(el('button', { type: 'button', className: 'linkish', textContent: t('queueStop') }), 'stop');
-  stop.addEventListener('click', endQueue);
+  stop.addEventListener('click', () => { track('queue-stop'); endQueue(); });
   extra.push(stop);
   parts.push(el('div', { className: 'actions' }, extra));
   box.replaceChildren(...parts);
@@ -928,7 +941,7 @@ function unitRow(unit, isSelected) {
 
   if (isSent(unit)) {
     const undo = el('button', { type: 'button', className: 'linkish', textContent: t('unmark') });
-    undo.addEventListener('click', () => { unmarkSent(unit); render(); });
+    undo.addEventListener('click', () => { track(`unmark/${unit.title}`); unmarkSent(unit); render(); });
     actions.append(undo);
   }
 
@@ -982,10 +995,12 @@ function calendarFile() {
 // ---- Rendering ----
 $('complaint-any').addEventListener('click', () => {
   const overdue = overdueUnits();
+  track('complaint-any');
   location.href = complaintMailto(overdue.length ? overdue : UNITS.filter(isSent));
   showToast(undefined, t('overdueAttach'));
 });
 $('copy-letter').addEventListener('click', () => {
+  track('copy-letter');
   navigator.clipboard?.writeText(letterText('he', []))
     .then(() => showToast(t('copied'), ''))
     .catch(() => showToast(t('copyFailed'), ''));
@@ -1130,6 +1145,7 @@ Object.entries(I18N.languages).filter(([, meta]) => !meta.hidden).forEach(([code
   const b = el('button', { type: 'button', lang: code, textContent: meta.name });
   b.addEventListener('click', () => {
     lang = code;
+    track(`lang/${code}`);
     applyStaticText();
     fitTitle();
     renderErrors(false);
@@ -1173,8 +1189,11 @@ $('id-why').addEventListener('click', () => {
   const open = $('id-tip').classList.toggle('open');
   $('id-why').setAttribute('aria-expanded', String(open));
 });
+$('share').addEventListener('click', () => track('share'));
+$('calendar').addEventListener('click', () => track('calendar'));
 $('calendar').addEventListener('click', () => el('a', { href: calendarFile(), download: 'party-spam-reminder.ics' }).click());
 $('complaint-mail').addEventListener('click', ev => {
+  track('complaint-overdue');
   if (!requireValidForm()) { ev.preventDefault(); return; }
   ev.currentTarget.href = complaintMailto(overdueUnits());
 });

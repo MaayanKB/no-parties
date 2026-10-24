@@ -78,3 +78,10 @@ test('calendar text is escaped', () => {
   assert.match(html, /`DESCRIPTION:\$\{icsText\(/);
   assert.match(html, /`SUMMARY:\$\{icsText\(/);
 });
+
+// Privacy: usage counts carry event names only, never what was typed into the form.
+test('tracked events never include form values', () => {
+  const calls = [...html.matchAll(/track\(([^)]*)\)/g)].map(m => m[1]);
+  assert.ok(calls.length >= 10, 'expected the tracked events to be found');
+  for (const arg of calls) assert.doesNotMatch(arg, /value\(|f-|letterText|formValues/, `track(${arg})`);
+});
