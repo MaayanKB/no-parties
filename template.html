@@ -1285,7 +1285,11 @@ function fitOneLine(node, min) {
   const room = node.parentElement.clientWidth - 16;
   const range = document.createRange();
   range.selectNodeContents(node);
-  while (size > min && range.getBoundingClientRect().width > room) {
+  // The answer pops in from scale(.6), and the measured box includes that scale: undo it, or the text measures
+  // narrower than it is and overflows once it lands (seen in Arabic, whose fallback font is wide).
+  const scale = node.offsetWidth ? node.getBoundingClientRect().width / node.offsetWidth : 1;
+  const width = () => range.getBoundingClientRect().width / scale;
+  while (size > min && width() > room) {
     size -= 4;
     node.style.fontSize = `${size}px`;
     node.style.lineHeight = `${Math.round((size * ratio) / 4) * 4}px`;

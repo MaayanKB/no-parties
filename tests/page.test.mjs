@@ -91,3 +91,9 @@ test('nothing stays hidden waiting for the script', () => {
   assert.match(html, /animation: hold-in [^;]*var\(--hold, \d+ms\)/, 'the hold has a default, so it ends without JS');
   assert.match(html, /@supports \(animation-timeline: view\(\)\)/, 'scroll reveal only where supported');
 });
+
+// Regression: the answer pops in from scale(.6), and fitOneLine() measured it while scaled, so in Arabic (wide
+// fallback font) the text measured narrower than it was and ran off a 390px screen.
+test('the one-line title fit undoes the pop-in scale', () => {
+  assert.match(html, /const width = \(\) => range\.getBoundingClientRect\(\)\.width \/ scale;/);
+});
