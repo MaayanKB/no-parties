@@ -7,7 +7,7 @@
 
 ולא, לענות "הסר" ל-SMS לא מוחק אתכם מהמאגר.
 
-**👈 [לדף](https://nadavbh12.github.io/party-spam/)**
+**👈 [לדף](https://no-parties.pages.dev/)**
 
 ## מה קורה אחרי ששולחים
 
